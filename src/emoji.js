@@ -11,14 +11,14 @@ export default class extends HTMLElement {
 				case 'baby':
 					emoji = '👶'
 					break
-				case 'construction':
-					emoji = '👷'
+				case 'white-right-pointing-backhand-index':
+					emoji = '👉'
 					break
 				default:
 					emoji = '☕'
 					break
 			}
-			shadowroot.textContent = emoji
+			shadowroot.innerHTML = `<style>:host {margin: 0 0.5rem}</style>${emoji}`
 		}
 	}
 }

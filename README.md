@@ -3,8 +3,8 @@
 このプロジェクトをローカルにクローンして、開発の準備を整えます。
 
 ```bash
-git clone git@github.com:Polymer-Japan/polymer-project.jp.git
-cd polymer-project.jp
+git clone git@github.com:Polymer-Japan/polymer-jp.org.git
+cd polymer-jp.org
 ```
 
 依存パッケージを `yarn` でインストールします。

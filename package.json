@@ -6,19 +6,19 @@
     "prebuild": "xo",
     "lint": "xo --fix"
   },
-  "name": "polymer-project.jp",
+  "name": "polymer-jp.org",
   "version": "0.0.1",
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Polymer-Japan/polymer-project.jp.git"
+    "url": "git+https://github.com/Polymer-Japan/polymer-jp.org.git"
   },
   "author": "Polymer Japan Community",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Polymer-Japan/polymer-project.jp/issues"
+    "url": "https://github.com/Polymer-Japan/polymer-jp.org/issues"
   },
-  "homepage": "https://github.com/Polymer-Japan/polymer-project.jp#readme",
+  "homepage": "https://github.com/Polymer-Japan/polymer-jp.org#readme",
   "description": "",
   "xo": {
     "envs": [

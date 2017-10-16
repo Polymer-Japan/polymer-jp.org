@@ -1,9 +1,8 @@
 {
   "entrypoint": "index.html",
-  "shell": "polymer-jp.html",
+  "shell": "src/polymer-jp.html",
   "fragments": [],
   "sources": [
-    "emo-ji.html",
     "assets/**"
   ],
   "extraDependencies": [

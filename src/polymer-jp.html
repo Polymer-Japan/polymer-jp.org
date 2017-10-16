@@ -1,0 +1,237 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../components/app-layout/app-header/app-header.html">
+<link rel="import" href="../components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../components/app-route/app-location.html">
+<link rel="import" href="../components/app-route/app-route.html">
+<link rel="import" href="../components/iron-icon/iron-icon.html">
+<link rel="import" href="../components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../components/polymerfire/firebase-app.html">
+<link rel="import" href="../components/polymerfire/firestore-element.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="polymer-jp-icons.html">
+<link rel="import" href="polymer-jp-marked.html">
+
+<dom-module id="polymer-jp">
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --app-primary-color: #1e88e5;
+        --app-background-color: white;
+        --app-text-color: black;
+        --app-drawer-width: 188px;
+        font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+      }
+      app-header {
+        background-color: var(--app-background-color);
+        color: var(--app-text-color);
+      }
+      app-header paper-icon-button {
+        --paper-icon-button-ink-color: var(--app-text-color);
+      }
+      app-toolbar a {
+        height: 32px;
+      }
+      paper-listbox a { text-decoration: none; color: black; }
+      paper-listbox a.iron-selected { color: lightgray; }
+      paper-item:not(.iron-selected) { cursor: pointer; }
+
+      .logo {
+        height: 24px;
+        margin-right: 12px;
+        vertical-align: middle;
+      }
+      div[main-title] {
+        white-space: nowrap;
+        font-size: 22px;
+      }
+      .back-logo {
+        margin-right: 6px;
+        height: 32px;
+        width: 40px;
+        color: #ccc;
+      }
+      .back-text {
+        font-size: 22px;
+        color: #ccc;
+        white-space: nowrap;
+      }
+      nav a {
+        font-size: 17px;
+        margin: 0 5px;
+        height: 26px;
+        box-sizing: border-box;
+        text-decoration: none;
+        color: #6b6b6b;
+      }
+      .flex {
+        @apply(--layout-flex);
+      }
+      .horizontal-center {
+        @apply(--layout-horizontal);
+				@apply(--layout-center);
+      }
+      .menu {
+        margin-left: -8px;
+        margin-right: 6px;
+        color: #6b6b6b;"
+      }
+    </style>
+
+		<firebase-app
+			auth-domain="polymer-jp-ffc4c.firebaseapp.com"
+			database-url="https://polymer-jp-ffc4c.firebaseio.com"
+			api-key="AIzaSyDDrTUFZtmp5j_q9Tu1AjqhltiGclT5WMg"
+			storage-bucket="polymer-jp-ffc4c.appspot.com"
+			messaging-sender-id="246861538947"
+			project-id="polymer-jp-ffc4c">
+		</firebase-app>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:key" data="{{routeData}}"></app-route>
+
+    <iron-media-query query="max-width: 640px" query-matches="{{smallScreen}}"></iron-media-query>
+
+    <app-header-layout fullbleed>
+
+      <app-header slot="header" reveals snaps shadow>
+        <app-toolbar>
+          <template is="dom-if" if="[[smallScreen]]">
+            <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
+          </template>
+          <a href="/"><img class="logo" src="https://www.polymer-project.org//images/logos/p-logo.png" drawer-toggle></a>
+          <div main-title>Polymer Japan</div>
+          <div class="flex"></div>
+		      <template is="dom-if" if="[[!smallScreen]]">
+            <nav>
+              <a href="/intro">Start</a>
+              <a href="/news">News</a>
+              <a href="/community">Community</a>
+            </nav>
+		      </template>
+          <paper-icon-button icon="i:search"></paper-icon-button>
+        </app-toolbar>
+      </app-header>
+
+      <app-drawer-layout>
+
+        <app-drawer slot="drawer" swipe-open on-opened-changed="_menuIcon">
+
+          <app-toolbar>
+            <iron-icon icon="i:polymer" class="back-logo"></iron-icon>
+            <div class="back-text">Polymer JP</div>
+          </app-toolbar>
+
+          <paper-listbox>
+		        <template is="dom-repeat" items="[[docs]]">
+              <a href="/[[item.__id__]]">
+                <paper-item drawer-toggle>[[item.title]]</paper-item>
+              </a>
+		        </template>
+          </paper-listbox>
+        </app-drawer>
+
+
+        <template is="dom-if" if="[[!routeData.key]]">
+          <!-- ---------------------- dummy start -------------------------- -->
+          <div class="horizontal-center" style="height: 500px; background: url(https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=1400) center top / cover no-repeat fixed; color: white; font-size: 36px;">
+            <div style="width: 100%; text-align: right; padding-right: 10px;">Polymer / Web Componets<br>IN STORE NOW !</div>
+          </div>
+          <h2 style="margin-top: 20px; text-align: center;">Polymer Japan Meetup #1 11/04</h2>
+          <h5 style="margin-top: 20px; text-align: center;">ミートアップ & ハンズオン！</h5>
+          <div class="horizontal-center">
+            <div style="padding: 20px;">
+              <span style="font-size: 0.9em;">
+                イベントは、Polymer及びWeb Componentsの基本的な紹介に始まり、ハンズオン形式での開発体験、プロダクションへの導入案内、LT&懇親会と充実した構成となっています。すでにPolymerを使っている方、これから使おうと考えている方、Polymer及びWeb Componentsについて聞いたことはあるけど何だか分からないといった方までご満足いただける内容だと思います。
+              </span>
+            </div>
+          </div>
+          <div class="horizontal-center">
+            <img src="assets/polymer-project-top.png" width="80%" style="margin-top: 20px; margin-right: auto; margin-left: auto;">
+          </div>
+          <div class="box">
+            <div style="padding: 20px; margin-bottom: 20px;">
+              <h4>Polymerとは</h4>
+              <span style="font-size: 0.9em;">
+                Polymerは、Web標準APIをベースにしたWeb Componentsの開発をサポートするフロントエンドのJavascriptライブラリであり、独自のHTMLエレメント(タグ)を開発者がより簡単に作成できるようにします。<br>
+                独自のHTMLエレメントが作成できるようになることで、一度作成したUIコンポーネントや他の開発者が作成したエレメントを、通常のHTMLタグを記述するように宣言的構文によって簡単に再利用でき、複雑なWebアプリケーションをより効率的に作成できるようになります。
+                Polymerは、単にWeb標準のWeb Componentsの実装をサポートすることにとどまらず、データバインディングやテンプレート、オブザーバーといった他の標準的なモダンJSライブラリによって提供される機能をも包含しており、効率的なWeb開発をサポートするライブラリとしても高度な機能を単独で備えています。
+              </span>
+            </div>
+          </div>
+          <!-- ---------------------- dummy end ------------------------------ -->
+        </template>
+
+        <div style="padding-top: 15px;">
+          <polymer-jp-marked key="[[key]]" contents="[[doc.contents]]"></polymer-jp-marked>
+        </div>
+
+      </app-drawer-layout>
+
+      <div style="margin-top: auto;
+                  position: relative;
+                  left: 0;
+                  bottom: 0;
+                  font-size: 12px;
+                  background: #4b4b4b;
+                  color: white;
+                  height: 20px;
+                  padding: 10px;">
+          &copy; 2017 Polymer JP Authors. Code Licensed under the BSD License. Documentation licensed under CC BY 3.0.
+      </div>
+
+    </app-header-layout>
+
+  </template>
+
+	<script>
+		class PolymerJp extends Polymer.FirestoreElement(Polymer.Element) {
+			static get is() { return 'polymer-jp'; }
+			static get properties() {
+				return {
+          key: String,
+					doc: {
+						type: Object,
+						doc: 'docs/{key}'
+					},
+					docs: {
+						type: Array,
+						collection: 'docs',
+            query: q => q.orderBy('order')
+					},
+          _menu: {
+            type: String,
+            value: 'menu'
+          }
+				}
+			}
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.key)'
+        ]
+      }
+      _routePageChanged(key) {
+        this._debounce =
+          Polymer.Debouncer.debounce(this._debounce, Polymer.Async.timeOut.after(25), _=>this.key = key);
+      }
+      _menuIcon(e){
+        if (e) this.menu = e.detail.value ? 'close' : 'menu';
+      }
+      _drawerToggle(e){
+        this.shadowRoot.querySelector('app-drawer').toggle();
+      }
+		}
+		customElements.define(PolymerJp.is, PolymerJp);
+	</script>
+
+</dom-module>

@@ -7,6 +7,8 @@ $ npm install
 $ npm start
 ```
 
+- polymer-cli, bower, firebase-toolsはプロジェクト内のものを使用。
+
 ## Develop
 
 ```bash
@@ -21,10 +23,4 @@ $ firebase use [project-id]
 $ npm deploy
 ```
 
-## Note
-- 流れ
-  * / の場合はServiceWorker経由のindex.htmlで応答
-  * / 以外のファイルじゃない場合は functions/app で応答
-- いけてないところ
-  * `/functions/index.js` は build された `index.html` の内容に合わせる
-  
+

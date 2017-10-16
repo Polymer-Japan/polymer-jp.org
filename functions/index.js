@@ -1,23 +1,46 @@
 const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.json');
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+var db = admin.firestore();
 
 exports.app = functions.https.onRequest((req, res) => {
 
+  const id = req.url.split("/")[1];
+  console.log(id);
 
-	const meta = `<meta property="og:type" content="article">`;
+  db.collection('docs').doc(id).get()
+    .then( sn => {
 
-	const html = `<!doctype html>
+      const doc = sn.data();
+	    const meta = `<meta property="og:type" content="article">`;
+
+	    const html = `<!doctype html>
 <html lang="ja">
 	<head>
 		<meta charset="utf-8">
 		<base href="/">
 		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-		<title>Polymer Japan App</title>
+		<title>Polymer Japan App ${doc.title}</title>
 
 		<meta name="theme-color" content="#fff">
-		<link rel="manifest" href="manifest.json">
+   	<link rel="manifest" href="manifest.json">
 
-		${meta}
+    <meta name="description" content="${doc.desc}">
+
+  	<meta property="og:type" content="article">
+  	<meta property="og:title" content="Polymer Japan ${doc.title}">
+  	<meta property="og:site_name" content="Polymer Japan">
+  	<meta property="og:url" content="https://polymer-jp-ffc4c.firebaseapp.com/${id}">
+  	<meta property="og:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
+  	<meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
+
+  	<meta name="twitter:card" content="summary_large_image">
+  	<meta name="twitter:site" content="@polymer_jp">
+  	<meta name="twitter:title" content="Polymer Japan ${doc.title}">
+  	<meta name="twitter:description" content="${doc.desc}">
+  	<meta name="twitter:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
 
 		<link rel="shortcut icon" href="https://www.polymer-project.org/images/logos/p-logo-32.png">
 		<link rel="apple-touch-icon" sizes="192x192" href="https://www.polymer-project.org/images/logos/p-logo-512.png">
@@ -44,7 +67,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <!--! do not remove -->
 
 		<script src="components/webcomponentsjs/webcomponents-loader.js"></script>
-		<link rel="import" href="polymer-jp.html">
+		<link rel="import" href="src/polymer-jp.html">
 
 		<script>
 			if ('serviceWorker' in navigator) {
@@ -58,6 +81,12 @@ exports.app = functions.https.onRequest((req, res) => {
 </html>
 `;
 
-	res.send(html);
+	    res.send(html);
+
+    })
+    .catch((err) => {
+      console.log(err);
+	    res.send('error');
+    });
 
 })

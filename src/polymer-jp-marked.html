@@ -1,0 +1,154 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/marked-element/marked-element.html">
+<link rel="import" href="../components/prism-element/prism-highlighter.html">
+<link rel="import" href="../components/prism-element/prism-theme-default.html">
+<link rel="import" href="../components/paper-input/paper-textarea.html">
+
+<link rel="import" href="https://poly-style.appspot.com?id=github-markdown&url=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
+
+<script src="https://cdn.rawgit.com/emojione/emojione/2.2.7/lib/js/emojione.min.js"></script>
+<link rel="stylesheet" href="https://cdn.rawgit.com/emojione/emojione/2.2.7/assets/css/emojione.min.css">
+
+<dom-module id="polymer-jp-marked-theme">
+  <template>
+    <style>
+      .token.tag {
+        color: navy;
+      }
+    </style>
+  </template>
+</dom-module>
+
+<dom-module id="polymer-jp-marked">
+  <template>
+    <style include="github-markdown prism-theme-default">
+      :host {
+        display: block;
+        margin-left: 15px;
+        margin-right: 15px;
+      }
+      [slot="markdown-html"] pre {
+        padding: 0.5em 1em;
+        margin-top: 5px;
+        margin-left: 20px;
+        margin-right: 20px;
+        background-color: #f7f7f7;
+        border-radius: 3px;
+        overflow-x: auto;
+        line-height: 1.1;
+        font-family: Consolas,Liberation Mono,Menlo,Courier,monospace;
+      }
+      [slot="markdown-html"] code {
+        padding: 1px;
+        margin: 1px;
+        background-color: #f7f7f7;
+      }
+      [slot="markdown-html"] pre code {
+        padding: 0;
+      }
+      [slot="markdown-html"] blockquote {
+        border-left: solid 4px #ddd;
+        padding-left: 10px;
+      }
+      [slot="markdown-html"] h1 {
+      }
+      [slot="markdown-html"] h2 {
+        border-bottom: solid 1px #f50057;
+      }
+      [slot="markdown-html"] a {
+        color: #337ab7;
+        text-decoration: none
+      }
+      [slot="markdown-html"] a:hover, [slot="markdown-html"] a:focus {
+        color: #23527c;
+        text-decoration: underline
+      }
+      [slot="markdown-html"] a:focus {
+        outline: 5px auto -webkit-focus-ring-color;
+        outline-offset: -2px
+      }
+      main[slot="markdown-html"]{
+        color: #4a4a4a;
+      }
+      [slot="markdown-html"] em {
+        font-family: Helvetica Neue,Helvetica,"ヒラギノ角ゴ ProN W3",Hiragino Kaku Gothic ProN,"游ゴシック",YuGothic,sans-serif;
+        font-style: italic;
+      }
+      .emojione {
+        width: 18px;
+        height: 18px;
+      }
+    </style>
+
+    <prism-highlighter></prism-highlighter>
+
+    <sanitize-element config='{
+                              "elements":["a","img"],
+                              "attributes":{"a":["href","title"],"img":["src"]},
+                              "protocols":{"a":{"href":["http","https"]}}
+                              }' sanitizer="{{sanitizer}}"></sanitize-element>
+
+    <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+      <main class="markdown-body" slot="markdown-html"></main>
+    </marked-element>
+
+    <paper-textarea value="{{contents}}" hidden></paper-textarea>
+
+  </template>
+  <script>
+    class PolymerJpMarked extends Polymer.Element {
+      static get is() { return 'polymer-jp-marked' }
+      static get properties() {
+        return {
+          key: String,
+          contents: String,
+          _markdown: {
+            type: String,
+            computed: "_emojify(contents)"
+          }
+        }
+      }
+      static get observers() {
+        return [
+          '_contentsChanged(key,contents)'
+        ]
+      }
+      constructor(){
+        super()
+        this.styleTheme='prism-theme-default'
+      }
+      _contentsChanged(key,con){
+        if(key && con){
+          this._debounce = Polymer.Debouncer.debounce(
+            this._debounce,Polymer.Async.timeOut.after(5000),() => {
+              firebase.firestore().collection('docs').doc(this.key).update({
+                contents: this.contents
+              })
+            });
+        }
+      }
+      ready(){
+        super.ready()
+        this.shadowRoot.querySelector('marked-element').renderer=op=>{
+          op.link=(href,title,text)=>{
+            let out = '<a href="' + href + '"'
+            if (title) {
+              out += ' title="' + title + '"'
+            }
+            out += ' target="_blank">' + text + '</a>'
+            return out
+          }
+          op.paragraph=(text)=>{
+            if(text){
+              return '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n'
+            }
+          }
+        }
+      }
+      _emojify(contents){
+        if (contents) return emojione.toImage(contents)
+      }
+    }
+    customElements.define(PolymerJpMarked.is, PolymerJpMarked)
+  </script>
+</dom-module>

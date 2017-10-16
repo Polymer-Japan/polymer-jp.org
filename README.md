@@ -1,23 +1,22 @@
-# はじめる
-
-このプロジェクトをローカルにクローンして、開発の準備を整えます。
+# Install & Start
 
 ```bash
-git clone git@github.com:Polymer-Japan/polymer-jp.org.git
-cd polymer-jp.org
+$ git clone https://github.com/Polymer-Japan/polymer-jp.org
+$ cd polymer-jp.org
+$ npm install
+$ npm start
 ```
 
-依存パッケージを `yarn` でインストールします。
+# Usage
 
 ```bash
-yarn
+$ npm serve
 ```
 
-ローカルサーバーを起動します。
+## Deploy
 
-```bash
-npm start
-> micro: Accepting connections on port 3000
 ```
-
-http://localhost:3000 をブラウザで開くことができます。
+$ firebase login
+$ firebase use [project-id]
+$ npm deploy
+```

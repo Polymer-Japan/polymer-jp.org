@@ -1,0 +1,19 @@
+<link rel="import" href="components/polymer/polymer-element.html">
+<script>
+	class EmoJi extends Polymer.Element {
+		static get is() { return 'emo-ji'; }
+		static get template(){ return '<style>:host {margin: 0 0.5rem}</style>[[_getEmoji(type)]]'; }
+		static get properties() {	return { type: String	}	}
+		_getEmoji(type){
+			switch (type) {
+				case 'baby':
+					return '👶';
+				case 'white-right-pointing-backhand-index':
+					return '👉';
+				default:
+					return '☕';
+			}
+		}
+	}
+	customElements.define(EmoJi.is, EmoJi);
+</script>

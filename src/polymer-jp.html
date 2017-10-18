@@ -173,11 +173,12 @@
         </template>
 
         <div style="padding-top: 15px;">
-          <polymer-jp-marked key="[[key]]" contents="[[doc.contents]]"></polymer-jp-marked>
+          <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
         </div>
 
       </app-drawer-layout>
 
+      <!-- なぜかminifyで崩れるので外部化 -->
       <div style="margin-top: auto;
                   position: relative;
                   left: 0;
@@ -187,7 +188,10 @@
                   color: white;
                   height: 20px;
                   padding: 10px;">
-          &copy; 2017 Polymer JP Authors. Code Licensed under the BSD License. Documentation licensed under CC BY 3.0.
+        &copy; 2017 Polymer JP Authors.
+		    <template is="dom-if" if="[[!smallScreen]]">
+          Code Licensed under the BSD License. Documentation licensed under CC BY 3.0.
+        </template>
       </div>
 
     </app-header-layout>

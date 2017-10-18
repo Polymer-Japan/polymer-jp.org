@@ -1,8 +1,12 @@
 <link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../components/marked-element/marked-element.html">
 <link rel="import" href="../components/prism-element/prism-highlighter.html">
 <link rel="import" href="../components/prism-element/prism-theme-default.html">
+<link rel="import" href="../components/sanitize-element/sanitize-element.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-input/paper-textarea.html">
+<link rel="import" href="../components/paper-input/paper-input.html">
 
 <link rel="import" href="https://poly-style.appspot.com?id=github-markdown&url=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
 
@@ -75,8 +79,16 @@
         font-style: italic;
       }
       .emojione {
-        width: 18px;
-        height: 18px;
+        width: 22px;
+        height: 22px;
+        vertical-align: bottom;
+      }
+      paper-icon-button.mode-edit {
+        z-index: 1;
+        position: fixed;
+        bottom: 48px;
+        right: 16px;
+        color: #6b6b6b;
       }
     </style>
 
@@ -84,15 +96,35 @@
 
     <sanitize-element config='{
                               "elements":["a","img"],
-                              "attributes":{"a":["href","title"],"img":["src"]},
+                              "attributes":{"a":["href","title"],"img":["class","src"]},
                               "protocols":{"a":{"href":["http","https"]}}
                               }' sanitizer="{{sanitizer}}"></sanitize-element>
 
-    <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
-      <main class="markdown-body" slot="markdown-html"></main>
-    </marked-element>
+    <!--
+         TODO: scriptの読み込みタイミングが制御できず二重で書いている
+    -->
+    <template is="dom-if" if="[[!doc.url]]">
+      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+        <main class="markdown-body" slot="markdown-html"></main>
+      </marked-element>
+    </template>
 
-    <paper-textarea value="{{contents}}" hidden></paper-textarea>
+    <template is="dom-if" if="[[doc.url]]">
+      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+        <main class="markdown-body" slot="markdown-html"></main>
+        <script type="text/markdown" src="[[doc.url]]"></script>
+      </marked-element>
+    </template>
+
+    <template is="dom-if" if="[[doc.contents]]">
+      <paper-icon-button class="mode-edit" icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+      <div style="margin-top: 20px;">
+        <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
+        <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
+        <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
+        <paper-textarea value="{{doc.contents}}" hidden="[[!_edit]]"></paper-textarea>
+      </div>
+    </template>
 
   </template>
   <script>
@@ -100,49 +132,28 @@
       static get is() { return 'polymer-jp-marked' }
       static get properties() {
         return {
-          key: String,
-          contents: String,
+          doc: Object,
           _markdown: {
             type: String,
-            computed: "_emojify(contents)"
+            computed: "_emojify(doc.contents)"
           }
         }
-      }
-      static get observers() {
-        return [
-          '_contentsChanged(key,contents)'
-        ]
       }
       constructor(){
         super()
         this.styleTheme='prism-theme-default'
       }
-      _contentsChanged(key,con){
-        if(key && con){
-          this._debounce = Polymer.Debouncer.debounce(
-            this._debounce,Polymer.Async.timeOut.after(5000),() => {
-              firebase.firestore().collection('docs').doc(this.key).update({
-                contents: this.contents
-              })
-            });
-        }
+      static get observers() {
+        return [
+          '_contentsChanged(doc.*)'
+        ]
       }
-      ready(){
-        super.ready()
-        this.shadowRoot.querySelector('marked-element').renderer=op=>{
-          op.link=(href,title,text)=>{
-            let out = '<a href="' + href + '"'
-            if (title) {
-              out += ' title="' + title + '"'
-            }
-            out += ' target="_blank">' + text + '</a>'
-            return out
-          }
-          op.paragraph=(text)=>{
-            if(text){
-              return '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n'
-            }
-          }
+      _contentsChanged(e){
+        if(e.path.lastIndexOf('doc.')==0 && this._edit){
+          let data = {};
+          const key = e.path.substr(4);
+          data[key]= key == 'order' ? parseInt(e.value) : e.value;
+          firebase.firestore().collection('docs').doc(e.base.__id__).update(data);
         }
       }
       _emojify(contents){

@@ -61,3 +61,6 @@ typings/
 
 # deploy directory
 dist
+
+# key.json
+functions/*.key.json

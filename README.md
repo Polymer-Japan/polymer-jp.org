@@ -4,6 +4,12 @@
 $ git clone https://github.com/Polymer-Japan/polymer-jp.org
 $ cd polymer-jp.org
 $ npm install
+$ cd functions
+$ npm install
+$ cp [somewhere]/service-account.key.json ./
+# edit serviceAccount.key.json file name
+$ emacs index.js
+$ cd ../
 $ npm start
 ```
 
@@ -22,5 +28,3 @@ $ firebase login
 $ firebase use [project-id]
 $ npm deploy
 ```
-
-

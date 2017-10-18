@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.json');
+const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 var db = admin.firestore();
 

@@ -5,6 +5,10 @@
 <link rel="import" href="../components/prism-element/prism-theme-default.html">
 <link rel="import" href="../components/sanitize-element/sanitize-element.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../components/app-layout/app-header/app-header.html">
+<link rel="import" href="../components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../components/paper-input/paper-textarea.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
 
@@ -28,8 +32,20 @@
     <style include="github-markdown prism-theme-default">
       :host {
         display: block;
-        margin-left: 15px;
-        margin-right: 15px;
+      }
+      div[main-title] {
+        white-space: nowrap;
+        color: white;
+      }
+      app-toolbar paper-icon-button {
+        color: white;
+      }
+      app-header {
+        color: #fff;
+        background-color: #337ab7;
+        --app-header-background-front-layer: {
+          background-image: url(https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=1400);
+        };
       }
       [slot="markdown-html"] pre {
         padding: 0.5em 1em;
@@ -83,13 +99,6 @@
         height: 22px;
         vertical-align: bottom;
       }
-      paper-icon-button.mode-edit {
-        z-index: 1;
-        position: fixed;
-        bottom: 48px;
-        right: 16px;
-        color: #6b6b6b;
-      }
     </style>
 
     <prism-highlighter></prism-highlighter>
@@ -100,31 +109,76 @@
                               "protocols":{"a":{"href":["http","https"]}}
                               }' sanitizer="{{sanitizer}}"></sanitize-element>
 
-    <!--
-         TODO: scriptの読み込みタイミングが制御できず二重で書いている
-    -->
-    <template is="dom-if" if="[[!doc.url]]">
-      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
-        <main class="markdown-body" slot="markdown-html"></main>
-      </marked-element>
-    </template>
+    <app-header-layout fullbreed>
 
-    <template is="dom-if" if="[[doc.url]]">
-      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
-        <main class="markdown-body" slot="markdown-html"></main>
-        <script type="text/markdown" src="[[doc.url]]"></script>
-      </marked-element>
-    </template>
+      <app-header slot="header" effects="blend-background parallax-background" shadow>
+        <app-toolbar style="height: 400px;">
+          <div main-title>[[doc.title]]</div>
+          <div class="flex"></div>
+          <template is="dom-if" if="[[!doc.contents]]">
+            <paper-icon-button icon="i:github"></paper-icon-button>
+          </template>
+          <template is="dom-if" if="[[doc.contents]]">
+            <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+          </template>
+        </app-toolbar>
+      </app-header>
 
-    <template is="dom-if" if="[[doc.contents]]">
-      <paper-icon-button class="mode-edit" icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
-      <div style="margin-top: 20px;">
-        <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
-        <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
-        <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
-        <paper-textarea value="{{doc.contents}}" hidden="[[!_edit]]"></paper-textarea>
-      </div>
-    </template>
+      <template is="dom-if" if="[[!routeData.key]]">
+        <!-- ---------------------- dummy start -------------------------- -->
+        <h2 style="margin-top: 20px; text-align: center;">Polymer Japan Meetup #1 11/04</h2>
+        <h5 style="margin-top: 20px; text-align: center;">ミートアップ & ハンズオン！</h5>
+        <div class="horizontal-center">
+          <div style="padding: 20px;">
+            <span style="font-size: 0.9em;">
+              イベントは、Polymer及びWeb Componentsの基本的な紹介に始まり、ハンズオン形式での開発体験、プロダクションへの導入案内、LT&懇親会と充実した構成となっています。すでにPolymerを使っている方、これから使おうと考えている方、Polymer及びWeb Componentsについて聞いたことはあるけど何だか分からないといった方までご満足いただける内容だと思います。
+            </span>
+          </div>
+        </div>
+        <div class="horizontal-center">
+          <img src="assets/polymer-project-top.png" width="80%" style="margin-top: 20px; margin-right: auto; margin-left: auto;">
+        </div>
+        <div class="box">
+          <div style="padding: 20px; margin-bottom: 20px;">
+            <h4>Polymerとは</h4>
+            <span style="font-size: 0.9em;">
+              Polymerは、Web標準APIをベースにしたWeb Componentsの開発をサポートするフロントエンドのJavascriptライブラリであり、独自のHTMLエレメント(タグ)を開発者がより簡単に作成できるようにします。<br>
+              独自のHTMLエレメントが作成できるようになることで、一度作成したUIコンポーネントや他の開発者が作成したエレメントを、通常のHTMLタグを記述するように宣言的構文によって簡単に再利用でき、複雑なWebアプリケーションをより効率的に作成できるようになります。
+              Polymerは、単にWeb標準のWeb Componentsの実装をサポートすることにとどまらず、データバインディングやテンプレート、オブザーバーといった他の標準的なモダンJSライブラリによって提供される機能をも包含しており、効率的なWeb開発をサポートするライブラリとしても高度な機能を単独で備えています。
+            </span>
+          </div>
+        </div>
+        <!-- ---------------------- dummy end ------------------------------ -->
+      </template>
+
+
+      <!--
+           TODO: scriptの読み込みタイミングが制御できず二重で書いている
+         -->
+      <template is="dom-if" if="[[!doc.url]]">
+        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+          <main class="markdown-body" slot="markdown-html"></main>
+        </marked-element>
+      </template>
+
+      <template is="dom-if" if="[[doc.url]]">
+        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+          <main class="markdown-body" slot="markdown-html"></main>
+          <script type="text/markdown" src="[[doc.url]]"></script>
+        </marked-element>
+      </template>
+
+      <template is="dom-if" if="[[doc.contents]]">
+        <div style="margin-top: 20px;">
+          <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
+          <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
+          <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
+          <paper-textarea value="{{doc.contents}}" hidden="[[!_edit]]"></paper-textarea>
+        </div>
+      </template>
+
+    </app-header-layout>
+
 
   </template>
   <script>

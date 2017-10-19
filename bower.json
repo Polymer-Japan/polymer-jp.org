@@ -11,10 +11,12 @@
     "iron-media-query": "PolymerElements/iron-media-query",
     "paper-ui-elements": "PolymerElements/paper-ui-elements",
     "paper-toggle-button": "PolymerElements/paper-toggle-button",
+    "social-menu": "Dabolus/share-menu",
     "marked-element": "PolymerElements/marked-element",
     "prism-element": "PolymerElements/prism-element",
     "sanitize-element": "howking/sanitize-element",
-    "polymerfire": "Scarygami/polymerfire#72a34a8a44"
+    "polymerfire": "Scarygami/polymerfire#72a34a8a44",
+    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0"
   },
   "resolutions": {
     "polymerfire": "72a34a8a44"

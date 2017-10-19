@@ -11,6 +11,7 @@
 <link rel="import" href="../components/app-route/app-route.html">
 <link rel="import" href="../components/iron-icon/iron-icon.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
@@ -79,7 +80,7 @@
       }
       .horizontal-center {
         @apply(--layout-horizontal);
-				@apply(--layout-center);
+        @apply(--layout-center);
       }
       .menu {
         margin-left: -8px;
@@ -88,17 +89,16 @@
       }
     </style>
 
-		<firebase-app
-			auth-domain="polymer-jp-ffc4c.firebaseapp.com"
-			database-url="https://polymer-jp-ffc4c.firebaseio.com"
-			api-key="AIzaSyDDrTUFZtmp5j_q9Tu1AjqhltiGclT5WMg"
-			storage-bucket="polymer-jp-ffc4c.appspot.com"
-			messaging-sender-id="246861538947"
-			project-id="polymer-jp-ffc4c">
-		</firebase-app>
+    <firebase-app auth-domain="polymer-jp-ffc4c.firebaseapp.com"
+                  database-url="https://polymer-jp-ffc4c.firebaseio.com"
+                  api-key="AIzaSyDDrTUFZtmp5j_q9Tu1AjqhltiGclT5WMg"
+                  storage-bucket="polymer-jp-ffc4c.appspot.com"
+                  messaging-sender-id="246861538947"
+                  project-id="polymer-jp-ffc4c">
+    </firebase-app>
 
     <app-location route="{{route}}"></app-location>
-    <app-route route="{{route}}" pattern="/:key" data="{{routeData}}"></app-route>
+    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
 
     <iron-media-query query="max-width: 640px" query-matches="{{smallScreen}}"></iron-media-query>
 
@@ -112,13 +112,13 @@
           <a href="/"><img class="logo" src="https://www.polymer-project.org//images/logos/p-logo.png" drawer-toggle></a>
           <div main-title>Polymer Japan</div>
           <div class="flex"></div>
-		      <template is="dom-if" if="[[!smallScreen]]">
+          <template is="dom-if" if="[[!smallScreen]]">
             <nav>
               <a href="/intro">Start</a>
               <a href="/news">News</a>
               <a href="/community">Community</a>
             </nav>
-		      </template>
+          </template>
           <paper-icon-button icon="i:search"></paper-icon-button>
         </app-toolbar>
       </app-header>
@@ -133,48 +133,21 @@
           </app-toolbar>
 
           <paper-listbox>
-		        <template is="dom-repeat" items="[[docs]]">
+            <template is="dom-repeat" items="[[docs]]">
               <a href="/[[item.__id__]]">
-                <paper-item drawer-toggle>[[item.title]]</paper-item>
+                <paper-item drawer-toggle active="{{_collpse}}">[[item.title]]</paper-item>
               </a>
-		        </template>
+            </template>
           </paper-listbox>
+
+          <iron-collapse opend="[[!_collpse]]">
+            <div>Content goes here...</div>
+          </iron-collapse>
+          <div>Content goes here...2</div>
+
         </app-drawer>
 
-
-        <template is="dom-if" if="[[!routeData.key]]">
-          <!-- ---------------------- dummy start -------------------------- -->
-          <div class="horizontal-center" style="height: 500px; background: url(https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=1400) center top / cover no-repeat fixed; color: white; font-size: 36px;">
-            <div style="width: 100%; text-align: right; padding-right: 10px;">Polymer / Web Componets<br>IN STORE NOW !</div>
-          </div>
-          <h2 style="margin-top: 20px; text-align: center;">Polymer Japan Meetup #1 11/04</h2>
-          <h5 style="margin-top: 20px; text-align: center;">ミートアップ & ハンズオン！</h5>
-          <div class="horizontal-center">
-            <div style="padding: 20px;">
-              <span style="font-size: 0.9em;">
-                イベントは、Polymer及びWeb Componentsの基本的な紹介に始まり、ハンズオン形式での開発体験、プロダクションへの導入案内、LT&懇親会と充実した構成となっています。すでにPolymerを使っている方、これから使おうと考えている方、Polymer及びWeb Componentsについて聞いたことはあるけど何だか分からないといった方までご満足いただける内容だと思います。
-              </span>
-            </div>
-          </div>
-          <div class="horizontal-center">
-            <img src="assets/polymer-project-top.png" width="80%" style="margin-top: 20px; margin-right: auto; margin-left: auto;">
-          </div>
-          <div class="box">
-            <div style="padding: 20px; margin-bottom: 20px;">
-              <h4>Polymerとは</h4>
-              <span style="font-size: 0.9em;">
-                Polymerは、Web標準APIをベースにしたWeb Componentsの開発をサポートするフロントエンドのJavascriptライブラリであり、独自のHTMLエレメント(タグ)を開発者がより簡単に作成できるようにします。<br>
-                独自のHTMLエレメントが作成できるようになることで、一度作成したUIコンポーネントや他の開発者が作成したエレメントを、通常のHTMLタグを記述するように宣言的構文によって簡単に再利用でき、複雑なWebアプリケーションをより効率的に作成できるようになります。
-                Polymerは、単にWeb標準のWeb Componentsの実装をサポートすることにとどまらず、データバインディングやテンプレート、オブザーバーといった他の標準的なモダンJSライブラリによって提供される機能をも包含しており、効率的なWeb開発をサポートするライブラリとしても高度な機能を単独で備えています。
-              </span>
-            </div>
-          </div>
-          <!-- ---------------------- dummy end ------------------------------ -->
-        </template>
-
-        <div style="padding-top: 15px;">
-          <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
-        </div>
+        <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
 
       </app-drawer-layout>
 
@@ -190,12 +163,9 @@
                   padding: 10px;
                   text-align: center;
                   ">
-
-		    <template is="dom-if" if="[[smallScreen]]">
-          &copy; 2017 Polymer JP Authors.
-        </template>
-		    <template is="dom-if" if="[[!smallScreen]]">
-          &copy; 2017 Polymer JP Authors. Code under the BSD License. Documentation Licensed under CC BY 3.0.
+        &copy; 2017 Polymer JP Authors.&nbsp;
+        <template is="dom-if" if="[[!smallScreen]]">
+          Code under the BSD License. Documentation Licensed under CC BY 3.0.
         </template>
       </div>
 
@@ -203,35 +173,58 @@
 
   </template>
 
-	<script>
-		class PolymerJp extends Polymer.FirestoreElement(Polymer.Element) {
-			static get is() { return 'polymer-jp'; }
-			static get properties() {
-				return {
-          key: String,
-					doc: {
-						type: Object,
-						doc: 'docs/{key}'
-					},
-					docs: {
-						type: Array,
-						collection: 'docs',
-            query: q => q.orderBy('order')
-					},
+  <script>
+    class PolymerJp extends Polymer.FirestoreElement(Polymer.Element) {
+      static get is() { return 'polymer-jp'; }
+      static get properties() {
+        return {
+          page: String,
+          path: {
+            type: String,
+            computed: '_getPath(route.path)',
+          },
+          home: {
+            type: Object,
+            doc: 'docs/home'
+          },
+          doc: {
+            type: Object,
+            doc: 'docs/{page}',
+          },
+          docs: {
+            type: Array,
+            collection: 'docs',
+            query: q => q.orderBy('order'),
+          },
           _menu: {
             type: String,
-            value: 'menu'
+            value: 'menu',
           }
-				}
-			}
+        }
+      }
       static get observers() {
         return [
-          '_routePageChanged(routeData.key)'
+          '_routePageChanged(routeData.page)',
+          '_routeDataChanged(routeData)',
+          '_routeChanged(route)',
+          '_pathChanged(path)',
         ]
       }
-      _routePageChanged(key) {
-        this._debounce =
-          Polymer.Debouncer.debounce(this._debounce, Polymer.Async.timeOut.after(25), _=>this.key = key);
+      _getPath(path){
+        return path.split('/').slice(1).join("/_childs/");
+      }
+      _pathChanged(path){
+        console.log(path);
+      }
+      _routeDataChanged(data) {
+        console.log(data);
+      }
+      _routeChanged(data) {
+        console.log('route',data);
+      }
+      _routePageChanged(page) {
+        // TODO: firestore-elementの読み込みタイミング調整
+        Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _=>this.page = this.path);
       }
       _menuIcon(e){
         if (e) this.menu = e.detail.value ? 'close' : 'menu';
@@ -239,8 +232,8 @@
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();
       }
-		}
-		customElements.define(PolymerJp.is, PolymerJp);
-	</script>
+    }
+    customElements.define(PolymerJp.is, PolymerJp);
+  </script>
 
 </dom-module>

@@ -187,10 +187,15 @@
                   background: #4b4b4b;
                   color: white;
                   height: 20px;
-                  padding: 10px;">
-        &copy; 2017 Polymer JP Authors.
+                  padding: 10px;
+                  text-align: center;
+                  ">
+
+		    <template is="dom-if" if="[[smallScreen]]">
+          &copy; 2017 Polymer JP Authors.
+        </template>
 		    <template is="dom-if" if="[[!smallScreen]]">
-          Code Licensed under the BSD License. Documentation licensed under CC BY 3.0.
+          &copy; 2017 Polymer JP Authors. Code under the BSD License. Documentation Licensed under CC BY 3.0.
         </template>
       </div>
 

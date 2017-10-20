@@ -132,18 +132,22 @@
             <div class="back-text">Polymer JP</div>
           </app-toolbar>
 
-          <paper-listbox>
-            <template is="dom-repeat" items="[[docs]]">
-              <a href="/[[item.__id__]]">
-                <paper-item drawer-toggle active="{{_collpse}}">[[item.title]]</paper-item>
+          <paper-listbox attr-for-selected="name" selected="{{_indexSelected}}">
+            <template is="dom-repeat" items="[[index]]">
+              <a name="[[item.id]]" href="/[[item.id]]">
+                <paper-item drawer-toggle>[[item.title]]</paper-item>
               </a>
+              <iron-collapse opened="[[_collapseOpen(item.id,item._childs,_indexSelected)]]">
+                <paper-listbox>
+                  <template is="dom-repeat" items="[[item._childs]]" as="child">
+                    <a href="/[[item.id]]/[[child.id]]">
+                      <paper-item drawer-toggle>[[child.title]]</paper-item>
+                    </a>
+                  </template>
+                </paper-listbox>
+              </iron-collapse>
             </template>
           </paper-listbox>
-
-          <iron-collapse opend="[[!_collpse]]">
-            <div>Content goes here...</div>
-          </iron-collapse>
-          <div>Content goes here...2</div>
 
         </app-drawer>
 
@@ -183,18 +187,13 @@
             type: String,
             computed: '_getPath(route.path)',
           },
-          home: {
-            type: Object,
-            doc: 'docs/home'
-          },
           doc: {
             type: Object,
             doc: 'docs/{page}',
           },
-          docs: {
+          index: {
             type: Array,
-            collection: 'docs',
-            query: q => q.orderBy('order'),
+            value: [],
           },
           _menu: {
             type: String,
@@ -205,26 +204,36 @@
       static get observers() {
         return [
           '_routePageChanged(routeData.page)',
-          '_routeDataChanged(routeData)',
-          '_routeChanged(route)',
-          '_pathChanged(path)',
         ]
       }
+      connectedCallback() {
+        super.connectedCallback();
+        this.db.collection('docs').orderBy('order').get().then(s=>{
+          s.forEach(d=>{
+            const _childs=[];
+            d.ref.collection('_childs').get().then(sc=>sc.forEach(dc=>{
+              const doc = dc.data();
+              doc.id=dc.id;
+              _childs.push(doc);
+            })).then(sc=>{
+              const doc = d.data();
+              doc.id=d.id;
+              doc._childs=_childs;
+              this.push('index',doc);
+            });
+          })
+        })
+      }
+      _collapseOpen(i,c,s){
+        return c.length && i == s;
+      }
       _getPath(path){
-        return path.split('/').slice(1).join("/_childs/");
-      }
-      _pathChanged(path){
-        console.log(path);
-      }
-      _routeDataChanged(data) {
-        console.log(data);
-      }
-      _routeChanged(data) {
-        console.log('route',data);
+        return path == '/' ? 'home' : path.split('/').slice(1).join("/_childs/");
       }
       _routePageChanged(page) {
         // TODO: firestore-elementの読み込みタイミング調整
-        Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _=>this.page = this.path);
+        console.log(this._indexSelected);
+        Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _ => this.page = this.path);
       }
       _menuIcon(e){
         if (e) this.menu = e.detail.value ? 'close' : 'menu';

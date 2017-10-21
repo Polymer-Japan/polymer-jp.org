@@ -49,6 +49,7 @@
 
       .logo {
         height: 24px;
+        margin-top: 3px;
         margin-right: 12px;
         vertical-align: middle;
       }
@@ -132,12 +133,12 @@
             <div class="back-text">Polymer JP</div>
           </app-toolbar>
 
-          <paper-listbox attr-for-selected="name" selected="{{_indexSelected}}">
-            <template is="dom-repeat" items="[[index]]">
+          <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
+            <template is="dom-repeat" items="[[index]]" on-dom-change="_removeDrawerToggle">
               <a name="[[item.id]]" href="/[[item.id]]">
-                <paper-item drawer-toggle>[[item.title]]</paper-item>
+                <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
               </a>
-              <iron-collapse opened="[[_collapseOpen(item.id,item._childs,_indexSelected)]]">
+              <iron-collapse opened="[[_collapseOpen(item.id,_selectedId,item._childs)]]">
                 <paper-listbox>
                   <template is="dom-repeat" items="[[item._childs]]" as="child">
                     <a href="/[[item.id]]/[[child.id]]">
@@ -155,7 +156,7 @@
 
       </app-drawer-layout>
 
-      <!-- なぜかminifyで崩れるので外部化 -->
+      <!-- TODO: なぜかminifyで崩れるので外部化 -->
       <div style="margin-top: auto;
                   position: relative;
                   left: 0;
@@ -163,7 +164,7 @@
                   font-size: 12px;
                   background: #4b4b4b;
                   color: white;
-                  height: 20px;
+                  height: 16px;
                   padding: 10px;
                   text-align: center;
                   ">
@@ -215,7 +216,7 @@
               const doc = dc.data();
               doc.id=dc.id;
               _childs.push(doc);
-            })).then(sc=>{
+            })).then(_=>{
               const doc = d.data();
               doc.id=d.id;
               doc._childs=_childs;
@@ -224,15 +225,21 @@
           })
         })
       }
-      _collapseOpen(i,c,s){
-        return c.length && i == s;
+      // TODO: もっといい方法がある気がする
+      _removeDrawerToggle(e){
+        this.shadowRoot.querySelectorAll('.index_level1_hasChilds').forEach(o=>o.removeAttribute('drawer-toggle'));
+      }
+      _hasChilds(smallScreen, childs){
+        return smallScreen && childs.length ? 'hasChilds' : 'noChilds';
+      }
+      _collapseOpen(id, selectedId, childs){
+        return id == selectedId && childs.length;
       }
       _getPath(path){
         return path == '/' ? 'home' : path.split('/').slice(1).join("/_childs/");
       }
       _routePageChanged(page) {
         // TODO: firestore-elementの読み込みタイミング調整
-        console.log(this._indexSelected);
         Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _ => this.page = this.path);
       }
       _menuIcon(e){

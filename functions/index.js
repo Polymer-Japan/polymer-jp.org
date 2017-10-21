@@ -90,25 +90,3 @@ exports.app = functions.https.onRequest((req, res) => {
     });
 
 })
-
-// TEST
-exports.createIndex = functions.firestore
-  .document('docs/{L1}/_childs/{L2}')
-  .onWrite(e => {
-    const db = e.ref.firestore;
-    db.collection('docs').orderBy('order').get().then(s=>{
-      s.forEach(d=>{
-        const _childs=[];
-        d.ref.collection('_childs').get().then(sc=>sc.forEach(dc=>{
-          const doc = dc.data();
-          doc.id=dc.id;
-          _childs.push(doc);
-        })).then(sc=>{
-          const doc = d.data();
-          doc.id=d.id;
-          doc._childs=_childs;
-          console.log(doc);
-        });
-      })
-    })
-  })

@@ -32,20 +32,26 @@
     <style include="github-markdown prism-theme-default">
       :host {
         display: block;
-      }
-      div[main-title] {
-        white-space: nowrap;
-        color: white;
+        --header-height: 64px;
+        --header-bg-url: '';
       }
       app-toolbar paper-icon-button {
         color: white;
       }
       app-header {
+        height: var(--header-height);
         color: #fff;
         background-color: #337ab7;
-        --app-header-background-front-layer: {
-          background-image: url(https://images.unsplash.com/photo-1493780474015-ba834fd0ce2f?w=1400);
-        };
+        --app-header-background-front-layer: { background-image: var(--header-bg-url); };
+      }
+      div[main-title] {
+        font-family: 'Roboto Slab',serif;
+        font-size: 20px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      marked-element {
+        margin: 15px;
       }
       [slot="markdown-html"] pre {
         padding: 0.5em 1em;
@@ -111,46 +117,19 @@
 
     <app-header-layout fullbreed>
 
-      <app-header slot="header" effects="blend-background parallax-background" shadow>
-        <app-toolbar style="height: 400px;">
+      <app-header id="header" condenses reveals shadow effects="parallax-background">
+        <app-toolbar>
           <div main-title>[[doc.title]]</div>
-          <div class="flex"></div>
           <template is="dom-if" if="[[!doc.contents]]">
-            <paper-icon-button icon="i:github"></paper-icon-button>
+            <a href="[[_getReposUrl(doc.url)]]">
+              <paper-icon-button icon="i:github"></paper-icon-button>
+            </a>
           </template>
           <template is="dom-if" if="[[doc.contents]]">
             <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
           </template>
         </app-toolbar>
       </app-header>
-
-      <template is="dom-if" if="[[!routeData.key]]">
-        <!-- ---------------------- dummy start -------------------------- -->
-        <h2 style="margin-top: 20px; text-align: center;">Polymer Japan Meetup #1 11/04</h2>
-        <h5 style="margin-top: 20px; text-align: center;">ミートアップ & ハンズオン！</h5>
-        <div class="horizontal-center">
-          <div style="padding: 20px;">
-            <span style="font-size: 0.9em;">
-              イベントは、Polymer及びWeb Componentsの基本的な紹介に始まり、ハンズオン形式での開発体験、プロダクションへの導入案内、LT&懇親会と充実した構成となっています。すでにPolymerを使っている方、これから使おうと考えている方、Polymer及びWeb Componentsについて聞いたことはあるけど何だか分からないといった方までご満足いただける内容だと思います。
-            </span>
-          </div>
-        </div>
-        <div class="horizontal-center">
-          <img src="assets/polymer-project-top.png" width="80%" style="margin-top: 20px; margin-right: auto; margin-left: auto;">
-        </div>
-        <div class="box">
-          <div style="padding: 20px; margin-bottom: 20px;">
-            <h4>Polymerとは</h4>
-            <span style="font-size: 0.9em;">
-              Polymerは、Web標準APIをベースにしたWeb Componentsの開発をサポートするフロントエンドのJavascriptライブラリであり、独自のHTMLエレメント(タグ)を開発者がより簡単に作成できるようにします。<br>
-              独自のHTMLエレメントが作成できるようになることで、一度作成したUIコンポーネントや他の開発者が作成したエレメントを、通常のHTMLタグを記述するように宣言的構文によって簡単に再利用でき、複雑なWebアプリケーションをより効率的に作成できるようになります。
-              Polymerは、単にWeb標準のWeb Componentsの実装をサポートすることにとどまらず、データバインディングやテンプレート、オブザーバーといった他の標準的なモダンJSライブラリによって提供される機能をも包含しており、効率的なWeb開発をサポートするライブラリとしても高度な機能を単独で備えています。
-            </span>
-          </div>
-        </div>
-        <!-- ---------------------- dummy end ------------------------------ -->
-      </template>
-
 
       <!--
            TODO: scriptの読み込みタイミングが制御できず二重で書いている
@@ -193,14 +172,28 @@
           }
         }
       }
-      constructor(){
-        super()
-        this.styleTheme='prism-theme-default'
-      }
       static get observers() {
         return [
-          '_contentsChanged(doc.*)'
+          '_contentsChanged(doc.*)',
+          '_bgUrlChanged(doc.bgurl)'
         ]
+      }
+      _bgUrlChanged(url){
+        if(url){
+          this.updateStyles({
+            '--header-height': '224px',
+            '--header-bg-url': 'url('+url+')'
+          });
+        }else{
+          this.updateStyles({
+            '--header-height': 'initial',
+            '--header-bg-url': 'initial'
+          });
+        }
+      }
+      _getReposUrl(url){
+        const u = url.split('/')
+        return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
       }
       _contentsChanged(e){
         if(e.path.lastIndexOf('doc.')==0 && this._edit){

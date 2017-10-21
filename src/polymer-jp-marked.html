@@ -4,28 +4,22 @@
 <link rel="import" href="../components/prism-element/prism-highlighter.html">
 <link rel="import" href="../components/prism-element/prism-theme-default.html">
 <link rel="import" href="../components/sanitize-element/sanitize-element.html">
-<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../components/app-layout/app-header/app-header.html">
 <link rel="import" href="../components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../components/paper-input/paper-textarea.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/paper-card/paper-card.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
 
 <link rel="import" href="https://poly-style.appspot.com?id=github-markdown&url=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
 
 <script src="https://cdn.rawgit.com/emojione/emojione/2.2.7/lib/js/emojione.min.js"></script>
 <link rel="stylesheet" href="https://cdn.rawgit.com/emojione/emojione/2.2.7/assets/css/emojione.min.css">
-
-<dom-module id="polymer-jp-marked-theme">
-  <template>
-    <style>
-      .token.tag {
-        color: navy;
-      }
-    </style>
-  </template>
-</dom-module>
 
 <dom-module id="polymer-jp-marked">
   <template>
@@ -107,52 +101,58 @@
       }
     </style>
 
+    <firebase-storage-multiupload
+      path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
+    <template is="dom-repeat" items="[[_uploadTasks]]">
+      <firebase-storage-upload-task task="[[item]]" metadata="{{_metaData}}"></firebase-storage-upload-task>
+    </template>
+
     <prism-highlighter></prism-highlighter>
 
-    <sanitize-element config='{
-                              "elements":["a","img"],
-                              "attributes":{"a":["href","title"],"img":["class","src"]},
-                              "protocols":{"a":{"href":["http","https"]}}
-                              }' sanitizer="{{sanitizer}}"></sanitize-element>
+    <sanitize-element config="[[_sanitizeConfig]]" sanitizer="{{_sanitizer}}"></sanitize-element>
 
     <app-header-layout fullbreed>
 
-      <app-header id="header" condenses reveals shadow effects="parallax-background">
-        <app-toolbar>
-          <div main-title>[[doc.title]]</div>
-          <template is="dom-if" if="[[!doc.contents]]">
-            <a href="[[_getReposUrl(doc.url)]]">
-              <paper-icon-button icon="i:github"></paper-icon-button>
-            </a>
-          </template>
-          <template is="dom-if" if="[[doc.contents]]">
+      <template is="dom-if" if="[[doc.__id__]]">
+        <app-header fixed shadow effects="parallax-background">
+          <app-toolbar>
+            <div main-title>[[doc.title]]</div>
+            <template is="dom-if" if="[[!doc.contents]]">
+              <a href="[[_getReposUrl(doc.url)]]">
+                <paper-icon-button icon="i:github"></paper-icon-button>
+              </a>
+            </template>
             <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
-          </template>
-        </app-toolbar>
-      </app-header>
+          </app-toolbar>
+        </app-header>
+      </template>
 
       <!--
            TODO: scriptの読み込みタイミングが制御できず二重で書いている
          -->
       <template is="dom-if" if="[[!doc.url]]">
-        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
           <main class="markdown-body" slot="markdown-html"></main>
         </marked-element>
       </template>
 
       <template is="dom-if" if="[[doc.url]]">
-        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[sanitizer]]">
+        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
           <main class="markdown-body" slot="markdown-html"></main>
           <script type="text/markdown" src="[[doc.url]]"></script>
         </marked-element>
       </template>
 
-      <template is="dom-if" if="[[doc.contents]]">
-        <div style="margin-top: 20px;">
+      <template is="dom-if" if="[[_edit]]">
+        <div style="margin: 5px; padding: 10px;">
           <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
           <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
           <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
-          <paper-textarea value="{{doc.contents}}" hidden="[[!_edit]]"></paper-textarea>
+          <paper-textarea always-float-label label="Contents" value="{{doc.contents}}" hidden="[[!_edit]]"
+            on-drop="_onTextareaDrop" on-paste="_onTextareaPaste"
+          ></paper-textarea>
+          <paper-input always-float-label label="Background URL" value="{{doc.bgurl}}" hidden="[[!_edit]]"></paper-input>
+          <paper-input always-float-label label="Markdown URL" value="{{doc.url}}" hidden="[[!_edit]]"></paper-input>
         </div>
       </template>
 
@@ -169,6 +169,38 @@
           _markdown: {
             type: String,
             computed: "_emojify(doc.contents)"
+          },
+          _sanitizeConfig: {
+            type: Object,
+            value: {
+              elements: ['a','img','md-button','md-card'],
+              attributes: {
+                a: ['href','title'],
+                img: ['class','src'],
+                'md-button': ['color'],
+                'md-card': ['image','title','sub-title','desc','button']
+              },
+              protocols: {
+                a:{ href: ['http','https'] }
+              }
+            },
+          },
+          _allowedTypes: {
+            type: Array,
+            value: [
+              'image/jpeg',
+              'image/png',
+              'image/jpg',
+              'image/gif'
+            ]
+          },
+          _progressText: {
+            type: String,
+            value: '![Uploading file...]()'
+          },
+          _metaData: {
+            type: Object,
+            observer: '_metaDataChanged'
           }
         }
       }
@@ -206,7 +238,118 @@
       _emojify(contents){
         if (contents) return emojione.toImage(contents)
       }
+      _onTextareaDrop(e){
+        e.stopPropagation()
+        e.preventDefault()
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.dataTransfer.files)
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(f=>{this._insertImageText(this._progressText); return f;}));
+      }
+      _onTextareaPaste(e){
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.clipboardData.items || e.clipboardData.files || [])
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(i=>{this._insertImageText(this._progressText); return i.getAsFile();}));
+      }
+      _metaDataChanged(meta){
+        // TODO: アップロード時にファイル名を変更したい
+        if(meta) this._insertImageText('!['+meta.name+']('+meta.downloadURLs[0]+')'+"\n");
+      }
+      _insertImageText(text){
+        const el = this.shadowRoot.querySelector('paper-textarea')
+                       .shadowRoot.querySelector('iron-autogrow-textarea');
+        const pos = el.selectionStart;
+        const ptext = this._progressText;
+        let offset = 0;
+        if(this.doc.contents.substr(pos - ptext.length, ptext.length) == ptext)
+          offset = ptext.length;
+        this.set('doc.contents',this.doc.contents.substring(0, pos - offset) + text +
+                        this.doc.contents.substring(pos, this.doc.contents.length));
+        el.selectionStart = pos + text.length - offset;
+        el.selectionEnd = pos + text.length - offset;
+        el.focus();
+      }
     }
     customElements.define(PolymerJpMarked.is, PolymerJpMarked)
+  </script>
+</dom-module>
+
+<dom-module id="md-button">
+  <template>
+    <style>
+      paper-button {
+        color: white;
+        background-color: var(--button-color,#337ab7);
+      }
+    </style>
+    <paper-button><slot></slot></paper-button>
+  </template>
+  <script>
+    class MdButton extends Polymer.Element {
+      static get is() { return 'md-button' }
+      static get properties() {
+        return {
+          color: {
+            type: String,
+            observer: '_colorChanged'
+          }
+        }
+      }
+      _colorChanged(color){
+        this.updateStyles({'--button-color': color});
+      }
+    }
+    customElements.define(MdButton.is,MdButton)
+  </script>
+</dom-module>
+
+<dom-module id="md-card">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      paper-card {
+	      max-width: 500px;
+        --paper-card-header-color: white;
+      }
+      .cafe-header { @apply --paper-font-headline; }
+      .cafe-light { color: var(--paper-grey-600); }
+      .cafe-location {
+        float: right;
+        font-size: 15px;
+        vertical-align: middle;
+      }
+      .cafe-reserve { color: var(--google-blue-500); }
+    </style>
+    <paper-card image="[[image]]" heading="[[title]]">
+      <div class="card-content">
+        <p>[[subTitle]]</p>
+        <p class="cafe-light">[[desc]]</p>
+      </div>
+      <div class="card-actions">
+        <div class="horizontal justified">
+          <paper-button class="cafe-reserve">[[button]]</paper-button>
+        </div>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    class MdCard extends Polymer.Element {
+      static get is() { return 'md-card' }
+      static get properties() {
+        return {
+          image: String,
+          title: String,
+          subTitle: String,
+          desc: String,
+          button: String
+        }
+      }
+    }
+    customElements.define(MdCard.is,MdCard)
   </script>
 </dom-module>

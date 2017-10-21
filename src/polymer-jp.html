@@ -15,6 +15,7 @@
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../components/paper-progress/paper-progress.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
 <link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
@@ -30,7 +31,10 @@
         --app-primary-color: #1e88e5;
         --app-background-color: white;
         --app-text-color: black;
-        --app-drawer-width: 188px;
+        --app-drawer-width: 196px;
+        --app-drawer-content-container: {
+          border-right: 1px solid #cecece;
+        }
         font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
       }
       app-header {
@@ -46,7 +50,13 @@
       paper-listbox a { text-decoration: none; color: black; }
       paper-listbox a.iron-selected { color: lightgray; }
       paper-item:not(.iron-selected) { cursor: pointer; }
-
+      paper-progress {
+        position: absolute;
+        width: 100%;
+        --paper-progress-indeterminate-cycle-duration: 5s;
+        --paper-progress-active-color: var(--app-primary-color);
+        --paper-progress-height: 1px;
+      }
       .logo {
         height: 24px;
         margin-top: 3px;
@@ -122,6 +132,7 @@
           </template>
           <paper-icon-button icon="i:search"></paper-icon-button>
         </app-toolbar>
+        <paper-progress id="prog" indeterminate></paper-progress>
       </app-header>
 
       <app-drawer-layout>
@@ -168,7 +179,7 @@
                   padding: 10px;
                   text-align: center;
                   ">
-        &copy; 2017 Polymer JP Authors.&nbsp;
+        &copy; 2017 Polymer Japan Authors.&nbsp;
         <template is="dom-if" if="[[!smallScreen]]">
           Code under the BSD License. Documentation Licensed under CC BY 3.0.
         </template>
@@ -221,6 +232,7 @@
               doc.id=d.id;
               doc._childs=_childs;
               this.push('index',doc);
+              this.$.prog.hidden=true;
             });
           })
         })

@@ -130,13 +130,13 @@
       <!--
            TODO: scriptの読み込みタイミングが制御できず二重で書いている
          -->
-      <template is="dom-if" if="[[!doc.url]]">
+      <template is="dom-if" if="[[!doc.url]]" on-dom-change="_setRender">
         <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
           <main class="markdown-body" slot="markdown-html"></main>
         </marked-element>
       </template>
 
-      <template is="dom-if" if="[[doc.url]]">
+      <template is="dom-if" if="[[doc.url]]" on-dom-change="_setRender">
         <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
           <main class="markdown-body" slot="markdown-html"></main>
           <script type="text/markdown" src="[[doc.url]]"></script>
@@ -209,6 +209,28 @@
           '_contentsChanged(doc.*)',
           '_bgUrlChanged(doc.bgurl)'
         ]
+      }
+      _setRender(e){
+        this.shadowRoot.querySelector('marked-element').renderer=op=>{
+          // 外部リンクは_blankで。
+          op.link=(href,title,text)=>{
+            let out = '<a href="' + href + '"';
+            if (title) {
+              out += ' title="' + title + '"';
+            }
+            if (href.indexOf('http')==0){
+              out += ' target="_blank"';
+            }
+            out += ' >' + text + '</a>';
+            return out;
+          }
+          // 改行の自動変換
+          op.paragraph=(text)=>{
+            if(text){
+              return '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n';
+            }
+          }
+        }
       }
       _bgUrlChanged(url){
         if(url){

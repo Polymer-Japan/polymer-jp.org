@@ -117,7 +117,7 @@
         <app-header fixed shadow effects="parallax-background">
           <app-toolbar>
             <div main-title>[[doc.title]]</div>
-            <template is="dom-if" if="[[!doc.contents]]">
+            <template is="dom-if" if="[[doc.url]]">
               <a href="[[_getReposUrl(doc.url)]]">
                 <paper-icon-button icon="i:github"></paper-icon-button>
               </a>
@@ -246,7 +246,7 @@
         }
       }
       _getReposUrl(url){
-        const u = url.split('/')
+        const u = url.split('/');
         return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
       }
       _contentsChanged(e){

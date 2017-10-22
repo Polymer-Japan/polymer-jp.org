@@ -10,15 +10,16 @@
 <link rel="import" href="../components/app-route/app-location.html">
 <link rel="import" href="../components/app-route/app-route.html">
 <link rel="import" href="../components/iron-icon/iron-icon.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../components/paper-progress/paper-progress.html">
+<link rel="import" href="../components/paper-toast/paper-toast.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
-<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
 <link rel="import" href="polymer-jp-marked.html">
@@ -57,6 +58,12 @@
         --paper-progress-indeterminate-cycle-duration: 5s;
         --paper-progress-active-color: var(--app-primary-color);
         --paper-progress-height: 2px;
+      }
+      paper-toast {
+        cursor: pointer;
+        border-top: 1px solid #aaa;
+        --paper-toast-background-color: white;
+        --paper-toast-color: #555;
       }
       .logo {
         height: 24px;
@@ -110,6 +117,11 @@
                   messaging-sender-id="246861538947"
                   project-id="polymer-jp-ffc4c">
     </firebase-app>
+
+    <paper-toast class="fit-bottom" duration="5000" on-tap="_reload">
+      <paper-icon-button icon="i:cached"></paper-icon-button>
+      更新が適用されました!
+    </paper-toast>
 
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
@@ -240,6 +252,22 @@
           })
         })
       }
+      ready(){
+        super.ready();
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/service-worker.js').then(reg => {
+              reg.addEventListener('updatefound', () => {
+                const installingWorker = reg.installing;
+                installingWorker.addEventListener('statechange',() => {
+                  if(installingWorker.state == 'installed')
+                    this.shadowRoot.querySelector('paper-toast').open();
+                });
+              });
+            });
+          });
+        }
+      }
       // TODO: もっといい方法がある気がする
       _removeDrawerToggle(e){
         this.shadowRoot.querySelectorAll('.index_level1_hasChilds').forEach(o=>o.removeAttribute('drawer-toggle'));
@@ -262,6 +290,9 @@
       }
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();
+      }
+      _reload(){
+        document.location.reload(true);
       }
     }
     customElements.define(PolymerJp.is, PolymerJp);

@@ -187,7 +187,7 @@
           _sanitizeConfig: {
             type: Object,
             value: {
-              elements: ['a','img','md-button','md-card'],
+              elements: ['a','img','md-button','md-card','md-horizontal'],
               attributes: {
                 a: ['href','title'],
                 img: ['class','src'],
@@ -322,6 +322,26 @@
   </script>
 </dom-module>
 
+<dom-module id="md-horizontal">
+  <template>
+    <style>
+      div {
+        display: block;
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+    </style>
+    <div><slot></slot></div>
+  </template>
+  <script>
+    class MdHorizontal extends Polymer.Element {
+      static get is() { return 'md-horizontal' }
+    }
+    customElements.define(MdHorizontal.is,MdHorizontal)
+  </script>
+</dom-module>
+
 <dom-module id="md-button">
   <template>
     <style>
@@ -358,9 +378,11 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 10px;
       }
       paper-card {
-	      max-width: 500px;
+	      max-width: 400px;
+	      min-width: 300px;
         --paper-card-header-color: white;
       }
       .cafe-header { @apply --paper-font-headline; }

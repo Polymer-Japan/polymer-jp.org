@@ -152,31 +152,33 @@
 
       <app-drawer-layout>
 
-        <app-drawer slot="drawer" swipe-open on-opened-changed="_menuIcon">
+        <template is="dom-if" if="[[doc]]">
+          <app-drawer slot="drawer" swipe-open on-opened-changed="_menuIcon">
 
-          <app-toolbar>
-            <iron-icon icon="i:polymer" class="back-logo"></iron-icon>
-            <div class="back-text">Polymer JP</div>
-          </app-toolbar>
+            <app-toolbar>
+              <iron-icon icon="i:polymer" class="back-logo"></iron-icon>
+              <div class="back-text">Polymer JP</div>
+            </app-toolbar>
 
-          <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
-            <template is="dom-repeat" items="[[index]]" on-dom-change="_removeDrawerToggle">
-              <a name="[[item.id]]" href="/[[item.id]]">
-                <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
-              </a>
-              <iron-collapse opened="[[_collapseOpen(item.id,_selectedId,item._childs)]]">
-                <paper-listbox>
-                  <template is="dom-repeat" items="[[item._childs]]" as="child">
-                    <a href="/[[item.id]]/[[child.id]]">
-                      <paper-item drawer-toggle>[[child.title]]</paper-item>
-                    </a>
-                  </template>
-                </paper-listbox>
-              </iron-collapse>
-            </template>
-          </paper-listbox>
+            <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
+              <template is="dom-repeat" items="[[index]]" on-dom-change="_removeDrawerToggle">
+                <a name="[[item.id]]" href="/[[item.id]]">
+                  <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
+                </a>
+                <iron-collapse opened="[[_collapseOpen(item.id,_selectedId,item._childs)]]">
+                  <paper-listbox>
+                    <template is="dom-repeat" items="[[item._childs]]" as="child">
+                      <a href="/[[item.id]]/[[child.id]]">
+                        <paper-item drawer-toggle>[[child.title]]</paper-item>
+                      </a>
+                    </template>
+                  </paper-listbox>
+                </iron-collapse>
+              </template>
+            </paper-listbox>
 
-        </app-drawer>
+          </app-drawer>
+        </template>
 
         <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
 

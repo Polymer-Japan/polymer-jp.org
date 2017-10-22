@@ -129,17 +129,19 @@
 
     <app-header-layout fullbreed>
 
-      <app-header fixed shadow effects="parallax-background">
-        <app-toolbar>
-          <div main-title>[[doc.title]]</div>
-          <template is="dom-if" if="[[doc.url]]">
-            <a href="[[_getReposUrl(doc.url)]]">
-              <paper-icon-button icon="i:github"></paper-icon-button>
-            </a>
-          </template>
-          <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
-        </app-toolbar>
-      </app-header>
+      <template is="dom-if" if="[[doc.__id__]]">
+        <app-header fixed shadow effects="parallax-background">
+          <app-toolbar>
+            <div main-title>[[doc.title]]</div>
+            <template is="dom-if" if="[[doc.url]]">
+              <a href="[[_getReposUrl(doc.url)]]">
+                <paper-icon-button icon="i:github"></paper-icon-button>
+              </a>
+            </template>
+            <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+          </app-toolbar>
+        </app-header>
+      </template>
 
       <template is="dom-if" if="[[wideScreen]]">
         <paper-listbox align="left">

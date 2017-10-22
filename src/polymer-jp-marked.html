@@ -8,10 +8,14 @@
 <link rel="import" href="../components/app-layout/app-header/app-header.html">
 <link rel="import" href="../components/app-layout/app-scroll-effects/app-scroll-effects.html">
 <link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../components/paper-input/paper-textarea.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-card/paper-card.html">
+<link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
@@ -99,7 +103,19 @@
         height: 22px;
         vertical-align: bottom;
       }
+      paper-listbox {
+        margin-top: 15px;
+        float: right;
+      }
+      paper-item {
+        font-size: 0.9em;
+        --paper-item-min-height: 24px;
+        cursor: pointer;
+      }
+      paper-item span::before { content: "・"; }
     </style>
+
+    <iron-media-query query="min-width: 1000px" query-matches="{{wideScreen}}"></iron-media-query>
 
     <firebase-storage-multiupload
       path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
@@ -113,35 +129,29 @@
 
     <app-header-layout fullbreed>
 
-      <template is="dom-if" if="[[doc.__id__]]">
-        <app-header fixed shadow effects="parallax-background">
-          <app-toolbar>
-            <div main-title>[[doc.title]]</div>
-            <template is="dom-if" if="[[doc.url]]">
-              <a href="[[_getReposUrl(doc.url)]]">
-                <paper-icon-button icon="i:github"></paper-icon-button>
-              </a>
-            </template>
-            <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
-          </app-toolbar>
-        </app-header>
+      <app-header fixed shadow effects="parallax-background">
+        <app-toolbar>
+          <div main-title>[[doc.title]]</div>
+          <template is="dom-if" if="[[doc.url]]">
+            <a href="[[_getReposUrl(doc.url)]]">
+              <paper-icon-button icon="i:github"></paper-icon-button>
+            </a>
+          </template>
+          <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+        </app-toolbar>
+      </app-header>
+
+      <template is="dom-if" if="[[wideScreen]]">
+        <paper-listbox align="left">
+          <template is="dom-repeat" items="[[toc]]">
+            <paper-item on-tap="_scroll"><li>[[item.title]]</li></paper-item>
+          </template>
+        </paper-listbox>
       </template>
 
-      <!--
-           TODO: scriptの読み込みタイミングが制御できず二重で書いている
-         -->
-      <template is="dom-if" if="[[!doc.url]]" on-dom-change="_setRender">
-        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
-          <main class="markdown-body" slot="markdown-html"></main>
-        </marked-element>
-      </template>
-
-      <template is="dom-if" if="[[doc.url]]" on-dom-change="_setRender">
-        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]">
-          <main class="markdown-body" slot="markdown-html"></main>
-          <script type="text/markdown" src="[[doc.url]]"></script>
-        </marked-element>
-      </template>
+      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
+        <main class="markdown-body" slot="markdown-html"></main>
+      </marked-element>
 
       <template is="dom-if" if="[[_edit]]">
         <div style="margin: 5px; padding: 10px;">
@@ -158,7 +168,6 @@
 
     </app-header-layout>
 
-
   </template>
   <script>
     class PolymerJpMarked extends Polymer.Element {
@@ -166,6 +175,11 @@
       static get properties() {
         return {
           doc: Object,
+          toc: Array,
+          _toc: {
+            type: Array,
+            value: [],
+          },
           _markdown: {
             type: String,
             computed: "_emojify(doc.contents)"
@@ -207,41 +221,52 @@
       static get observers() {
         return [
           '_contentsChanged(doc.*)',
+          '_docUrlChanged(doc.url)',
           '_bgUrlChanged(doc.bgurl)'
         ]
       }
-      _setRender(e){
+      _scroll(e){
+        this.shadowRoot.getElementById(e.model.item.id).scrollIntoView();
+      }
+      ready(){
+        super.ready();
         this.shadowRoot.querySelector('marked-element').renderer=op=>{
           // 外部リンクは_blankで。
-          op.link=(href,title,text)=>{
-            let out = '<a href="' + href + '"';
-            if (title) {
-              out += ' title="' + title + '"';
-            }
-            if (href.indexOf('http')==0){
-              out += ' target="_blank"';
-            }
-            out += ' >' + text + '</a>';
-            return out;
+          op.link = (href,title,text) => {
+            const titleAttr = title ? ` title="${title}"` : '';
+            const targetAttr = href.indexOf('http')==0 ? ' target="_blank"' : '';
+            return `<a href="${href}"${titleAttr}${targetAttr}>${text}</a>`;
           }
           // 改行の自動変換
-          op.paragraph=(text)=>{
-            if(text){
-              return '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n';
-            }
+          op.paragraph = text => {
+            return text ? '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n' : '';
+          }
+          // TOCの取得
+          op.heading = (text, level, raw) => {
+            const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
+            if(level == 2) this.push('_toc',{id: id, title: text});
+            return `<h${level} id="${id}">${text}</h${level}>\n`;
           }
         }
+      }
+      _clearToc(e){
+        this.set('toc',this._toc);
+        this.set('_toc',[]);
+      }
+      _docUrlChanged(url){
+        if(url)
+          this.shadowRoot.querySelector('marked-element')._request(url);
       }
       _bgUrlChanged(url){
         if(url){
           this.updateStyles({
             '--header-height': '224px',
-            '--header-bg-url': 'url('+url+')'
+            '--header-bg-url': `url(${url})`,
           });
         }else{
           this.updateStyles({
             '--header-height': 'initial',
-            '--header-bg-url': 'initial'
+            '--header-bg-url': 'initial',
           });
         }
       }
@@ -276,7 +301,7 @@
       }
       _metaDataChanged(meta){
         // TODO: アップロード時にファイル名を変更したい
-        if(meta) this._insertImageText('!['+meta.name+']('+meta.downloadURLs[0]+')'+"\n");
+        if(meta) this._insertImageText(`![${meta.name}](${meta.downloadURLs[0]})\n`);
       }
       _insertImageText(text){
         const el = this.shadowRoot.querySelector('paper-textarea')

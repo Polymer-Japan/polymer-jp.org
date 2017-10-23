@@ -7,7 +7,18 @@ const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
 
 exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
-  .onCreate(event => gs.useServiceAccountAuth(serviceAccount, _ => gs.addRow(1,event.data.data().original)));
+  .onCreate(event => {
+    const data = event.data.data();
+    console.log('data',data);
+    gs.useServiceAccountAuth(serviceAccount, err => {
+      gs.addRow(1, data, err => {
+        if (err) {
+          console.log('err:addRow',err)
+        }
+      })
+    });
+    return true;
+  });
 
 exports.app = functions.https.onRequest((req, res) => {
 

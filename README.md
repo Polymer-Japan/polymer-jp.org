@@ -10,6 +10,8 @@ $ cp [somewhere]/service-account.key.json ./
 # edit serviceAccount.key.json file name
 $ emacs index.js
 $ cd ../
+# firebase-auth minify のバグ回避 https://github.com/Polymer/polymer-cli/issues/701
+$ patch -p0 < polymer-cli-issue-701.patch
 $ npm start
 ```
 

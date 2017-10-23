@@ -16,7 +16,8 @@
     "prism-element": "PolymerElements/prism-element",
     "sanitize-element": "howking/sanitize-element",
     "polymerfire": "Scarygami/polymerfire#72a34a8a44",
-    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0"
+    "iron-collapse": "PolymerElements/iron-collapse#^2.0.0",
+    "page-title": "zacharytamas/page-title#^3.0.0"
   },
   "resolutions": {
     "polymerfire": "72a34a8a44"

@@ -2,7 +2,12 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-var db = admin.firestore();
+const db = admin.firestore();
+const GoogleSpreadsheet = require('google-spreadsheet');
+const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
+
+exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
+  .onCreate(event => gs.useServiceAccountAuth(serviceAccount, _ => gs.addRow(1,event.data.data().original)));
 
 exports.app = functions.https.onRequest((req, res) => {
 

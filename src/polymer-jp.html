@@ -19,10 +19,14 @@
 <link rel="import" href="../components/paper-progress/paper-progress.html">
 <link rel="import" href="../components/paper-toast/paper-toast.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
+<link rel="import" href="../components/polymerfire/firebase-auth.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
+<link rel="import" href="../components/page-title/page-title.html">
+
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
-<link rel="import" href="polymer-jp-marked.html">
+<link rel="import" href="polymer-jp-marked.html" async>
+<link rel="import" href="polymer-jp-inquery.html" async>
 
 <dom-module id="polymer-jp">
   <template>
@@ -43,8 +47,8 @@
         background-color: var(--app-background-color);
         color: var(--app-text-color);
       }
-      app-header paper-icon-button {
-        --paper-icon-button-ink-color: var(--app-text-color);
+      app-toolbar paper-icon-button {
+        color: #6b6b6b;
       }
       app-toolbar a {
         height: 32px;
@@ -104,11 +108,12 @@
       .menu {
         margin-left: -8px;
         margin-right: 6px;
-        color: #6b6b6b;"
       }
     </style>
 
-    <polymer-jp-gtm id="GTM-P7CGGP6"></polymer-jp-gtm>
+    <polymer-jp-gtm cid="GTM-P7CGGP6"></polymer-jp-gtm>
+
+    <page-title base-title="Polymer Japan" page-title="[[doc.title]]"></page-title>
 
     <firebase-app auth-domain="polymer-jp-ffc4c.firebaseapp.com"
                   database-url="https://polymer-jp-ffc4c.firebaseio.com"
@@ -117,10 +122,16 @@
                   messaging-sender-id="246861538947"
                   project-id="polymer-jp-ffc4c">
     </firebase-app>
+    <firebase-auth signed-in="{{login}}" provider="google"></firebase-auth>
 
-    <paper-toast class="fit-bottom" duration="5000" on-tap="_reload">
+    <paper-toast id="reloadSW" class="fit-bottom" duration="5000" on-tap="_reload">
       <paper-icon-button icon="i:cached"></paper-icon-button>
       更新が適用されました!
+    </paper-toast>
+
+    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
+      <paper-icon-button icon="i:info"></paper-icon-button>
+      問い合わせありがとうございました!
     </paper-toast>
 
     <app-location route="{{route}}"></app-location>
@@ -145,15 +156,16 @@
               <a href="/community">Community</a>
             </nav>
           </template>
-          <paper-icon-button icon="i:search"></paper-icon-button>
+          <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
+          <paper-icon-button icon="i:[[_iconLogin(login)]]" on-tap="_auth"></paper-icon-button>
         </app-toolbar>
-        <paper-progress id="prog" indeterminate></paper-progress>
+        <paper-progress indeterminate></paper-progress>
       </app-header>
 
       <app-drawer-layout>
 
         <template is="dom-if" if="[[doc]]">
-          <app-drawer slot="drawer" swipe-open on-opened-changed="_menuIcon">
+          <app-drawer slot="drawer" swipe-open on-opened-changed="_iconMenu">
 
             <app-toolbar>
               <iron-icon icon="i:polymer" class="back-logo"></iron-icon>
@@ -165,7 +177,7 @@
                 <a name="[[item.id]]" href="/[[item.id]]">
                   <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
                 </a>
-                <iron-collapse opened="[[_collapseOpen(item.id,_selectedId,item._childs)]]">
+                <iron-collapse opened="[[_openCollapse(item.id,_selectedId,item._childs)]]">
                   <paper-listbox>
                     <template is="dom-repeat" items="[[item._childs]]" as="child">
                       <a href="/[[item.id]]/[[child.id]]">
@@ -181,6 +193,7 @@
         </template>
 
         <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
+        <polymer-jp-inquery open="{{_openDialog}}"></polymer-jp-inquery>
 
       </app-drawer-layout>
 
@@ -227,6 +240,9 @@
           _menu: {
             type: String,
             value: 'menu',
+          },
+          _login: {
+            type: Boolean,
           }
         }
       }
@@ -249,7 +265,7 @@
               doc.id=d.id;
               doc._childs=_childs;
               this.push('index',doc);
-              this.$.prog.hidden=true;
+              this.shadowRoot.querySelector('paper-progress').hidden=true;
             });
           })
         })
@@ -263,12 +279,13 @@
                 const installingWorker = reg.installing;
                 installingWorker.addEventListener('statechange',() => {
                   if(installingWorker.state == 'installed')
-                    this.shadowRoot.querySelector('paper-toast').open();
+                    this.$.reloadSW.open();
                 });
               });
             });
           });
         }
+        this.addEventListener('toast-thanks-inq',_=>this.$.thanksInq.open());
       }
       // FIXME: もっといい方法がある気がする
       _removeDrawerToggle(e){
@@ -277,7 +294,7 @@
       _hasChilds(smallScreen, childs){
         return smallScreen && childs.length ? 'hasChilds' : 'noChilds';
       }
-      _collapseOpen(id, selectedId, childs){
+      _openCollapse(id, selectedId, childs){
         return id == selectedId && childs.length;
       }
       _getPath(path){
@@ -287,8 +304,15 @@
         // FIXME: firestore-elementの読み込みタイミング調整
         Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _ => this.page = this.path);
       }
-      _menuIcon(e){
+      _iconLogin(login){
+        return login ? 'logout' : 'google';
+      }
+      _iconMenu(e){
         if (e) this.menu = e.detail.value ? 'close' : 'menu';
+      }
+      _auth(){
+        const auth = this.shadowRoot.querySelector('firebase-auth');
+        auth.signedIn ? auth.signOut() : auth.signInWithRedirect();
       }
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();

@@ -3,8 +3,8 @@
     "public": "build/default",
     "rewrites": [
       {
-      "source": "**/!(*.js|*.html|*.css|*.json|*.svg|*.png|*.jpg|*.jpeg)",
-      "function": "app"
+        "source": "!/__/**",
+        "function": "app"
       }
     ]
   }

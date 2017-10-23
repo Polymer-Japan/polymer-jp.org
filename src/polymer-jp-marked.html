@@ -19,6 +19,7 @@
 <link rel="import" href="../components/paper-button/paper-button.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
+<link rel="import" href="../components/polymerfire/firebase-auth.html">
 
 <link rel="import" href="https://poly-style.appspot.com?id=github-markdown&url=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
 
@@ -113,10 +114,16 @@
         cursor: pointer;
       }
       paper-item span::before { content: "・"; }
+      paper-textarea {
+        --paper-input-container-input:{
+          min-height: 4em;
+        }
+      }
     </style>
 
     <iron-media-query query="min-width: 1000px" query-matches="{{wideScreen}}"></iron-media-query>
 
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
     <firebase-storage-multiupload
       path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
     <template is="dom-repeat" items="[[_uploadTasks]]">
@@ -138,7 +145,9 @@
                 <paper-icon-button icon="i:github"></paper-icon-button>
               </a>
             </template>
-            <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+            <template is="dom-if" if="[[_login]]">
+              <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+            </template>
           </app-toolbar>
         </app-header>
       </template>
@@ -155,6 +164,7 @@
         <main class="markdown-body" slot="markdown-html"></main>
       </marked-element>
 
+      <!-- TODO: validate -->
       <template is="dom-if" if="[[_edit]]">
         <div style="margin: 5px; padding: 10px;">
           <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>

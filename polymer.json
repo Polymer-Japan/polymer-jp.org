@@ -1,7 +1,10 @@
 {
   "entrypoint": "index.html",
   "shell": "src/polymer-jp.html",
-  "fragments": [],
+  "fragments": [
+    "src/polymer-jp-marked.html",
+    "src/polymer-jp-inquery.html"
+  ],
   "sources": [
     "assets/**"
   ],

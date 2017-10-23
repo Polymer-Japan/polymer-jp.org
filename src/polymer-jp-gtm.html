@@ -5,14 +5,14 @@
     static get is() { return 'polymer-jp-gtm'; }
     static get properties() {
       return {
-        id: {
+        cid: {
           type: String,
           observer: '_idChanged',
         }
       }
     }
     static get template() {
-      return `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=[[id]]"
+      return `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=[[cid]]"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>`;
     }
     _idChanged(id){

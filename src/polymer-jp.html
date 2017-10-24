@@ -71,7 +71,7 @@
       }
       .logo {
         height: 24px;
-        margin-top: 3px;
+        margin-top: 0px;
         margin-right: 12px;
         vertical-align: middle;
       }
@@ -108,6 +108,11 @@
       .menu {
         margin-left: -8px;
         margin-right: 6px;
+      }
+      .index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
       }
     </style>
 
@@ -181,7 +186,7 @@
                   <paper-listbox>
                     <template is="dom-repeat" items="[[item._childs]]" as="child">
                       <a href="/[[item.id]]/[[child.id]]">
-                        <paper-item drawer-toggle>[[child.title]]</paper-item>
+                        <paper-item  class="index_child" drawer-toggle>[[child.title]]</paper-item>
                       </a>
                     </template>
                   </paper-listbox>
@@ -192,7 +197,7 @@
           </app-drawer>
         </template>
 
-        <polymer-jp-marked doc="[[doc]]"></polymer-jp-marked>
+        <polymer-jp-marked page="[[page]]" doc="[[doc]]"></polymer-jp-marked>
         <polymer-jp-inquery open="{{_openDialog}}"></polymer-jp-inquery>
 
       </app-drawer-layout>
@@ -273,14 +278,12 @@
       ready(){
         super.ready();
         if ('serviceWorker' in navigator) {
-          window.addEventListener('load', function() {
-            navigator.serviceWorker.register('/service-worker.js').then(reg => {
-              reg.addEventListener('updatefound', () => {
-                const installingWorker = reg.installing;
-                installingWorker.addEventListener('statechange',() => {
-                  if(installingWorker.state == 'installed')
-                    this.$.reloadSW.open();
-                });
+          navigator.serviceWorker.register('/service-worker.js').then(reg => {
+            reg.addEventListener('updatefound', () => {
+              const installingWorker = reg.installing;
+              installingWorker.addEventListener('statechange',() => {
+                if(installingWorker.state == 'installed')
+                  this.$.reloadSW.open();
               });
             });
           });
@@ -302,7 +305,8 @@
       }
       _routePageChanged(page) {
         // FIXME: firestore-elementの読み込みタイミング調整
-        Polymer.Debouncer.debounce('page', Polymer.Async.timeOut.after(24), _ => this.page = this.path);
+        this._debouncer =
+          Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(24), _ => this.page = this.path);
       }
       _iconLogin(login){
         return login ? 'logout' : 'google';

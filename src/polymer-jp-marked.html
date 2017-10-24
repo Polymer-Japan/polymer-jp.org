@@ -167,14 +167,20 @@
       <!-- TODO: validate -->
       <template is="dom-if" if="[[_edit]]">
         <div style="margin: 5px; padding: 10px;">
+          <paper-button raised on-tap="_save">SAVE</paper-button>
+          <paper-button raised on-tap="_delete">DEL</paper-button>
           <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
           <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
           <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
           <paper-textarea always-float-label label="Contents" value="{{doc.contents}}" hidden="[[!_edit]]"
-            on-drop="_onTextareaDrop" on-paste="_onTextareaPaste"
-          ></paper-textarea>
+                          on-drop="_onTextareaDrop" on-paste="_onTextareaPaste"></paper-textarea>
           <paper-input always-float-label label="Background URL" value="{{doc.bgurl}}" hidden="[[!_edit]]"></paper-input>
           <paper-input always-float-label label="Markdown URL" value="{{doc.url}}" hidden="[[!_edit]]"></paper-input>
+          <hr>
+          <paper-button raised on-tap="_add">NEW</paper-button>
+          <paper-button raised on-tap="_child">CHILDE</paper-button>
+          <paper-input always-float-label label="New Key (URL)" value="{{_newkey}}"
+                       required auto-validate error-message="入力必須です!" hidden="[[!_edit]]"></paper-input>
         </div>
       </template>
 
@@ -186,6 +192,7 @@
       static get is() { return 'polymer-jp-marked' }
       static get properties() {
         return {
+          page: Object,
           doc: Object,
           toc: Array,
           _toc: {
@@ -227,12 +234,15 @@
           _metaData: {
             type: Object,
             observer: '_metaDataChanged'
-          }
+          },
+          _path: {
+            type: String,
+            computed: "_getPath(page)"
+          },
         }
       }
       static get observers() {
         return [
-          '_contentsChanged(doc.*)',
           '_docUrlChanged(doc.url)',
           '_bgUrlChanged(doc.bgurl)'
         ]
@@ -286,13 +296,59 @@
         const u = url.split('/');
         return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
       }
-      _contentsChanged(e){
-        if(e.path.lastIndexOf('doc.')==0 && this._edit){
-          let data = {};
-          const key = e.path.substr(4);
-          data[key]= key == 'order' ? parseInt(e.value) : e.value;
-          firebase.firestore().collection('docs').doc(e.base.__id__).update(data);
-        }
+      _getPath(page){
+        const path = `docs/${page}`.split('/');
+        path.pop();
+        return path.join('/');
+      }
+      _save(e){
+        const btn = e.path[0];
+        btn.innerText='SAVING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          let data = Object.assign({},this.doc);
+          delete data.__id__;
+          data.order=parseInt(data.order);
+          firebase.firestore().collection(this._path).doc(this.doc.__id__).update(data).then(_=>{
+            btn.innerText='SAVED';
+            Polymer.Async.timeOut.run(_=>btn.innerText='SAVE', 5000);
+          });
+        })
+
+      }
+      _delete(e){
+        const btn = e.path[0];
+        btn.innerText='DEL CONFIRM';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          if(window.confirm('Are you sure?')){
+            btn.innerText='DELETING';
+            firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
+              btn.innerText='DELETED';
+              document.location.href='/';
+            });
+	        }else{
+            btn.innerText='DEL';
+          }
+        })
+      }
+      _add(e){
+        const btn = e.path[0];
+        btn.innerText='ADDING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          firebase.firestore().collection(this._path).doc(this._newkey).set({title:'DEFAULT',order:999}).then(_=>{
+            btn.innerText='ADDED';
+            document.location.reload(true);
+          });
+        })
+      }
+      _child(e){
+        const btn = e.path[0];
+        btn.innerText='ADDING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          firebase.firestore().collection(this._path+'/'+this.page+'/_childs').doc(this._newkey).set({title:'DEFAULT',order:999}).then(_=>{
+            btn.innerText='ADDED';
+            document.location.reload(true);
+          });
+        })
       }
       _emojify(contents){
         if (contents) return emojione.toImage(contents)
@@ -324,7 +380,7 @@
         if(this.doc.contents.substr(pos - ptext.length, ptext.length) == ptext)
           offset = ptext.length;
         this.set('doc.contents',this.doc.contents.substring(0, pos - offset) + text +
-                        this.doc.contents.substring(pos, this.doc.contents.length));
+                                this.doc.contents.substring(pos, this.doc.contents.length));
         el.selectionStart = pos + text.length - offset;
         el.selectionEnd = pos + text.length - offset;
         el.focus();

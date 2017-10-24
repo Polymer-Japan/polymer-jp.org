@@ -15,8 +15,7 @@
         position: fixed;
         top: 60px;
         right: 0px;
-        min-width: 300px;
-        max-width: 500px;
+        min-width: 320px;
         overflow: auto;
       }
       paper-dialog h3 {
@@ -32,22 +31,22 @@
         }
       }
     </style>
-    
+
     <paper-dialog opened="[[open]]"
       entry-animation="slide-from-bottom-animation"
       exit-animation="fade-out-animation"
       always-on-top no-cancel-on-outside-click>
       <h3 on-track="_trackDialog">お問い合わせ</h3>
       <paper-input always-float-label label="Subject" value="{{_inqueryData.subject}}"
-        auto-validate required auto-validate error-message="入力必須です!"></paper-input>
+                   required auto-validate error-message="入力必須です!"></paper-input>
       <paper-textarea always-float-label label="Contents" value="{{_inqueryData.contents}}"
-        required auto-validate error-message="入力必須です!"></paper-textarea>
+                      required auto-validate error-message="入力必須です!"></paper-textarea>
       <div class="buttons">
         <paper-button dialog-confirm active="{{open}}">CANCEL</paper-button>
         <paper-button on-tap="_sendInquery">SEND</paper-button>
       </div>
     </paper-dialog>
-    
+
   </template>
   <script>
     class PolymerJpInquery extends Polymer.GestureEventListeners(Polymer.Element) {

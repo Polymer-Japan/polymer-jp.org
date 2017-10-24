@@ -64,3 +64,6 @@ dist
 
 # key.json
 functions/*.key.json
+
+# firebase config
+.firebaserc

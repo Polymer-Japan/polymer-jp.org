@@ -139,7 +139,7 @@
     </firebase-app>
     <firebase-auth signed-in="{{login}}" provider="google"></firebase-auth>
 
-    <paper-toast id="reloadSW" class="fit-bottom" duration="5000" on-tap="_reload">
+    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
       <paper-icon-button icon="i:cached"></paper-icon-button>
       更新が適用されました!
     </paper-toast>
@@ -298,7 +298,7 @@
             reg.addEventListener('updatefound', () => {
               const installingWorker = reg.installing;
               installingWorker.addEventListener('statechange',() => {
-                if(installingWorker.state == 'redundant')
+                if(installingWorker.state == 'installed')
                   this.$.reloadSW.open();
               });
             });

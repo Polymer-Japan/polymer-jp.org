@@ -18,6 +18,7 @@
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../components/paper-progress/paper-progress.html">
 <link rel="import" href="../components/paper-toast/paper-toast.html">
+<link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
@@ -41,6 +42,7 @@
         --app-drawer-content-container: {
           border-right: 1px solid #cecece;
         }
+        --app-drawer-scrim-background: rgba(0, 0, 0, 0.1);
         font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
       }
       app-header {
@@ -68,6 +70,11 @@
         border-top: 1px solid #aaa;
         --paper-toast-background-color: white;
         --paper-toast-color: #555;
+      }
+      paper-tooltip {
+        border: 1px solid #aaa;
+        --paper-tooltip-background: white;
+        --paper-tooltip-text-color: #555;
       }
       .logo {
         height: 24px;
@@ -139,6 +146,10 @@
       問い合わせありがとうございました!
     </paper-toast>
 
+    <paper-tooltip for="login" animation-delay="0">
+      編集用のGoogleログイン(要管理権限)
+    </paper-tooltip>
+
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
 
@@ -162,7 +173,7 @@
             </nav>
           </template>
           <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
-          <paper-icon-button icon="i:[[_iconLogin(login)]]" on-tap="_auth"></paper-icon-button>
+          <paper-icon-button id="login" icon="i:[[_iconLogin(login)]]" on-tap="_auth"></paper-icon-button>
         </app-toolbar>
         <paper-progress indeterminate></paper-progress>
       </app-header>
@@ -267,9 +278,11 @@
               _childs.push(doc);
             })).then(_=>{
               const doc = d.data();
-              doc.id=d.id;
-              doc._childs=_childs;
-              this.push('index',doc);
+              if(! doc.hide){
+                doc.id=d.id;
+                doc._childs=_childs;
+                this.push('index',doc);
+              }
               this.shadowRoot.querySelector('paper-progress').hidden=true;
             });
           })
@@ -301,7 +314,8 @@
         return id == selectedId && childs.length;
       }
       _getPath(path){
-        return path == '/' ? 'home' : path.split('/').slice(1).join("/_childs/");
+        path = path[path.length-1] == '/' ? path.slice(0,-1) : path;
+        return path == '' ? 'home' : path.split('/').slice(1).join("/_childs/");
       }
       _routePageChanged(page) {
         // FIXME: firestore-elementの読み込みタイミング調整

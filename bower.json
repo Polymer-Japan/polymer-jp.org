@@ -10,6 +10,7 @@
     "app-layout": "PolymerElements/app-layout",
     "iron-media-query": "PolymerElements/iron-media-query",
     "paper-ui-elements": "PolymerElements/paper-ui-elements",
+    "paper-input-elements": "PolymerElements/paper-input-elements",
     "paper-toggle-button": "PolymerElements/paper-toggle-button",
     "social-menu": "Dabolus/share-menu",
     "marked-element": "PolymerElements/marked-element",

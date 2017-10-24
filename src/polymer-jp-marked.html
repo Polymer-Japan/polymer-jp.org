@@ -10,21 +10,13 @@
 <link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
-<link rel="import" href="../components/paper-input/paper-textarea.html">
-<link rel="import" href="../components/paper-input/paper-input.html">
-<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../components/paper-card/paper-card.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../components/paper-button/paper-button.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
 <link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 
-<link rel="import" href="https://poly-style.appspot.com?id=github-markdown&url=https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/2.8.0/github-markdown.min.css">
-
-<script src="https://cdn.rawgit.com/emojione/emojione/2.2.7/lib/js/emojione.min.js"></script>
-<link rel="stylesheet" href="https://cdn.rawgit.com/emojione/emojione/2.2.7/assets/css/emojione.min.css">
+<link rel="import" href="polymer-jp-theme.html">
 
 <dom-module id="polymer-jp-marked">
   <template>
@@ -33,14 +25,16 @@
         display: block;
         --header-height: 64px;
         --header-bg-url: '';
+        --header-txt-color: #fff;
+        --header-bg-color: #337ab7;
       }
       app-toolbar paper-icon-button {
         color: white;
       }
       app-header {
         height: var(--header-height);
-        color: #fff;
-        background-color: #337ab7;
+        color: var(--header-txt-color);
+        background-color: var(--header-bg-color);
         --app-header-background-front-layer: { background-image: var(--header-bg-url); };
       }
       div[main-title] {
@@ -119,6 +113,9 @@
           min-height: 4em;
         }
       }
+      polymer-jp-marked-edit[hidden] {
+        display: none !important;
+      }
     </style>
 
     <iron-media-query query="min-width: 1000px" query-matches="{{wideScreen}}"></iron-media-query>
@@ -164,25 +161,7 @@
         <main class="markdown-body" slot="markdown-html"></main>
       </marked-element>
 
-      <!-- TODO: validate -->
-      <template is="dom-if" if="[[_edit]]">
-        <div style="margin: 5px; padding: 10px;">
-          <paper-button raised on-tap="_save">SAVE</paper-button>
-          <paper-button raised on-tap="_delete">DEL</paper-button>
-          <paper-input always-float-label label="Title" value="{{doc.title}}" hidden="[[!_edit]]"></paper-input>
-          <paper-input always-float-label label="Description" value="{{doc.desc}}" hidden="[[!_edit]]"></paper-input>
-          <paper-input always-float-label label="Order" value="{{doc.order}}" hidden="[[!_edit]]"></paper-input>
-          <paper-textarea always-float-label label="Contents" value="{{doc.contents}}" hidden="[[!_edit]]"
-                          on-drop="_onTextareaDrop" on-paste="_onTextareaPaste"></paper-textarea>
-          <paper-input always-float-label label="Background URL" value="{{doc.bgurl}}" hidden="[[!_edit]]"></paper-input>
-          <paper-input always-float-label label="Markdown URL" value="{{doc.url}}" hidden="[[!_edit]]"></paper-input>
-          <hr>
-          <paper-button raised on-tap="_add">NEW</paper-button>
-          <paper-button raised on-tap="_child">CHILDE</paper-button>
-          <paper-input always-float-label label="New Key (URL)" value="{{_newkey}}"
-                       required auto-validate error-message="入力必須です!" hidden="[[!_edit]]"></paper-input>
-        </div>
-      </template>
+      <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
 
     </app-header-layout>
 
@@ -192,12 +171,16 @@
       static get is() { return 'polymer-jp-marked' }
       static get properties() {
         return {
-          page: Object,
+          page: String,
           doc: Object,
           toc: Array,
           _toc: {
             type: Array,
             value: [],
+          },
+          _edit: {
+            type: Boolean,
+            value: false
           },
           _markdown: {
             type: String,
@@ -206,12 +189,13 @@
           _sanitizeConfig: {
             type: Object,
             value: {
-              elements: ['a','img','md-button','md-card','md-horizontal'],
+              elements: ['a','img','md-button','md-card','md-horizontal','md-list'],
               attributes: {
                 a: ['href','title'],
                 img: ['class','src'],
                 'md-button': ['color'],
-                'md-card': ['image','title','sub-title','desc','button']
+                'md-card': ['image','title','sub-title','desc','button'],
+                'md-list': ['path']
               },
               protocols: {
                 a:{ href: ['http','https'] }
@@ -235,16 +219,12 @@
             type: Object,
             observer: '_metaDataChanged'
           },
-          _path: {
-            type: String,
-            computed: "_getPath(page)"
-          },
         }
       }
       static get observers() {
         return [
           '_docUrlChanged(doc.url)',
-          '_bgUrlChanged(doc.bgurl)'
+          '_headerChanged(doc.height, doc.bgurl, doc.txtColor, doc.bgColor)'
         ]
       }
       _scroll(e){
@@ -270,6 +250,10 @@
             return `<h${level} id="${id}">${text}</h${level}>\n`;
           }
         }
+
+        Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html",null,null,true);
+        Polymer.importHref(this.importPath+"polymer-jp-md-components.html",null,null,true);
+
       }
       _clearToc(e){
         this.set('toc',this._toc);
@@ -279,76 +263,28 @@
         if(url)
           this.shadowRoot.querySelector('marked-element')._request(url);
       }
-      _bgUrlChanged(url){
-        if(url){
+      _headerChanged(height,bgurl,txtColor,bgColor){
+        // FIXME: 要整理
+        if(bgurl){
           this.updateStyles({
-            '--header-height': '224px',
-            '--header-bg-url': `url(${url})`,
-          });
+            '--header-height': height || '260px',
+            '--header-bg-url': `url(${bgurl})`,
+            '--header-txt-color': txtColor || '#fff',
+            '--header-bg-color': bgColor || '#337ab7'
+          })
         }else{
           this.updateStyles({
-            '--header-height': 'initial',
-            '--header-bg-url': 'initial',
-          });
-        }
+            '--header-height': height || '64px',
+            '--header-bg-url': '',
+            '--header-txt-color': txtColor || '#fff',
+            '--header-bg-color': bgColor || '#337ab7'
+          })
+
+        };
       }
       _getReposUrl(url){
         const u = url.split('/');
         return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
-      }
-      _getPath(page){
-        const path = `docs/${page}`.split('/');
-        path.pop();
-        return path.join('/');
-      }
-      _save(e){
-        const btn = e.path[0];
-        btn.innerText='SAVING';
-        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
-          let data = Object.assign({},this.doc);
-          delete data.__id__;
-          data.order=parseInt(data.order);
-          firebase.firestore().collection(this._path).doc(this.doc.__id__).update(data).then(_=>{
-            btn.innerText='SAVED';
-            Polymer.Async.timeOut.run(_=>btn.innerText='SAVE', 5000);
-          });
-        })
-
-      }
-      _delete(e){
-        const btn = e.path[0];
-        btn.innerText='DEL CONFIRM';
-        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
-          if(window.confirm('Are you sure?')){
-            btn.innerText='DELETING';
-            firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
-              btn.innerText='DELETED';
-              document.location.href='/';
-            });
-	        }else{
-            btn.innerText='DEL';
-          }
-        })
-      }
-      _add(e){
-        const btn = e.path[0];
-        btn.innerText='ADDING';
-        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
-          firebase.firestore().collection(this._path).doc(this._newkey).set({title:'DEFAULT',order:999}).then(_=>{
-            btn.innerText='ADDED';
-            document.location.reload(true);
-          });
-        })
-      }
-      _child(e){
-        const btn = e.path[0];
-        btn.innerText='ADDING';
-        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
-          firebase.firestore().collection(this._path+'/'+this.page+'/_childs').doc(this._newkey).set({title:'DEFAULT',order:999}).then(_=>{
-            btn.innerText='ADDED';
-            document.location.reload(true);
-          });
-        })
       }
       _emojify(contents){
         if (contents) return emojione.toImage(contents)
@@ -387,106 +323,5 @@
       }
     }
     customElements.define(PolymerJpMarked.is, PolymerJpMarked)
-  </script>
-</dom-module>
-
-<dom-module id="md-horizontal">
-  <template>
-    <style>
-      div {
-        display: block;
-        @apply(--layout-flex);
-        @apply(--layout-horizontal);
-        @apply(--layout-wrap);
-      }
-    </style>
-    <div><slot></slot></div>
-  </template>
-  <script>
-    class MdHorizontal extends Polymer.Element {
-      static get is() { return 'md-horizontal' }
-    }
-    customElements.define(MdHorizontal.is,MdHorizontal)
-  </script>
-</dom-module>
-
-<dom-module id="md-button">
-  <template>
-    <style>
-      paper-button {
-        color: white;
-        background-color: var(--button-color,#337ab7);
-      }
-    </style>
-    <paper-button><slot></slot></paper-button>
-  </template>
-  <script>
-    class MdButton extends Polymer.Element {
-      static get is() { return 'md-button' }
-      static get properties() {
-        return {
-          color: {
-            type: String,
-            observer: '_colorChanged'
-          }
-        }
-      }
-      _colorChanged(color){
-        this.updateStyles({'--button-color': color});
-      }
-    }
-    customElements.define(MdButton.is,MdButton)
-  </script>
-</dom-module>
-
-<dom-module id="md-card">
-  <template>
-    <style>
-      :host {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 10px;
-      }
-      paper-card {
-	      max-width: 400px;
-	      min-width: 300px;
-        --paper-card-header-color: white;
-      }
-      .cafe-header { @apply --paper-font-headline; }
-      .cafe-light { color: var(--paper-grey-600); }
-      .cafe-location {
-        float: right;
-        font-size: 15px;
-        vertical-align: middle;
-      }
-      .cafe-reserve { color: var(--google-blue-500); }
-    </style>
-    <paper-card image="[[image]]" heading="[[title]]">
-      <div class="card-content">
-        <p>[[subTitle]]</p>
-        <p class="cafe-light">[[desc]]</p>
-      </div>
-      <div class="card-actions">
-        <div class="horizontal justified">
-          <paper-button class="cafe-reserve">[[button]]</paper-button>
-        </div>
-      </div>
-    </paper-card>
-  </template>
-  <script>
-    class MdCard extends Polymer.Element {
-      static get is() { return 'md-card' }
-      static get properties() {
-        return {
-          image: String,
-          title: String,
-          subTitle: String,
-          desc: String,
-          button: String
-        }
-      }
-    }
-    customElements.define(MdCard.is,MdCard)
   </script>
 </dom-module>

@@ -6,6 +6,8 @@
 <link rel="import" href="../components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
 
 <dom-module id="polymer-jp-marked-edit">
   <template>
@@ -22,6 +24,13 @@
         @apply(--layout-horizontal);
       }
     </style>
+
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
+    <firebase-storage-multiupload
+      path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
+    <template is="dom-repeat" items="[[_uploadTasks]]">
+      <firebase-storage-upload-task task="[[item]]" metadata="{{_metaData}}"></firebase-storage-upload-task>
+    </template>
 
     <paper-input always-float-label label="Title" value="{{doc.title}}"></paper-input>
     <paper-input always-float-label label="Description(SEO)" value="{{doc.desc}}"></paper-input>
@@ -70,6 +79,23 @@
           doc: {
             type: Object,
             notify: true,
+          },
+          _allowedTypes: {
+            type: Array,
+            value: [
+              'image/jpeg',
+              'image/png',
+              'image/jpg',
+              'image/gif'
+            ]
+          },
+          _progressText: {
+            type: String,
+            value: '![Uploading file...]()'
+          },
+          _metaData: {
+            type: Object,
+            observer: '_metaDataChanged'
           },
           _path: {
             type: String,
@@ -145,6 +171,38 @@
       _resetColor(){
         this.set('doc.txtColor',null);
         this.set('doc.bgColor',null);
+      }
+      _onTextareaDrop(e){
+        e.stopPropagation()
+        e.preventDefault()
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.dataTransfer.files)
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(f=>{this._insertImageText(this._progressText); return f;}));
+      }
+      _onTextareaPaste(e){
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.clipboardData.items || e.clipboardData.files || [])
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(i=>{this._insertImageText(this._progressText); return i.getAsFile();}));
+      }
+      _metaDataChanged(meta){
+        // TODO: アップロード時にファイル名を変更したい
+        if(meta) this._insertImageText(`![${meta.name}](${meta.downloadURLs[0]})\n`);
+      }
+      _insertImageText(text){
+        const el = this.shadowRoot.querySelector('paper-textarea')
+                       .shadowRoot.querySelector('iron-autogrow-textarea');
+        const pos = el.selectionStart;
+        const ptext = this._progressText;
+        let offset = 0;
+        if(this.doc.contents.substr(pos - ptext.length, ptext.length) == ptext)
+          offset = ptext.length;
+        this.set('doc.contents',this.doc.contents.substring(0, pos - offset) + text +
+                                this.doc.contents.substring(pos, this.doc.contents.length));
+        el.selectionStart = pos + text.length - offset;
+        el.selectionEnd = pos + text.length - offset;
+        el.focus();
       }
     }
     customElements.define(PolymerJpMarkedEdit.is, PolymerJpMarkedEdit)

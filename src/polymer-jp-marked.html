@@ -12,8 +12,6 @@
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
-<link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 
 <link rel="import" href="polymer-jp-theme.html">
@@ -215,23 +213,6 @@
               }
             },
           },
-          _allowedTypes: {
-            type: Array,
-            value: [
-              'image/jpeg',
-              'image/png',
-              'image/jpg',
-              'image/gif'
-            ]
-          },
-          _progressText: {
-            type: String,
-            value: '![Uploading file...]()'
-          },
-          _metaData: {
-            type: Object,
-            observer: '_metaDataChanged'
-          },
         }
       }
       static get observers() {
@@ -321,38 +302,6 @@
       }
       _emojify(contents){
         if (contents) return emojione.toImage(contents)
-      }
-      _onTextareaDrop(e){
-        e.stopPropagation()
-        e.preventDefault()
-        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
-          Array.from(e.dataTransfer.files)
-               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
-               .map(f=>{this._insertImageText(this._progressText); return f;}));
-      }
-      _onTextareaPaste(e){
-        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
-          Array.from(e.clipboardData.items || e.clipboardData.files || [])
-               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
-               .map(i=>{this._insertImageText(this._progressText); return i.getAsFile();}));
-      }
-      _metaDataChanged(meta){
-        // TODO: アップロード時にファイル名を変更したい
-        if(meta) this._insertImageText(`![${meta.name}](${meta.downloadURLs[0]})\n`);
-      }
-      _insertImageText(text){
-        const el = this.shadowRoot.querySelector('paper-textarea')
-                       .shadowRoot.querySelector('iron-autogrow-textarea');
-        const pos = el.selectionStart;
-        const ptext = this._progressText;
-        let offset = 0;
-        if(this.doc.contents.substr(pos - ptext.length, ptext.length) == ptext)
-          offset = ptext.length;
-        this.set('doc.contents',this.doc.contents.substring(0, pos - offset) + text +
-                                this.doc.contents.substring(pos, this.doc.contents.length));
-        el.selectionStart = pos + text.length - offset;
-        el.selectionEnd = pos + text.length - offset;
-        el.focus();
       }
     }
     customElements.define(PolymerJpMarked.is, PolymerJpMarked)

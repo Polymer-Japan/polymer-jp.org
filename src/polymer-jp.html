@@ -55,13 +55,14 @@
       app-toolbar a {
         height: 32px;
       }
-      paper-listbox a { text-decoration: none; color: black; }
-      paper-listbox a.iron-selected { color: lightgray; }
+      paper-listbox a { text-decoration: none; color: #3b3b3b; }
+      paper-listbox a.iron-selected { outline: none; color: #9b9b9b; }
       paper-item:not(.iron-selected) { cursor: pointer; }
+      iron-collapse { outline: none; }
       paper-progress {
         position: absolute;
         width: 100%;
-        --paper-progress-indeterminate-cycle-duration: 5s;
+        --paper-progress-indeterminate-cycle-duration: 3s;
         --paper-progress-active-color: var(--app-primary-color);
         --paper-progress-height: 2px;
       }
@@ -137,7 +138,7 @@
                   messaging-sender-id="246861538947"
                   project-id="polymer-jp-ffc4c">
     </firebase-app>
-    <firebase-auth signed-in="{{login}}" provider="google"></firebase-auth>
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
 
     <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
       <paper-icon-button icon="i:cached"></paper-icon-button>
@@ -176,7 +177,7 @@
             </nav>
           </template>
           <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
-          <paper-icon-button id="login" icon="i:[[_iconLogin(login)]]" on-tap="_auth"></paper-icon-button>
+          <paper-icon-button id="login" icon="i:[[_iconLogin(_login)]]" on-tap="_auth"></paper-icon-button>
         </app-toolbar>
         <paper-progress indeterminate></paper-progress>
       </app-header>
@@ -197,9 +198,9 @@
                   <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
                 </a>
                 <iron-collapse opened="[[_openCollapse(item.id,_selectedId,item._childs)]]">
-                  <paper-listbox>
+                  <paper-listbox attr-for-selected="name">
                     <template is="dom-repeat" items="[[item._childs]]" as="child">
-                      <a href="/[[item.id]]/[[child.id]]">
+                      <a name="[[item.id]]-[[child.id]]" href="/[[item.id]]/[[child.id]]">
                         <paper-item  class="index_child" drawer-toggle>[[child.title]]</paper-item>
                       </a>
                     </template>
@@ -260,9 +261,6 @@
             type: String,
             value: 'menu',
           },
-          _login: {
-            type: Boolean,
-          }
         }
       }
       static get observers() {
@@ -272,20 +270,18 @@
       }
       connectedCallback() {
         super.connectedCallback();
-        this.db.collection('docs').orderBy('order').get().then(s=>{
+        this.db.collection('docs').where('show','==',true).where('order','>',0).orderBy('order').get().then(s=>{
           s.forEach(d=>{
             const _childs=[];
-            d.ref.collection('_childs').get().then(sc=>sc.forEach(dc=>{
+            d.ref.collection('_childs').where('show','==',true).where('order','>',0).orderBy('order').get().then(sc=>sc.forEach(dc=>{
               const doc = dc.data();
               doc.id=dc.id;
               _childs.push(doc);
             })).then(_=>{
               const doc = d.data();
-              if(! doc.hide){
-                doc.id=d.id;
-                doc._childs=_childs;
-                this.push('index',doc);
-              }
+              doc.id=d.id;
+              doc._childs= doc.noExpand ? [] : _childs;
+              this.push('index',doc);
               this.shadowRoot.querySelector('paper-progress').hidden=true;
             });
           })
@@ -321,6 +317,7 @@
         return path == '' ? 'home' : path.split('/').slice(1).join("/_childs/");
       }
       _routePageChanged(page) {
+        this.set('_selectedId',page);
         // FIXME: firestore-elementの読み込みタイミング調整
         this._debouncer =
           Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(24), _ => this.page = this.path);

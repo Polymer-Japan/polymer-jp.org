@@ -23,10 +23,6 @@
     <style include="github-markdown prism-theme-default">
       :host {
         display: block;
-        --header-height: 64px;
-        --header-bg-url: '';
-        --header-txt-color: #fff;
-        --header-bg-color: #337ab7;
       }
       app-toolbar paper-icon-button {
         color: white;
@@ -35,7 +31,13 @@
         height: var(--header-height);
         color: var(--header-txt-color);
         background-color: var(--header-bg-color);
-        --app-header-background-front-layer: { background-image: var(--header-bg-url); };
+        text-shadow: var(--header-text-shadow);
+        --app-header-background-front-layer: {
+          background-image: var(--header-bg-image);
+          background-repeat: var(--header-bg-repeat);
+          background-position: var(--header-bg-position);
+          background-size: var(--header-bg-size);
+        }
       }
       div[main-title] {
         font-family: 'Roboto Slab',serif;
@@ -144,6 +146,11 @@
             </template>
             <template is="dom-if" if="[[_login]]">
               <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[_isChild(page)]]">
+              <a href="[[_getParent(page)]]">
+                <paper-icon-button icon="i:arrow-back"></paper-icon-button>
+              </a>
             </template>
           </app-toolbar>
         </app-header>
@@ -265,22 +272,42 @@
       }
       _headerChanged(height,bgurl,txtColor,bgColor){
         // FIXME: 要整理
-        if(bgurl){
-          this.updateStyles({
-            '--header-height': height || '260px',
-            '--header-bg-url': `url(${bgurl})`,
-            '--header-txt-color': txtColor || '#fff',
-            '--header-bg-color': bgColor || '#337ab7'
-          })
-        }else{
-          this.updateStyles({
-            '--header-height': height || '64px',
-            '--header-bg-url': '',
-            '--header-txt-color': txtColor || '#fff',
-            '--header-bg-color': bgColor || '#337ab7'
-          })
-
+        let style = {
+          '--header-height': height || '64px',
+          '--header-txt-color': txtColor || '#fff',
+          '--header-bg-color': bgColor || '#337ab7',
+          '--header-text-shadow': '',
+          '--header-bg-image': '',
+          '--header-bg-repeat': '',
+          '--header-bg-position': '',
+          '--header-bg-size': ''
         };
+        if(bgurl){
+          style = Object.assign(style,{
+            '--header-height': height || '320px',
+            '--header-bg-color': '#dfdfdf',
+            '--header-text-shadow': '1px 1px 3px #000',
+            '--header-bg-image': `url(${bgurl})`,
+            '--header-bg-size': 'cover',
+          });
+          if(bgurl.match(/\/textures\//)){
+            style = Object.assign(style,{
+              '--header-height': '135px',
+              '--header-bg-color': bgColor || '#337ab7',
+              '--header-text-shadow': '',
+              '--header-bg-repeat': 'repeat-x',
+              '--header-bg-position': 'bottom',
+              '--header-bg-size': '13px',
+            })
+          }
+        }
+        this.updateStyles(style);
+      }
+      _isChild(page){
+        return page.indexOf('/_childs/') != -1;
+      }
+      _getParent(page){
+        return '/'+page.split('/').shift();
       }
       _getReposUrl(url){
         const u = url.split('/');

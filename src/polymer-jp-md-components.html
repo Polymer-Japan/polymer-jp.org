@@ -113,6 +113,12 @@
       a { text-decoration: none; color: black; }
       a.iron-selected { color: lightgray; }
       paper-item:not(.iron-selected) { cursor: pointer; }
+      paper-item {
+        margin: 20px 0;
+        padding: 5px 10px;
+        height: 48px;
+        border-left: 3px solid #337ab7;
+      }
     </style>
     <template is="dom-repeat" items="[[_list]]">
       <a href="/[[item.path]]">

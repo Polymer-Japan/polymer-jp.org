@@ -7,23 +7,25 @@
 <link rel="import" href="../components/paper-input/paper-textarea.html">
 <link rel="import" href="../components/paper-input/paper-input.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/iron-form/iron-form.html">
 
 <dom-module id="polymer-jp-inquery">
   <template>
     <style>
       paper-dialog {
-        position: fixed;
-        top: 60px;
-        right: 0px;
-        min-width: 320px;
         overflow: auto;
+        min-width: 300px;
+      }
+      @media (min-width: 640px) {
+        paper-dialog {
+          position: fixed;
+          top: 60px;
+          right: 0px;
+        }
       }
       paper-dialog h3 {
         cursor: pointer;
         user-select: none;
-      }
-      paper-dialog p {
-        height: 60vh;
       }
       paper-textarea {
         --paper-input-container-input:{
@@ -36,15 +38,22 @@
       entry-animation="slide-from-bottom-animation"
       exit-animation="fade-out-animation"
       always-on-top no-cancel-on-outside-click>
-      <h3 on-track="_trackDialog">お問い合わせ</h3>
-      <paper-input always-float-label label="Subject" value="{{_inqueryData.subject}}"
-                   required auto-validate error-message="入力必須です!"></paper-input>
-      <paper-textarea always-float-label label="Contents" value="{{_inqueryData.contents}}"
-                      required auto-validate error-message="入力必須です!"></paper-textarea>
-      <div class="buttons">
-        <paper-button dialog-confirm active="{{open}}">CANCEL</paper-button>
-        <paper-button on-tap="_sendInquery">SEND</paper-button>
-      </div>
+      <iron-form on-iron-form-presubmit="_sendInquery">
+        <form>
+          <h3 on-track="_trackDialog">お問い合わせ</h3>
+          <paper-input always-float-label label="Subject" name="subject"
+            required auto-validate error-message="入力必須です!"></paper-input>
+          <paper-input always-float-label label="Email" name="email"
+            type="email" placeholder="info@polymer-jp.org"
+            required auto-validate error-message="メールアドレスを入力してください"></paper-input>
+          <paper-textarea always-float-label label="Contents" name="contents"
+            required auto-validate error-message="入力必須です!"></paper-textarea>
+          <div class="buttons">
+            <paper-button dialog-dismiss active="{{open}}">CANCEL</paper-button>
+            <paper-button on-tap="_submit">SEND</paper-button>
+          </div>
+        </form>
+      </iron-form>
     </paper-dialog>
 
   </template>
@@ -56,23 +65,28 @@
           open: {
             type: Boolean,
             notify: true,
-          },
-          _inqueryData: {
-            type: Object,
-            value: {},
-          },
+          }
         }
       }
-      _sendInquery(e) {
-        this.dispatchEvent(new CustomEvent('toast-thanks-inq',{bubbles:true, composed:true}));
+      _sendInquery(e){
+        event.preventDefault();
+        const data = this.shadowRoot.querySelector('iron-form').serializeForm();
+        data.created = firebase.firestore.FieldValue.serverTimestamp();
         this.set('open',false);
-        this._inqueryData.created=firebase.firestore.FieldValue.serverTimestamp();
-        firebase.firestore().collection('inquiries').add(this._inqueryData).then(_=>this.set('_inqueryData',{}));
+        firebase.firestore().collection('inquiries').add(data).then(_=>{
+          this.dispatchEvent(new CustomEvent('toast-thanks-inq',{ bubbles:true, composed:true }));
+        });
+      }
+      _submit(e) {
+        const form = this.shadowRoot.querySelector('iron-form');
+        if(form.validate()){
+          form.submit();
+        }
       }
       _trackDialog(e) {
         e.stopPropagation();
         e.preventDefault();
-        const t = e.target.parentNode;
+        const t = e.target.parentNode.parentNode.parentNode;
         t.style.transitionProperty='width,height'
         switch(e.detail.state) {
           case 'start':

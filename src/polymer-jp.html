@@ -273,6 +273,7 @@
       }
       connectedCallback() {
         super.connectedCallback();
+        this.db.enablePersistence();
         this.db.collection('docs').where('show','==',true).where('order','>',0).orderBy('order').get().then(s=>{
           s.forEach(d=>{
             const _childs=[];

@@ -58,7 +58,15 @@
       paper-listbox a { text-decoration: none; color: #3b3b3b; }
       paper-listbox a.iron-selected { outline: none; color: #9b9b9b; }
       paper-item:not(.iron-selected) { cursor: pointer; }
-      iron-collapse { outline: none; }
+      paper-item {
+        --paper-item-min-height: 40px;
+      }
+      paper-item.index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
+      }
+      paper-listbox iron-collapse { outline: none; }
       paper-progress {
         position: absolute;
         width: 100%;
@@ -119,11 +127,6 @@
       .menu {
         margin-left: -8px;
         margin-right: 6px;
-      }
-      .index_child {
-        margin-left: 10px;
-        font-size: 0.9em;
-        --paper-item-min-height: 32px;
       }
     </style>
 

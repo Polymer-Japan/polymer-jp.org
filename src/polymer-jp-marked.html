@@ -40,7 +40,7 @@
         }
       }
       div[main-title] {
-        font-family: 'Roboto Slab',serif;
+        font-family: serif;
         font-size: 20px;
         font-weight: 700;
         white-space: nowrap;
@@ -72,8 +72,14 @@
         padding-left: 10px;
       }
       [slot="markdown-html"] h1 {
+        font-size: 1.5em;
       }
       [slot="markdown-html"] h2 {
+        font-size: 1.3em;
+        border-bottom: solid 1px #f50057;
+      }
+      [slot="markdown-html"] h3 {
+        font-size: 1.2em;
         border-bottom: solid 1px #f50057;
       }
       [slot="markdown-html"] a {
@@ -285,7 +291,7 @@
         if(bgurl){
           style = Object.assign(style,{
             '--header-height': height || '320px',
-            '--header-bg-color': '#dfdfdf',
+            '--header-bg-color': 'white',
             '--header-text-shadow': '1px 1px 3px #000',
             '--header-bg-image': `url(${bgurl})`,
             '--header-bg-size': 'cover',

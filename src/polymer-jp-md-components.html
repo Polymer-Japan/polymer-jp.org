@@ -115,9 +115,11 @@
       paper-item:not(.iron-selected) { cursor: pointer; }
       paper-item {
         margin: 20px 0;
-        padding: 5px 10px;
         height: 48px;
         border-left: 3px solid #337ab7;
+      }
+      .title {
+        font-size: 1.2em;
       }
     </style>
     <template is="dom-repeat" items="[[_list]]">
@@ -125,7 +127,7 @@
         <paper-item>
           <paper-item-body two-line>
             <div secondary>[[item.date]]</div>
-            <div>[[item.title]]</div>
+            <div class="title">[[item.title]]</div>
           </paper-item-body>
         </paper-item>
       </a>

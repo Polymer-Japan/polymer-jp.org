@@ -106,7 +106,6 @@
       }
       paper-listbox {
         margin-top: 15px;
-        float: right;
       }
       paper-item {
         font-size: 0.9em;
@@ -160,7 +159,7 @@
         </app-header>
       </template>
 
-      <template is="dom-if" if="[[wideScreen]]">
+      <template is="dom-if" if="[[!wideScreen]]">
         <paper-listbox align="left">
           <template is="dom-repeat" items="[[toc]]">
             <paper-item on-tap="_scroll"><li>[[item.title]]</li></paper-item>

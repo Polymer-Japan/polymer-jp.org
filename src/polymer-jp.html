@@ -178,7 +178,7 @@
             <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
           </template>
           <a href="/"><img class="logo" src="https://www.polymer-project.org//images/logos/p-logo.png" drawer-toggle></a>
-          <div main-title><span>Polymer Japan<paper-badge label="BETA"></paper-badge></div>
+          <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>
@@ -304,6 +304,11 @@
       }
       ready(){
         super.ready();
+
+        // BUG: 初期読み込み時にずれる時がある
+        this.shadowRoot.querySelector('paper-badge').hidden=false;
+        this.shadowRoot.querySelector('paper-badge').updatePosition();
+
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/service-worker.js').then(reg => {
             reg.addEventListener('updatefound', () => {

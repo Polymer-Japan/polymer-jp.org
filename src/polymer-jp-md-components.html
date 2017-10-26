@@ -5,6 +5,7 @@
 <link rel="import" href="../components/paper-input/paper-input.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
 <link rel="import" href="../components/paper-item/paper-item-body.html">
+<link rel="import" href="../components/app-layout/app-grid/app-grid-style.html">
 
 <dom-module id="md-horizontal">
   <template>
@@ -23,6 +24,46 @@
       static get is() { return 'md-horizontal' }
     }
     customElements.define(MdHorizontal.is,MdHorizontal)
+  </script>
+</dom-module>
+
+<dom-module id="md-grid">
+  <template>
+    <style include="app-grid-style">
+      :host {
+        display: block;
+        --app-grid-columns: var(--columns, 3);
+        --app-grid-gutter: var(--gutter, 10px);
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+    <div class="app-grid" has-aspect-ratio>
+      <slot></slot>
+    </div>
+  </template>
+  <script>
+    class MdGrid extends Polymer.Element {
+      static get is() { return 'md-grid' }
+      static get properties() {
+        return {
+          columns: Number,
+          gutter: String,
+        }
+      }
+      ready(){
+        super.ready();
+        window.addEventListener('resize', this._updateGridStyles);
+      }
+      _gridChanged(columns, gutter){
+        this.updateStyles({
+          '--columns': columns,
+          '--gutter': gutter,
+        });
+      }
+    }
+    customElements.define(MdGrid.is,MdGrid)
   </script>
 </dom-module>
 
@@ -156,8 +197,8 @@
             const mm = dt.getMonth() + 1
             const dd = dt.getDate()
             doc.date = [dt.getFullYear(),'-',
-                       (mm > 9 ? '' : '0') + mm,'-',
-                       (dd > 9 ? '' : '0') + dd
+                        (mm > 9 ? '' : '0') + mm,'-',
+                        (dd > 9 ? '' : '0') + dd
             ].join('');
             this.push('_list',doc);
           })

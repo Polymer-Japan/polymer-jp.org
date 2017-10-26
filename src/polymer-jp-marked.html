@@ -200,13 +200,14 @@
           _sanitizeConfig: {
             type: Object,
             value: {
-              elements: ['a','img','md-button','md-card','md-horizontal','md-list'],
+              elements: ['a','img','md-button','md-card','md-grid','md-list'],
               attributes: {
                 a: ['href','title'],
                 img: ['class','src'],
                 'md-button': ['color'],
                 'md-card': ['image','title','sub-title','desc','button'],
-                'md-list': ['path']
+                'md-list': ['path'],
+                'md-grid': ['columns','gutter'],
               },
               protocols: {
                 a:{ href: ['http','https'] }

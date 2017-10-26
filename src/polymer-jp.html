@@ -19,6 +19,7 @@
 <link rel="import" href="../components/paper-progress/paper-progress.html">
 <link rel="import" href="../components/paper-toast/paper-toast.html">
 <link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../components/paper-badge/paper-badge.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
@@ -128,6 +129,17 @@
         margin-left: -8px;
         margin-right: 6px;
       }
+      .index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
+      }
+      paper-badge {
+        --paper-badge-width: 45px;
+        --paper-badge: {
+          border-radius: 10px;
+        }
+      }
     </style>
 
     <polymer-jp-gtm cid="GTM-P7CGGP6"></polymer-jp-gtm>
@@ -153,10 +165,6 @@
       問い合わせありがとうございました!
     </paper-toast>
 
-    <paper-tooltip for="login" animation-delay="0">
-      編集用のGoogleログイン(要管理権限)
-    </paper-tooltip>
-
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
 
@@ -170,7 +178,7 @@
             <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
           </template>
           <a href="/"><img class="logo" src="https://www.polymer-project.org//images/logos/p-logo.png" drawer-toggle></a>
-          <div main-title>Polymer Japan</div>
+          <div main-title><span>Polymer Japan<paper-badge label="BETA"></paper-badge></div>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>
@@ -181,6 +189,9 @@
           </template>
           <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
           <paper-icon-button id="login" icon="i:[[_iconLogin(_login)]]" on-tap="_auth"></paper-icon-button>
+          <paper-tooltip for="login" animation-delay="0">
+            編集用のGoogleログイン(要管理権限)
+          </paper-tooltip>
         </app-toolbar>
         <paper-progress indeterminate></paper-progress>
       </app-header>

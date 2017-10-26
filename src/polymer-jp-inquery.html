@@ -68,19 +68,16 @@
           }
         }
       }
-      _sendInquery(e){
-        event.preventDefault();
-        const data = this.shadowRoot.querySelector('iron-form').serializeForm();
-        data.created = firebase.firestore.FieldValue.serverTimestamp();
-        this.set('open',false);
-        firebase.firestore().collection('inquiries').add(data).then(_=>{
-          this.dispatchEvent(new CustomEvent('toast-thanks-inq',{ bubbles:true, composed:true }));
-        });
-      }
       _submit(e) {
         const form = this.shadowRoot.querySelector('iron-form');
         if(form.validate()){
-          form.submit();
+          this.set('open',false);
+          firebase.firestore().collection('inquiries').add(
+            Object.assign(form.serializeForm(),{created:firebase.firestore.FieldValue.serverTimestamp()})
+          ).then(_=>{
+            this.dispatchEvent(new CustomEvent('toast-thanks-inq',{ bubbles:true, composed:true }));
+            form.reset();
+          });
         }
       }
       _trackDialog(e) {

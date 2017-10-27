@@ -159,19 +159,19 @@
         </app-header>
       </template>
 
-      <template is="dom-if" if="[[!wideScreen]]">
-        <paper-listbox align="left">
-          <template is="dom-repeat" items="[[toc]]">
-            <paper-item on-tap="_scroll"><li>[[item.title]]</li></paper-item>
-          </template>
-        </paper-listbox>
-      </template>
+        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
+          <main class="markdown-body" slot="markdown-html"></main>
+        </marked-element>
 
-      <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
-        <main class="markdown-body" slot="markdown-html"></main>
-      </marked-element>
+        <template is="dom-if" if="[[wideScreen]]">
+          <paper-listbox>
+            <template is="dom-repeat" items="[[toc]]">
+              <paper-item on-tap="_scroll"><li>[[item.title]]</li></paper-item>
+            </template>
+          </paper-listbox>
+        </template>
 
-      <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
+        <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
 
     </app-header-layout>
 
@@ -199,7 +199,7 @@
           _sanitizeConfig: {
             type: Object,
             value: {
-              elements: ['a','img','md-button','md-card','md-grid','md-list'],
+              elements: ['a','img','md-button','md-card','md-grid','md-list','iron-icon'],
               attributes: {
                 a: ['href','title'],
                 img: ['class','src'],
@@ -207,6 +207,7 @@
                 'md-card': ['image','title','sub-title','desc','button'],
                 'md-list': ['path'],
                 'md-grid': ['columns','gutter'],
+                'iron-icon': ['icon'],
               },
               protocols: {
                 a:{ href: ['http','https'] }
@@ -240,7 +241,7 @@
           // TOCの取得
           op.heading = (text, level, raw) => {
             const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
-            if(level == 2) this.push('_toc',{id: id, title: text});
+            if(level == 2) this.push('_toc',{id: id, title: raw});
             return `<h${level} id="${id}">${text}</h${level}>\n`;
           }
         }
@@ -271,15 +272,15 @@
         };
         if(bgurl){
           style = Object.assign(style,{
-            '--header-height': height || '320px',
+            '--header-height': height || '300px',
             '--header-bg-color': 'white',
             '--header-text-shadow': '1px 1px 3px #000',
             '--header-bg-image': `url(${bgurl})`,
             '--header-bg-size': 'cover',
           });
-          if(bgurl.match(/\/textures\//)){
+          if(bgurl.match(/\/textures/)){
             style = Object.assign(style,{
-              '--header-height': '135px',
+              '--header-height': height || '135px',
               '--header-bg-color': bgColor || '#337ab7',
               '--header-text-shadow': '',
               '--header-bg-repeat': 'repeat-x',

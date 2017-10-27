@@ -140,6 +140,21 @@
           border-radius: 10px;
         }
       }
+      polymer-jp-marked {
+        min-height: 80vh;
+      }
+      .copy {
+        margin-top: auto;
+        position: relative;
+        left: 0;
+        bottom: 0;
+        font-size: 12px;
+        background: #cdcdcd;
+        color: #4d4d4d;
+        height: 15px;
+        padding: 10px;
+        text-align: center;
+      }
     </style>
 
     <polymer-jp-gtm cid="GTM-P7CGGP6"></polymer-jp-gtm>
@@ -231,25 +246,15 @@
 
       </app-drawer-layout>
 
-      <!-- BUG: なぜかminifyで崩れるので外部化 -->
-      <div style="margin-top: auto;
-                  position: relative;
-                  left: 0;
-                  bottom: 0;
-                  font-size: 12px;
-                  background: #4b4b4b;
-                  color: white;
-                  height: 16px;
-                  padding: 10px;
-                  text-align: center;
-                  ">
-        &copy; 2017 Polymer Japan Authors.&nbsp;
+      <footer class="copy" hidden>
+        &copy; 2017 Polymer Japan Authors. &nbsp;
         <template is="dom-if" if="[[!smallScreen]]">
           Code under the BSD License. Documentation Licensed under CC BY 3.0.
         </template>
-      </div>
+      </footer>
 
     </app-header-layout>
+
 
   </template>
 
@@ -285,10 +290,11 @@
       connectedCallback() {
         super.connectedCallback();
         this.db.enablePersistence();
-        this.db.collection('docs').where('show','==',true).where('order','>',0).orderBy('order').get().then(s=>{
+        // NOTICE: 複合インデックスを作っておくこと
+        this.db.collection('docs').where('show','==',true).orderBy('order').get().then(s=>{
           s.forEach(d=>{
             const _childs=[];
-            d.ref.collection('_childs').where('show','==',true).where('order','>',0).orderBy('order').get().then(sc=>sc.forEach(dc=>{
+            d.ref.collection('_childs').where('show','==',true).orderBy('order').get().then(sc=>sc.forEach(dc=>{
               const doc = dc.data();
               doc.id=dc.id;
               _childs.push(doc);
@@ -298,17 +304,13 @@
               doc._childs= doc.noExpand ? [] : _childs;
               this.push('index',doc);
               this.shadowRoot.querySelector('paper-progress').hidden=true;
+              this.shadowRoot.querySelector('footer').hidden=false;
             });
           })
         })
       }
       ready(){
         super.ready();
-
-        // BUG: 初期読み込み時にずれる時がある
-        this.shadowRoot.querySelector('paper-badge').hidden=false;
-        this.shadowRoot.querySelector('paper-badge').updatePosition();
-
         if ('serviceWorker' in navigator) {
           navigator.serviceWorker.register('/service-worker.js').then(reg => {
             reg.addEventListener('updatefound', () => {
@@ -321,6 +323,11 @@
           });
         }
         this.addEventListener('toast-thanks-inq',_=>this.$.thanksInq.open());
+        // BUG: 初期読み込み時にずれる時があるので
+        Polymer.Async.timeOut.run(_=>{
+          this.shadowRoot.querySelector('paper-badge').hidden=false;
+          this.shadowRoot.querySelector('paper-badge').updatePosition();
+        }, 1000);
       }
       // FIXME: もっといい方法がある気がする
       _removeDrawerToggle(e){

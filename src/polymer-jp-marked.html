@@ -30,12 +30,14 @@
         color: var(--header-txt-color);
         background-color: var(--header-bg-color);
         text-shadow: var(--header-text-shadow);
-        --app-header-background-front-layer: {
+
+        /* for IE, firefox */
+        /* --app-header-background-front-layer: { */
           background-image: var(--header-bg-image);
           background-repeat: var(--header-bg-repeat);
           background-position: var(--header-bg-position);
           background-size: var(--header-bg-size);
-        }
+        /* } */
       }
       div[main-title] {
         font-family: serif;
@@ -45,6 +47,8 @@
       }
       marked-element {
         margin: 15px;
+        max-width: 740px;
+        min-width: 740px;
       }
       [slot="markdown-html"] pre {
         padding: 0.5em 1em;
@@ -92,6 +96,25 @@
         outline: 5px auto -webkit-focus-ring-color;
         outline-offset: -2px
       }
+      .toc {
+        margin-top: 15px;
+        display: block;
+        min-width: 300px;
+        max-width: 300px;
+        font-size: 0.9em;
+        color: #4a4a4a;
+      }
+      ul {
+        list-style-type: square;
+      }
+      .toc a {
+        color: #4a4a4a;
+        text-decoration: none
+      }
+      .toc a:hover, .toc a:focus {
+        color: #23527c;
+        text-decoration: underline
+      }
       main[slot="markdown-html"]{
         color: #4a4a4a;
       }
@@ -104,15 +127,6 @@
         height: 22px;
         vertical-align: middle;
       }
-      paper-listbox {
-        margin-top: 15px;
-      }
-      paper-item {
-        font-size: 0.9em;
-        --paper-item-min-height: 24px;
-        cursor: pointer;
-      }
-      paper-item span::before { content: "・"; }
       paper-textarea {
         --paper-input-container-input:{
           min-height: 4em;
@@ -121,9 +135,12 @@
       polymer-jp-marked-edit[hidden] {
         display: none !important;
       }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
     </style>
 
-    <iron-media-query query="min-width: 1000px" query-matches="{{wideScreen}}"></iron-media-query>
+    <iron-media-query query="min-width: 1100px" query-matches="{{wideScreen}}"></iron-media-query>
 
     <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
     <firebase-storage-multiupload
@@ -159,19 +176,27 @@
         </app-header>
       </template>
 
-        <marked-element markdown="[[_markdown]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
+      <div class="horizontal">
+        <marked-element markdown="[[doc.contents]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
           <main class="markdown-body" slot="markdown-html"></main>
         </marked-element>
 
+        <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
+
         <template is="dom-if" if="[[wideScreen]]">
-          <paper-listbox>
-            <template is="dom-repeat" items="[[toc]]">
-              <paper-item on-tap="_scroll"><li>[[item.title]]</li></paper-item>
-            </template>
-          </paper-listbox>
+          <template is="dom-if" if="[[toc]]">
+            <div class="toc">
+              <ul>
+                <template is="dom-repeat" items="[[toc]]">
+                  <li on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[_emojify(item.title)]]"></a></li>
+                </template>
+              </ul>
+            </div>
+          </template>
         </template>
 
-        <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
+      </div>
+
 
     </app-header-layout>
 
@@ -184,6 +209,10 @@
           page: String,
           doc: Object,
           toc: Array,
+          _toc_id: {
+            type: Number,
+            value: 1,
+          },
           _toc: {
             type: Array,
             value: [],
@@ -191,10 +220,6 @@
           _edit: {
             type: Boolean,
             value: false
-          },
-          _markdown: {
-            type: String,
-            computed: "_emojify(doc.contents)"
           },
           _sanitizeConfig: {
             type: Object,
@@ -222,9 +247,6 @@
           '_headerChanged(doc.height, doc.bgurl, doc.txtColor, doc.bgColor)'
         ]
       }
-      _scroll(e){
-        this.shadowRoot.getElementById(e.model.item.id).scrollIntoView();
-      }
       ready(){
         super.ready();
         this.shadowRoot.querySelector('marked-element').renderer=op=>{
@@ -240,9 +262,10 @@
           }
           // TOCの取得
           op.heading = (text, level, raw) => {
-            const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
-            if(level == 2) this.push('_toc',{id: id, title: raw});
-            return `<h${level} id="${id}">${text}</h${level}>\n`;
+            //const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
+            const id = this._toc_id++;
+            if(level == 2 && raw) this.push('_toc',{id: 'h'+id, title: raw});
+            return `<h${level} id="h${id}">${text}</h${level}>\n`;
           }
         }
 
@@ -250,9 +273,22 @@
         Polymer.importHref(this.importPath+"polymer-jp-md-components.html",null,null,true);
 
       }
+      _scroll(e){
+        const t = this.shadowRoot.getElementById(e.model.item.id);
+        t.scrollIntoView(true);
+        window.scrollBy(0,0-(t.offsetHeight+40));
+      }
       _clearToc(e){
         this.set('toc',this._toc);
         this.set('_toc',[]);
+        this.set('_toc_id',1);
+        this.set('_path',window.location.pathname);
+
+        const main = this.shadowRoot.querySelector('marked-element').querySelector('main');
+	      var input = main.innerHTML;
+	      var output = emojione.toImage(input);
+	      main.innerHTML = output;
+
       }
       _docUrlChanged(url){
         if(url)
@@ -302,7 +338,7 @@
         return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
       }
       _emojify(contents){
-        if (contents) return emojione.toImage(contents)
+        if (contents) return emojione.toImage(contents);
       }
     }
     customElements.define(PolymerJpMarked.is, PolymerJpMarked)

@@ -109,6 +109,8 @@
         font-size: 22px;
         color: #ccc;
         white-space: nowrap;
+        user-select: none;
+        cursor: default;
       }
       nav a {
         font-size: 17px;
@@ -197,9 +199,9 @@
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>
-              <a href="/intro">Start</a>
-              <a href="/news">News</a>
-              <a href="/community">Community</a>
+              <a href="/intro/">Start</a>
+              <a href="/news/">News</a>
+              <a href="/community/">Community</a>
             </nav>
           </template>
           <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
@@ -217,20 +219,20 @@
           <app-drawer slot="drawer" swipe-open on-opened-changed="_iconMenu">
 
             <app-toolbar>
-              <iron-icon icon="i:polymer" class="back-logo"></iron-icon>
+              <a href="/"><iron-icon icon="i:polymer" class="back-logo"></iron-icon></a>
               <div class="back-text">Polymer JP</div>
             </app-toolbar>
 
             <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
               <template is="dom-repeat" items="[[index]]" on-dom-change="_removeDrawerToggle">
-                <a name="[[item.id]]" href="/[[item.id]]">
+                <a name="[[item.id]]" href="/[[item.id]]/">
                   <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
                 </a>
                 <iron-collapse opened="[[_openCollapse(item.id,_selectedId,item._childs)]]">
                   <paper-listbox attr-for-selected="name">
                     <template is="dom-repeat" items="[[item._childs]]" as="child">
-                      <a name="[[item.id]]-[[child.id]]" href="/[[item.id]]/[[child.id]]">
-                        <paper-item  class="index_child" drawer-toggle>[[child.title]]</paper-item>
+                      <a name="[[item.id]]-[[child.id]]" href="/[[item.id]]/[[child.id]]/">
+                        <paper-item class="index_child" drawer-toggle>[[child.title]]</paper-item>
                       </a>
                     </template>
                   </paper-listbox>

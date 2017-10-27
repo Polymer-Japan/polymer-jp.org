@@ -145,16 +145,17 @@
       polymer-jp-marked {
         min-height: 80vh;
       }
-      .copy {
+      .footer {
+        border-top: 1px solid #cecece;
         margin-top: auto;
         position: relative;
         left: 0;
         bottom: 0;
         font-size: 12px;
-        background: #cdcdcd;
         color: #4d4d4d;
-        height: 15px;
-        padding: 10px;
+        background: white;
+        height: 14px;
+        padding: 8px;
         text-align: center;
       }
     </style>
@@ -248,7 +249,7 @@
 
       </app-drawer-layout>
 
-      <footer class="copy" hidden>
+      <footer class="footer" hidden>
         &copy; 2017 Polymer Japan Authors. &nbsp;
         <template is="dom-if" if="[[!smallScreen]]">
           Code under the BSD License. Documentation Licensed under CC BY 3.0.

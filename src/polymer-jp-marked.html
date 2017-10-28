@@ -127,12 +127,7 @@
         height: 22px;
         vertical-align: middle;
       }
-      paper-textarea {
-        --paper-input-container-input:{
-          min-height: 4em;
-        }
-      }
-      polymer-jp-marked-edit[hidden] {
+      [hidden] {
         display: none !important;
       }
       .horizontal {
@@ -181,8 +176,7 @@
           <main class="markdown-body" slot="markdown-html"></main>
         </marked-element>
 
-        <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden=[[!_edit]]></polymer-jp-marked-edit>
-
+        <!-- FIXME: tmp -->
         <template is="dom-if" if="[[wideScreen]]">
           <template is="dom-if" if="[[toc]]">
             <div class="toc">
@@ -194,9 +188,9 @@
             </div>
           </template>
         </template>
-
       </div>
 
+      <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden="[[!_edit]]"></polymer-jp-marked-edit>
 
     </app-header-layout>
 
@@ -207,7 +201,10 @@
       static get properties() {
         return {
           page: String,
-          doc: Object,
+          doc: {
+            type: Object,
+            observer: '_docChanged',
+          },
           toc: Array,
           _toc_id: {
             type: Number,
@@ -246,6 +243,9 @@
           '_docUrlChanged(doc.url)',
           '_headerChanged(doc.height, doc.bgurl, doc.txtColor, doc.bgColor)'
         ]
+      }
+      _docChanged(doc){
+        Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
       }
       ready(){
         super.ready();

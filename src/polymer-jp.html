@@ -293,24 +293,18 @@
       connectedCallback() {
         super.connectedCallback();
         this.db.enablePersistence();
-        // NOTICE: 複合インデックスを作っておくこと
-        this.db.collection('docs').where('show','==',true).orderBy('order').get().then(s=>{
-          s.forEach(d=>{
-            const _childs=[];
-            d.ref.collection('_childs').where('show','==',true).orderBy('order').get().then(sc=>sc.forEach(dc=>{
-              const doc = dc.data();
-              doc.id=dc.id;
-              _childs.push(doc);
-            })).then(_=>{
-              const doc = d.data();
-              doc.id=d.id;
-              doc._childs= doc.noExpand ? [] : _childs;
-              this.push('index',doc);
-              this.shadowRoot.querySelector('paper-progress').hidden=true;
-              this.shadowRoot.querySelector('footer').hidden=false;
-            });
-          })
-        })
+        this.db.collection('docs').doc('home').get().then(doc=>{
+          const index=[];
+          const d_index = doc.data()._index;
+          for(const i in d_index){
+            index.push(d_index[i]);
+          }
+          index.sort((a,b) => a.order > b.order);
+          this.set('index',index);
+        }).then(_=>{
+          this.shadowRoot.querySelector('paper-progress').hidden=true;
+          this.shadowRoot.querySelector('footer').hidden=false;
+        });
       }
       ready(){
         super.ready();

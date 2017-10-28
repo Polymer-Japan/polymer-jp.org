@@ -20,6 +20,11 @@
       paper-button {
         margin: 20px 10px;
       }
+      paper-textarea {
+        --paper-input-container-input:{
+          min-height: 4em;
+        }
+      }
       .horizontal {
         @apply(--layout-horizontal);
       }
@@ -68,6 +73,7 @@
       required auto-validate error-message="入力必須です!" placeholder="intro"></paper-input>
     <paper-button raised on-tap="_add">NEW</paper-button>
     <paper-button raised on-tap="_child">CHILDE</paper-button>
+    <paper-button raised on-tap="_updateIndex">UPDATE INDEX</paper-button>
 
   </template>
   <script>
@@ -159,6 +165,33 @@
             document.location.reload(true);
           });
         })
+      }
+      _updateIndex(e){
+        const btn = e.path[0];
+        btn.innerText='UPDATING';
+
+        const index = {};
+        firebase.firestore().collection('docs').where('show','==',true).orderBy('order').get().then(s=>{
+          s.forEach(d=>{
+            const _childs=[];
+            d.ref.collection('_childs').where('show','==',true).orderBy('order').get().then(sc=>sc.forEach(dc=>{
+              const doc = dc.data();
+              _childs.push({id:dc.id, title:doc.title});
+            })).then(_=>{
+              const doc = d.data();
+              index[d.id]={id:d.id, order:doc.order, title:doc.title, _childs: doc.noExpand ? [] : _childs};
+            });
+          })
+        }).then(_=>{
+          // TODO: うまく保存されない
+          Polymer.Async.timeOut.run(_=>{
+            console.log('save',index);
+            firebase.firestore().collection('docs').doc('home').update({'_index': index});
+            btn.innerText='UPDATED';
+            Polymer.Async.timeOut.run(_=>btn.innerText='UPDATE INDEX', 5000);
+          }, 1000);
+        })
+
       }
       _hasColor(t,b){
         return t || b;

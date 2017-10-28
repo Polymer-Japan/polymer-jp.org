@@ -109,9 +109,6 @@
         font-size: 0.9em;
         color: #4a4a4a;
       }
-      ul {
-        list-style-type: square;
-      }
       .toc a {
         color: #4a4a4a;
         text-decoration: none
@@ -188,7 +185,7 @@
             <div class="toc">
               <ul>
                 <template is="dom-repeat" items="[[toc]]">
-                  <li on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[_emojify(item.title)]]"></a></li>
+                  <li type="square" on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[_emojify(item.title)]]"></a></li>
                 </template>
               </ul>
             </div>

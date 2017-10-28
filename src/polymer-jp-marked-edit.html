@@ -119,6 +119,8 @@
           firebase.firestore().collection(this._path).doc(this.doc.__id__).update(data).then(_=>{
             btn.innerText='SAVED!';
             Polymer.Async.timeOut.run(_=>btn.innerText='SAVE', 5000);
+          }).catch(err=>{
+            btn.innerText='ERROR';
           });
         })
 
@@ -132,6 +134,8 @@
             firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
               btn.innerText='DELETED';
               document.location.href='/';
+            }).catch(err=>{
+              btn.innerText='ERROR';
             });
 	        }else{
             btn.innerText='DEL';
@@ -149,6 +153,8 @@
           }).then(_=>{
             btn.innerText='ADDED';
             document.location.reload(true);
+          }).catch(err=>{
+            btn.innerText='ERROR';
           });
         })
       }
@@ -163,6 +169,8 @@
           }).then(_=>{
             btn.innerText='ADDED';
             document.location.reload(true);
+          }).catch(err=>{
+            btn.innerText='ERROR';
           });
         })
       }

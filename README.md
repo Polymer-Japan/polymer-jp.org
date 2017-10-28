@@ -16,6 +16,7 @@ $ npm start
 ```
 
 - polymer-cli, bower, firebase-toolsはプロジェクト内のものを使用。
+- sw-precacheで入れておくドメインの確認
 
 ## Develop
 

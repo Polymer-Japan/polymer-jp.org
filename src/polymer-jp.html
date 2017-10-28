@@ -99,18 +99,21 @@
         white-space: nowrap;
         font-size: 22px;
       }
+      .back-toolbar {
+        background: #ccc;
+      }
       .back-logo {
         margin-right: 6px;
         height: 32px;
         width: 40px;
-        color: #ccc;
+        color: white;
       }
       .back-text {
         font-size: 22px;
-        color: #ccc;
         white-space: nowrap;
         user-select: none;
         cursor: default;
+        color: white;
       }
       nav a {
         font-size: 17px;
@@ -202,7 +205,7 @@
             <nav>
               <a href="/intro/">Start</a>
               <a href="/news/">News</a>
-              <a href="/community/">Community</a>
+              <a href="/about/">About</a>
             </nav>
           </template>
           <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
@@ -219,7 +222,7 @@
         <template is="dom-if" if="[[doc]]">
           <app-drawer slot="drawer" swipe-open on-opened-changed="_iconMenu">
 
-            <app-toolbar>
+            <app-toolbar class="back-toolbar">
               <a href="/"><iron-icon icon="i:polymer" class="back-logo"></iron-icon></a>
               <div class="back-text">Polymer JP</div>
             </app-toolbar>
@@ -292,15 +295,14 @@
       }
       connectedCallback() {
         super.connectedCallback();
+
+        // オフライン ON
         this.db.enablePersistence();
+
         this.db.collection('docs').doc('home').get().then(doc=>{
-          const index=[];
           const d_index = doc.data()._index;
-          for(const i in d_index){
-            index.push(d_index[i]);
-          }
-          index.sort((a,b) => a.order > b.order);
-          this.set('index',index);
+          // 配列に変換して並びかえ
+          this.set('index',Object.keys(d_index).map(k=>d_index[k]).sort((a,b)=>a.order > b.order));
         }).then(_=>{
           this.shadowRoot.querySelector('paper-progress').hidden=true;
           this.shadowRoot.querySelector('footer').hidden=false;

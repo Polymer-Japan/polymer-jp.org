@@ -21,14 +21,11 @@
 <link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../components/paper-badge/paper-badge.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
-<link rel="import" href="../components/polymerfire/firebase-auth.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
 <link rel="import" href="../components/page-title/page-title.html">
 
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
-<link rel="import" href="polymer-jp-marked.html">
-<link rel="import" href="polymer-jp-inquery.html">
 
 <dom-module id="polymer-jp">
   <template>
@@ -332,6 +329,14 @@
           this.shadowRoot.querySelector('paper-badge').hidden=false;
           this.shadowRoot.querySelector('paper-badge').updatePosition();
         }, 1000);
+
+        Polymer.importHref(this.importPath+"polymer-jp-marked.html");
+        Polymer.importHref(this.importPath+"polymer-jp-inquery.html");
+        Polymer.importHref(this.importPath+"polymer-jp-inquery.html");
+
+        // KLUDGE: minifyの挙動がおかしい時があるので
+        Polymer.importHref(Polymer.ResolveUrl.resolveUrl('components/polymerfire/firebase-auth.html'));
+
       }
       // FIXME: もっといい方法がある気がする
       _removeDrawerToggle(e){

@@ -4,7 +4,7 @@
              callback(null, file);
              return;
          }
-+        if(/firebase\/firebase-.*\.js$/.test(file.path) &&
++        if(/firebase\/firebase-auth\.js$/.test(file.path) &&
 +            this.optimizerOptions.presets[0].minified == true){
 +            logger.warn(`skip minify ${file.path} ...`);
 +            callback(null, file);

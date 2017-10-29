@@ -2,6 +2,7 @@
   "entrypoint": "index.html",
   "shell": "src/polymer-jp.html",
   "fragments": [
+    "src/polymer-jp-marked.html",
     "src/polymer-jp-marked-edit.html",
     "src/polymer-jp-md-components.html",
     "src/polymer-jp-theme.html",

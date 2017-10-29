@@ -1,13 +1,24 @@
-# Install & Start
+## Install & Start
 
 ```bash
 $ git clone https://github.com/Polymer-Japan/polymer-jp.org
 $ cd polymer-jp.org
 $ npm install
+$ cd functions
+$ npm install
+$ cp [somewhere]/service-account.key.json ./
+# edit serviceAccount.key.json file name
+$ emacs index.js
+$ cd ../
+# firebase-auth minify のバグ回避 https://github.com/Polymer/polymer-cli/issues/701
+$ patch -p0 < polymer-cli-issue-701.patch
 $ npm start
 ```
 
-# Usage
+- polymer-cli, bower, firebase-toolsはプロジェクト内のものを使用。
+- sw-precacheで入れておくドメインの確認
+
+## Develop
 
 ```bash
 $ npm serve

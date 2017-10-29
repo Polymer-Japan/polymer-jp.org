@@ -1,0 +1,15 @@
+--- node_modules/polymer-cli/lib/build/optimize-streams.js.orig	2017-10-10 00:13:37.391996062 +0900
++++ node_modules/polymer-cli/lib/build/optimize-streams.js	2017-10-10 00:13:47.206996049 +0900
+@@ -49,6 +49,12 @@
+             callback(null, file);
+             return;
+         }
++        if(/firebase\/firebase-auth\.js$/.test(file.path) &&
++            this.optimizerOptions.presets[0].minified == true){
++            logger.warn(`skip minify ${file.path} ...`);
++            callback(null, file);
++            return;
++        }
+         if (file.contents) {
+             try {
+                 let contents = file.contents.toString();

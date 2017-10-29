@@ -1,0 +1,251 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-input/paper-textarea.html">
+<link rel="import" href="../components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
+<link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
+
+<dom-module id="polymer-jp-marked-edit">
+  <template>
+    <style>
+      :host {
+        display: block;
+        margin: 5px;
+        padding: 10px;
+      }
+      paper-button {
+        margin: 20px 10px;
+      }
+      paper-textarea {
+        --paper-input-container-input:{
+          min-height: 4em;
+        }
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+    </style>
+
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
+    <firebase-storage-multiupload
+      path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
+    <template is="dom-repeat" items="[[_uploadTasks]]">
+      <firebase-storage-upload-task task="[[item]]" metadata="{{_metaData}}"></firebase-storage-upload-task>
+    </template>
+
+    <paper-input always-float-label label="Title" value="{{doc.title}}"></paper-input>
+    <paper-input always-float-label label="Description(SEO)" value="{{doc.desc}}"></paper-input>
+    <div class="horizontal">
+      <paper-input always-float-label label="Date" value="{{doc.date}}"
+        type="date" style="width: 150px; margin-right: 30px;"></paper-input>
+      <paper-input always-float-label label="Order" value="{{doc.order}}"
+        type="number" style="width: 100px;" placeholder="100"></paper-input>
+      <paper-input always-float-label label="Header Height" value="{{doc.height}}"
+        style="width: 100px;" placeholder="64px"></paper-input>
+    </div>
+    <div class="horizontal">
+      <paper-input always-float-label label="Header Text Color" value="{{doc.txtColor}}"
+        type="color" style="width: 100px; margin-right: 30px;"></paper-input>
+      <paper-input always-float-label label="Header Background Color" value="{{doc.bgColor}}"
+        type="color" style="width: 100px;"></paper-input>
+      <template is="dom-if" if="[[_hasColor(doc.txtColor,doc.bgColor)]]">
+        <paper-button style="margin-top: 10px; margin-left: 22px; font-size: 13px; height: 16px; color: gray;" on-tap="_resetColor">
+          × CLEAR COLOR
+        </paper-button>
+      </template>
+    </div>
+    <paper-textarea always-float-label label="Contents" value="{{doc.contents}}"
+      on-drop="_onTextareaDrop" on-paste="_onTextareaPaste"></paper-textarea>
+    <paper-input always-float-label label="Background URL" value="{{doc.bgurl}}" placeholder="https://"></paper-input>
+    <paper-input always-float-label label="Markdown URL" value="{{doc.url}}" placeholder="https://"></paper-input>
+    <div class="horizontal">
+      <paper-toggle-button checked="{{doc.show}}" style="margin-right: 20px;">Show</paper-toggle-button>
+      <paper-toggle-button checked="{{doc.noExpand}}">Not Expand Menu</paper-toggle-button>
+    </div>
+    <paper-button raised on-tap="_save">SAVE</paper-button>
+    <paper-button raised on-tap="_delete">DEL</paper-button>
+
+    <paper-input always-float-label label="New Key (URL)" value="{{_newkey}}"
+      required auto-validate error-message="入力必須です!" placeholder="intro"></paper-input>
+    <paper-button raised on-tap="_add">NEW</paper-button>
+    <paper-button raised on-tap="_child">CHILDE</paper-button>
+    <paper-button raised on-tap="_updateIndex">UPDATE INDEX</paper-button>
+
+  </template>
+  <script>
+    class PolymerJpMarkedEdit extends Polymer.Element {
+      static get is() { return 'polymer-jp-marked-edit' }
+      static get properties() {
+        return {
+          page: String,
+          doc: {
+            type: Object,
+            notify: true,
+          },
+          _allowedTypes: {
+            type: Array,
+            value: [
+              'image/jpeg',
+              'image/png',
+              'image/jpg',
+              'image/gif'
+            ]
+          },
+          _progressText: {
+            type: String,
+            value: '![Uploading file...]()'
+          },
+          _metaData: {
+            type: Object,
+            observer: '_metaDataChanged'
+          },
+          _path: {
+            type: String,
+            computed: "_getPath(page)"
+          },
+        }
+      }
+      _save(e){
+        const btn = e.path[0];
+        btn.innerText='SAVING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          let data = Object.assign({},this.doc);
+          delete data.__id__;
+          data.order=parseInt(data.order);
+          firebase.firestore().collection(this._path).doc(this.doc.__id__).update(data).then(_=>{
+            btn.innerText='SAVED!';
+            Polymer.Async.timeOut.run(_=>btn.innerText='SAVE', 5000);
+          }).catch(err=>{
+            btn.innerText='ERROR';
+          });
+        })
+
+      }
+      _delete(e){
+        const btn = e.path[0];
+        btn.innerText='DEL CONFIRM';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          if(window.confirm('Are you sure?')){
+            btn.innerText='DELETING';
+            firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
+              btn.innerText='DELETED';
+              document.location.href='/';
+            }).catch(err=>{
+              btn.innerText='ERROR';
+            });
+	        }else{
+            btn.innerText='DEL';
+          }
+        })
+      }
+      _add(e){
+        const btn = e.path[0];
+        btn.innerText='ADDING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          firebase.firestore().collection(this._path).doc(this._newkey).set({
+            title:'DEFAULT',
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            order:999
+          }).then(_=>{
+            btn.innerText='ADDED';
+            document.location.reload(true);
+          }).catch(err=>{
+            btn.innerText='ERROR';
+          });
+        })
+      }
+      _child(e){
+        const btn = e.path[0];
+        btn.innerText='ADDING';
+        this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
+          firebase.firestore().collection(this._path+'/'+this.page+'/_childs').doc(this._newkey).set({
+            title:'DEFAULT',
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            order:999
+          }).then(_=>{
+            btn.innerText='ADDED';
+            document.location.reload(true);
+          }).catch(err=>{
+            btn.innerText='ERROR';
+          });
+        })
+      }
+      _updateIndex(e){
+        const btn = e.path[0];
+        btn.innerText='UPDATING';
+
+        const index = {};
+        firebase.firestore().collection('docs').where('show','==',true).orderBy('order').get().then(s=>{
+          s.forEach(d=>{
+            const _childs=[];
+            d.ref.collection('_childs').where('show','==',true).orderBy('order').get().then(sc=>sc.forEach(dc=>{
+              const doc = dc.data();
+              _childs.push({id:dc.id, title:doc.title});
+            })).then(_=>{
+              const doc = d.data();
+              index[d.id]={id:d.id, order:doc.order, title:doc.title, _childs: doc.noExpand ? [] : _childs};
+            });
+          })
+        }).then(_=>{
+          // TODO: うまく保存されない
+          Polymer.Async.timeOut.run(_=>{
+            console.log('save',index);
+            firebase.firestore().collection('docs').doc('home').update({'_index': index});
+            btn.innerText='UPDATED';
+            Polymer.Async.timeOut.run(_=>btn.innerText='UPDATE INDEX', 5000);
+          }, 1000);
+        })
+
+      }
+      _hasColor(t,b){
+        return t || b;
+      }
+      _getPath(page){
+        const path = `docs/${page}`.split('/');
+        path.pop();
+        return path.join('/');
+      }
+      _resetColor(){
+        this.set('doc.txtColor',null);
+        this.set('doc.bgColor',null);
+      }
+      _onTextareaDrop(e){
+        e.stopPropagation()
+        e.preventDefault()
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.dataTransfer.files)
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(f=>{this._insertImageText(this._progressText); return f;}));
+      }
+      _onTextareaPaste(e){
+        this.shadowRoot.querySelector('firebase-storage-multiupload').upload(
+          Array.from(e.clipboardData.items || e.clipboardData.files || [])
+               .filter(f=>this._allowedTypes.indexOf(f.type) !== -1)
+               .map(i=>{this._insertImageText(this._progressText); return i.getAsFile();}));
+      }
+      _metaDataChanged(meta){
+        // TODO: アップロード時にファイル名を変更したい
+        if(meta) this._insertImageText(`![${meta.name}](${meta.downloadURLs[0]})\n`);
+      }
+      _insertImageText(text){
+        const el = this.shadowRoot.querySelector('paper-textarea')
+                       .shadowRoot.querySelector('iron-autogrow-textarea');
+        const pos = el.selectionStart;
+        const ptext = this._progressText;
+        let offset = 0;
+        if(this.doc.contents.substr(pos - ptext.length, ptext.length) == ptext)
+          offset = ptext.length;
+        this.set('doc.contents',this.doc.contents.substring(0, pos - offset) + text +
+                                this.doc.contents.substring(pos, this.doc.contents.length));
+        el.selectionStart = pos + text.length - offset;
+        el.selectionEnd = pos + text.length - offset;
+        el.focus();
+      }
+    }
+    customElements.define(PolymerJpMarkedEdit.is, PolymerJpMarkedEdit)
+  </script>
+</dom-module>

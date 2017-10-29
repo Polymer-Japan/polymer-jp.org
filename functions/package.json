@@ -1,0 +1,10 @@
+{
+  "name": "polymer-jp-functions",
+  "description": "",
+  "dependencies": {
+    "firebase-admin": "^5.4.0",
+    "firebase-functions": "^0.7.1",
+    "google-spreadsheet": "^2.0.4"
+  },
+  "private": true
+}

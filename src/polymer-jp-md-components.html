@@ -1,0 +1,214 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/paper-card/paper-card.html">
+<link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-item/paper-item-body.html">
+<link rel="import" href="../components/app-layout/app-grid/app-grid-style.html">
+
+<dom-module id="md-horizontal">
+  <template>
+    <style>
+      div {
+        display: block;
+        @apply(--layout-flex);
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+      }
+    </style>
+    <div><slot></slot></div>
+  </template>
+  <script>
+    class MdHorizontal extends Polymer.Element {
+      static get is() { return 'md-horizontal' }
+    }
+    customElements.define(MdHorizontal.is,MdHorizontal)
+  </script>
+</dom-module>
+
+<dom-module id="md-grid">
+  <template>
+    <style include="app-grid-style">
+      :host {
+        display: block;
+        --app-grid-columns: var(--columns, 3);
+        --app-grid-gutter: var(--gutter, 10px);
+        width: 95%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+    </style>
+    <div class="app-grid" has-aspect-ratio>
+      <slot></slot>
+    </div>
+  </template>
+  <script>
+    class MdGrid extends Polymer.Element {
+      static get is() { return 'md-grid' }
+      static get properties() {
+        return {
+          columns: Number,
+          gutter: String,
+        }
+      }
+      ready(){
+        super.ready();
+        window.addEventListener('resize', this._updateGridStyles);
+      }
+      _gridChanged(columns, gutter){
+        this.updateStyles({
+          '--columns': columns,
+          '--gutter': gutter,
+        });
+      }
+    }
+    customElements.define(MdGrid.is,MdGrid)
+  </script>
+</dom-module>
+
+<dom-module id="md-button">
+  <template>
+    <style>
+      paper-button {
+        color: white;
+        background-color: var(--button-color,#337ab7);
+      }
+    </style>
+    <paper-button><slot></slot></paper-button>
+  </template>
+  <script>
+    class MdButton extends Polymer.Element {
+      static get is() { return 'md-button' }
+      static get properties() {
+        return {
+          color: {
+            type: String,
+            observer: '_colorChanged'
+          }
+        }
+      }
+      _colorChanged(color){
+        this.updateStyles({'--button-color': color});
+      }
+    }
+    customElements.define(MdButton.is,MdButton)
+  </script>
+</dom-module>
+
+<dom-module id="md-card">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 10px;
+      }
+      paper-card {
+	      max-width: 400px;
+	      min-width: 300px;
+        --paper-card-header-color: white;
+      }
+      .cafe-header { @apply --paper-font-headline; }
+      .cafe-light { color: var(--paper-grey-600); }
+      .cafe-location {
+        float: right;
+        font-size: 15px;
+        vertical-align: middle;
+      }
+      .cafe-reserve { color: var(--google-blue-500); }
+    </style>
+    <paper-card image="[[image]]" heading="[[title]]">
+      <div class="card-content">
+        <p>[[subTitle]]</p>
+        <p class="cafe-light">[[desc]]</p>
+      </div>
+      <div class="card-actions">
+        <div class="horizontal justified">
+          <paper-button class="cafe-reserve">[[button]]</paper-button>
+        </div>
+      </div>
+    </paper-card>
+  </template>
+  <script>
+    class MdCard extends Polymer.Element {
+      static get is() { return 'md-card' }
+      static get properties() {
+        return {
+          image: String,
+          title: String,
+          subTitle: String,
+          desc: String,
+          button: String
+        }
+      }
+    }
+    customElements.define(MdCard.is,MdCard)
+  </script>
+</dom-module>
+
+<dom-module id="md-list">
+  <template>
+    <style>
+      a { text-decoration: none; color: black; }
+      a.iron-selected { color: lightgray; }
+      paper-item:not(.iron-selected) { cursor: pointer; }
+      paper-item {
+        margin: 20px 0;
+        height: 48px;
+        border-left: 3px solid #337ab7;
+      }
+      paper-item:focus:before {
+        background: white;
+      }
+      .title {
+        font-size: 1.2em;
+      }
+    </style>
+    <template is="dom-repeat" items="[[_list]]">
+      <a href="/[[item.path]]">
+        <paper-item>
+          <paper-item-body two-line>
+            <div secondary>[[item.date]]</div>
+            <div class="title">[[item.title]]</div>
+          </paper-item-body>
+        </paper-item>
+      </a>
+    </template>
+    <dom-repeat>
+  </template>
+  <script>
+    class MdList extends Polymer.Element {
+      static get is() { return 'md-list' }
+      static get properties() {
+        return {
+          path: {
+            type: String,
+            observer: '_getList',
+          },
+          _list: Array,
+        }
+      }
+      _getList(path){
+        this.set('_list',[]);
+        firebase.firestore().collection('docs/'+path+'/_childs').orderBy('date').limit(5).get().then(s=>{
+          s.forEach(d=>{
+            const doc = d.data();
+            doc.path = `${path}/${d.id}`;
+            const dt = new Date(doc.date)
+            const mm = dt.getMonth() + 1
+            const dd = dt.getDate()
+            doc.date = [dt.getFullYear(),'-',
+                        (mm > 9 ? '' : '0') + mm,'-',
+                        (dd > 9 ? '' : '0') + dd
+            ].join('');
+            this.push('_list',doc);
+          })
+        })
+
+      }
+    }
+    customElements.define(MdList.is,MdList)
+  </script>
+</dom-module>

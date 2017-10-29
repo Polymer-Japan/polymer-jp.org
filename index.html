@@ -1,30 +1,30 @@
 <!doctype html>
 <html lang="ja">
 <head>
-	<meta charset="utf-8">
-	<base href="/">
-	<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-	<title>Polymer Japan</title>
+  <title>Polymer Japan</title>
 
-	<meta name="theme-color" content="#fff">
+  <meta name="theme-color" content="#fff">
   <link rel="manifest" href="manifest.json">
 
-	<meta property="og:type" content="article">
-	<meta property="og:title" content="Polymer Japan">
-	<meta property="og:site_name" content="Polymer Japan">
-	<meta property="og:url" content="https://polymer-jp.org">
-	<meta property="og:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
-	<meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Polymer Japan">
+  <meta property="og:site_name" content="Polymer Japan">
+  <meta property="og:url" content="https://polymer-jp.org">
+  <meta property="og:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
+  <meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
 
-	<meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:site" content="@polymer_jp">
-	<meta name="twitter:title" content="Polymer Japan">
-	<meta name="twitter:description" content="Polymer Japan Web">
-	<meta name="twitter:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:site" content="@polymer_jp">
+  <meta name="twitter:title" content="Polymer Japan">
+  <meta name="twitter:description" content="Polymer Japan Web">
+  <meta name="twitter:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
 
-	<link rel="shortcut icon" href="https://www.polymer-project.org/images/logos/p-logo-32.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="https://www.polymer-project.org/images/logos/p-logo-512.png">
+  <link rel="shortcut icon" href="https://www.polymer-project.org/images/logos/p-logo-32.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="https://www.polymer-project.org/images/logos/p-logo-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="PolymerJP">
@@ -32,23 +32,27 @@
 </head>
 <body>
 
-	<polymer-jp>
-		<svg viewBox="0 0 24 30" fill="#eee" width="128"
+  <polymer-jp>
+    <svg viewBox="0 0 24 30" fill="#eee" width="128"
       style="position: absolute; top: 0px; right: 0px; bottom: 0px; left: 0px; margin: auto;">
       <path d="M19 4h-4L7.11 16.63 4.5 12 9 4H5L.5 12 5 20h4l7.89-12.63L19.5 12 15 20h4l4.5-8z"></path>
     </svg>
     <noscript>Polymer Japan</noscript>
-	</polymer-jp>
+  </polymer-jp>
 
-	<script src="components/webcomponentsjs/webcomponents-loader.js"></script>
-	<link rel="import" href="polymer-jp.html">
+  <script src="components/webcomponentsjs/webcomponents-loader.js"></script>
+  <link rel="import" href="src/polymer-jp.html">
 
-	<script>
+  <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         navigator.serviceWorker.register('/service-worker.js');
       });
     }
+  </script>
+
+  <script>
+    window.performance && performance.mark && performance.mark('index.html');
   </script>
 
 </body>

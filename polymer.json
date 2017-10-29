@@ -1,9 +1,14 @@
 {
   "entrypoint": "index.html",
-  "shell": "polymer-jp.html",
-  "fragments": [],
+  "shell": "src/polymer-jp.html",
+  "fragments": [
+    "src/polymer-jp-marked.html",
+    "src/polymer-jp-marked-edit.html",
+    "src/polymer-jp-md-components.html",
+    "src/polymer-jp-theme.html",
+    "src/polymer-jp-inquery.html"
+  ],
   "sources": [
-    "emo-ji.html",
     "assets/**"
   ],
   "extraDependencies": [

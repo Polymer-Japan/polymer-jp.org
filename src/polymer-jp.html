@@ -1,0 +1,381 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../components/app-layout/app-header/app-header.html">
+<link rel="import" href="../components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../components/app-route/app-location.html">
+<link rel="import" href="../components/app-route/app-route.html">
+<link rel="import" href="../components/iron-icon/iron-icon.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../components/paper-progress/paper-progress.html">
+<link rel="import" href="../components/paper-toast/paper-toast.html">
+<link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../components/paper-badge/paper-badge.html">
+<link rel="import" href="../components/polymerfire/firebase-app.html">
+<link rel="import" href="../components/polymerfire/firestore-element.html">
+<link rel="import" href="../components/page-title/page-title.html">
+
+<link rel="import" href="polymer-jp-gtm.html">
+<link rel="import" href="polymer-jp-icons.html">
+
+<dom-module id="polymer-jp">
+  <template>
+
+    <style>
+      :host {
+        display: block;
+        --app-primary-color: #1e88e5;
+        --app-background-color: white;
+        --app-text-color: black;
+        --app-drawer-width: 196px;
+        --app-drawer-content-container: {
+          border-right: 1px solid #cecece;
+        }
+        --app-drawer-scrim-background: rgba(0, 0, 0, 0.1);
+        font-family: BlinkMacSystemFont,-apple-system,"Segoe UI",Roboto,Oxygen,Ubuntu,Cantarell,"Fira Sans","Droid Sans","Helvetica Neue",Helvetica,Arial,sans-serif;
+      }
+      app-header {
+        background-color: var(--app-background-color);
+        color: var(--app-text-color);
+      }
+      app-toolbar paper-icon-button {
+        color: #6b6b6b;
+      }
+      app-toolbar a {
+        height: 32px;
+      }
+      paper-listbox a { text-decoration: none; color: #3b3b3b; }
+      paper-listbox a.iron-selected { outline: none; color: #9b9b9b; }
+      paper-item:not(.iron-selected) { cursor: pointer; }
+      paper-item {
+        --paper-item-min-height: 40px;
+      }
+      paper-item.index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
+      }
+      paper-listbox iron-collapse { outline: none; }
+      paper-progress {
+        position: absolute;
+        width: 100%;
+        --paper-progress-indeterminate-cycle-duration: 3s;
+        --paper-progress-active-color: var(--app-primary-color);
+        --paper-progress-height: 2px;
+      }
+      paper-toast {
+        cursor: pointer;
+        border-top: 1px solid #aaa;
+        --paper-toast-background-color: white;
+        --paper-toast-color: #555;
+      }
+      paper-tooltip {
+        --paper-tooltip-background: white;
+        --paper-tooltip-text-color: #555;
+        --paper-tooltip: {
+          border: 1px solid #aaa;
+          font-size: 12px;
+        }
+      }
+      .logo {
+        height: 24px;
+        margin-top: 0px;
+        margin-right: 12px;
+        vertical-align: middle;
+      }
+      div[main-title] {
+        white-space: nowrap;
+        font-size: 22px;
+      }
+      .back-toolbar {
+        background: #337ab7;
+        background-image: url(/assets/textures/section-gradient-light.png);
+        background-repeat: repeat-x;
+        background-position: bottom;
+        background-size: 10px;
+      }
+      .back-logo {
+        margin-right: 6px;
+        height: 32px;
+        width: 40px;
+        color: white;
+      }
+      .back-text {
+        font-size: 22px;
+        white-space: nowrap;
+        user-select: none;
+        cursor: default;
+        color: white;
+      }
+      nav a {
+        font-size: 17px;
+        margin: 0 5px;
+        height: 26px;
+        box-sizing: border-box;
+        text-decoration: none;
+        color: #6b6b6b;
+      }
+      .flex {
+        @apply(--layout-flex);
+      }
+      .horizontal-center {
+        @apply(--layout-horizontal);
+        @apply(--layout-center);
+      }
+      .menu {
+        margin-left: -8px;
+        margin-right: 6px;
+      }
+      .index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
+      }
+      paper-badge {
+        --paper-badge-width: 45px;
+        --paper-badge: {
+          border-radius: 10px;
+          font-weight: bold;
+        }
+      }
+      polymer-jp-marked {
+        min-height: 80vh;
+      }
+      .footer {
+        border-top: 1px solid #cecece;
+        margin-top: auto;
+        position: relative;
+        left: 0;
+        bottom: 0;
+        font-size: 12px;
+        color: #4d4d4d;
+        background: white;
+        height: 14px;
+        padding: 8px;
+        text-align: center;
+      }
+    </style>
+
+    <polymer-jp-gtm cid="GTM-P7CGGP6"></polymer-jp-gtm>
+
+    <page-title base-title="Polymer Japan" page-title="[[doc.title]]"></page-title>
+
+    <firebase-app auth-domain="polymer-jp-ffc4c.firebaseapp.com"
+                  database-url="https://polymer-jp-ffc4c.firebaseio.com"
+                  api-key="AIzaSyDDrTUFZtmp5j_q9Tu1AjqhltiGclT5WMg"
+                  storage-bucket="polymer-jp-ffc4c.appspot.com"
+                  messaging-sender-id="246861538947"
+                  project-id="polymer-jp-ffc4c">
+    </firebase-app>
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
+
+    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
+      <paper-icon-button icon="i:cached"></paper-icon-button>
+      更新が適用されました!
+    </paper-toast>
+
+    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
+      <paper-icon-button icon="i:info"></paper-icon-button>
+      問い合わせありがとうございました!
+    </paper-toast>
+
+    <app-location route="{{route}}"></app-location>
+    <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
+
+    <iron-media-query query="max-width: 640px" query-matches="{{smallScreen}}"></iron-media-query>
+
+    <app-header-layout fullbleed>
+
+      <app-header slot="header" reveals snaps shadow>
+        <app-toolbar>
+          <template is="dom-if" if="[[smallScreen]]">
+            <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
+          </template>
+          <a href="/"><img class="logo" src="https://www.polymer-project.org//images/logos/p-logo.png" drawer-toggle></a>
+          <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
+          <div class="flex"></div>
+          <template is="dom-if" if="[[!smallScreen]]">
+            <nav>
+              <a href="/intro/">Start</a>
+              <a href="/news/">News</a>
+              <a href="/about/">About</a>
+            </nav>
+          </template>
+          <paper-icon-button icon="i:info" toggles active="{{_openDialog}}"></paper-icon-button>
+          <paper-icon-button id="login" icon="i:[[_iconLogin(_login)]]" on-tap="_auth"></paper-icon-button>
+          <paper-tooltip for="login" animation-delay="0">
+            編集用のGoogleログイン(要管理権限)
+          </paper-tooltip>
+        </app-toolbar>
+        <paper-progress indeterminate></paper-progress>
+      </app-header>
+
+      <app-drawer-layout>
+
+        <template is="dom-if" if="[[doc]]">
+          <app-drawer slot="drawer" swipe-open on-opened-changed="_iconMenu">
+
+            <app-toolbar class="back-toolbar">
+              <a href="/"><iron-icon icon="i:polymer" class="back-logo"></iron-icon></a>
+              <div class="back-text">Polymer JP</div>
+            </app-toolbar>
+
+            <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
+              <template is="dom-repeat" items="[[index]]" on-dom-change="_removeDrawerToggle">
+                <a name="[[item.id]]" href="/[[item.id]]/">
+                  <paper-item class$="index_level1_[[_hasChilds(smallScreen,item._childs)]]" drawer-toggle>[[item.title]]</paper-item>
+                </a>
+                <iron-collapse opened="[[_openCollapse(item.id,_selectedId,item._childs)]]">
+                  <paper-listbox attr-for-selected="name">
+                    <template is="dom-repeat" items="[[item._childs]]" as="child">
+                      <a name="[[item.id]]-[[child.id]]" href="/[[item.id]]/[[child.id]]/">
+                        <paper-item class="index_child" drawer-toggle>[[child.title]]</paper-item>
+                      </a>
+                    </template>
+                  </paper-listbox>
+                </iron-collapse>
+              </template>
+            </paper-listbox>
+
+          </app-drawer>
+        </template>
+
+        <polymer-jp-marked page="[[page]]" doc="[[doc]]"></polymer-jp-marked>
+        <polymer-jp-inquery open="{{_openDialog}}"></polymer-jp-inquery>
+
+      </app-drawer-layout>
+
+      <footer class="footer" hidden>
+        &copy; 2017 Polymer Japan Authors. &nbsp;
+        <template is="dom-if" if="[[!smallScreen]]">
+          Code under the BSD License. Documentation Licensed under CC BY 3.0.
+        </template>
+      </footer>
+
+    </app-header-layout>
+
+
+  </template>
+
+  <script>
+    class PolymerJp extends Polymer.FirestoreElement(Polymer.Element) {
+      static get is() { return 'polymer-jp'; }
+      static get properties() {
+        return {
+          page: String,
+          path: {
+            type: String,
+            computed: '_getPath(route.path)',
+          },
+          doc: {
+            type: Object,
+            doc: 'docs/{page}',
+          },
+          index: {
+            type: Array,
+            value: [],
+          },
+          _menu: {
+            type: String,
+            value: 'menu',
+          },
+        }
+      }
+      static get observers() {
+        return [
+          '_routePageChanged(routeData.page)',
+        ]
+      }
+      connectedCallback() {
+        super.connectedCallback();
+
+        // オフライン ON
+        this.db.enablePersistence();
+
+        this.db.collection('docs').doc('home').get().then(doc=>{
+          const d_index = doc.data()._index;
+          // 配列に変換して並びかえ
+          this.set('index',Object.keys(d_index).map(k=>d_index[k]).sort((a,b)=>a.order > b.order));
+        }).then(_=>{
+          this.shadowRoot.querySelector('paper-progress').hidden=true;
+          this.shadowRoot.querySelector('footer').hidden=false;
+        });
+      }
+      ready(){
+        super.ready();
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.register('/service-worker.js').then(reg => {
+            reg.addEventListener('updatefound', () => {
+              const installingWorker = reg.installing;
+              installingWorker.addEventListener('statechange',() => {
+                if(installingWorker.state == 'installed')
+                  this.$.reloadSW.open();
+              });
+            });
+          });
+        }
+        this.addEventListener('toast-thanks-inq',_=>this.$.thanksInq.open());
+        // BUG: 初期読み込み時にずれる時があるので
+        Polymer.Async.timeOut.run(_=>{
+          this.shadowRoot.querySelector('paper-badge').hidden=false;
+          this.shadowRoot.querySelector('paper-badge').updatePosition();
+        }, 1000);
+
+        Polymer.importHref(this.importPath+"polymer-jp-marked.html");
+        Polymer.importHref(this.importPath+"polymer-jp-inquery.html");
+        Polymer.importHref(this.importPath+"polymer-jp-inquery.html");
+
+        // KLUDGE: minifyの挙動がおかしい時があるので
+        Polymer.importHref(Polymer.ResolveUrl.resolveUrl('components/polymerfire/firebase-auth.html'));
+
+      }
+      // FIXME: もっといい方法がある気がする
+      _removeDrawerToggle(e){
+        this.shadowRoot.querySelectorAll('.index_level1_hasChilds').forEach(o=>o.removeAttribute('drawer-toggle'));
+      }
+      _hasChilds(smallScreen, childs){
+        return smallScreen && childs.length ? 'hasChilds' : 'noChilds';
+      }
+      _openCollapse(id, selectedId, childs){
+        return id == selectedId && childs.length;
+      }
+      _getPath(path){
+        path = path[path.length-1] == '/' ? path.slice(0,-1) : path;
+        return path == '' ? 'home' : path.split('/').slice(1).join("/_childs/");
+      }
+      _routePageChanged(page) {
+        this.set('_selectedId',page);
+        // FIXME: firestore-elementの読み込みタイミング調整
+        this._debouncer =
+          Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(24), _ => this.page = this.path);
+      }
+      _iconLogin(login){
+        return login ? 'logout' : 'google';
+      }
+      _iconMenu(e){
+        if (e) this.menu = e.detail.value ? 'close' : 'menu';
+      }
+      _auth(){
+        const auth = this.shadowRoot.querySelector('firebase-auth');
+        auth.signedIn ? auth.signOut() : auth.signInWithRedirect();
+      }
+      _drawerToggle(e){
+        this.shadowRoot.querySelector('app-drawer').toggle();
+      }
+      _reload(){
+        document.location.reload(true);
+      }
+    }
+    customElements.define(PolymerJp.is, PolymerJp);
+  </script>
+
+</dom-module>

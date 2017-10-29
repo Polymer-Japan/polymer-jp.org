@@ -31,6 +31,7 @@ exports.app = functions.https.onRequest((req, res) => {
       const doc = sn.data();
       const meta = `<meta property="og:type" content="article">`;
 
+      // KLUDGE: polymer-cliでbuildされたindex.htmlをそのまま使う
       const html = `<!doctype html>
 <html lang="ja">
   <head>

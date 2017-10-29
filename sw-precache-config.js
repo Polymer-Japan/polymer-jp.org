@@ -13,7 +13,7 @@ module.exports = {
     urlPattern: /^https:\/\/cdn\.rawgit\.com/,
     handler: 'networkFirst'
   }, {
-    urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/polymer-jp-ffc4c\.appspot\.com\/o/,
+    urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/polymer-japan\.appspot\.com\/o/,
     handler: 'networkFirst'
   }]
 };

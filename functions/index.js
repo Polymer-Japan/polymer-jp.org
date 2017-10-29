@@ -1,6 +1,6 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
-const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
+const serviceAccount = require('./polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json');
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 const GoogleSpreadsheet = require('google-spreadsheet');
@@ -48,7 +48,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <meta property="og:type" content="article">
     <meta property="og:title" content="Polymer Japan ${doc.title}">
     <meta property="og:site_name" content="Polymer Japan">
-    <meta property="og:url" content="https://polymer-jp-ffc4c.firebaseapp.com/${id}">
+    <meta property="og:url" content="https://polymer-jp.org/${id}">
     <meta property="og:image" content="https://polymer-jp.org/assets/polymer-jp.og.png">
     <meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
 

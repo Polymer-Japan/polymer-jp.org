@@ -38,7 +38,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <base href="/">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-    <title>Polymer Japan App ${doc.title}</title>
+    <title>Polymer Japan - ${doc.title}</title>
 
     <meta name="theme-color" content="#fff">
      <link rel="manifest" href="manifest.json">

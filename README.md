@@ -17,6 +17,8 @@ $ emacs index.js
 $ cd ../
 # - firebase-auth minify のバグ回避 https://github.com/Polymer/polymer-cli/issues/701
 $ patch -p0 < polymer-cli-issue-701.patch
+# - (できれば) DevToolでWarningが表示されるのでソースマップを消す
+$ perl -pi -e 's/\/\/# sourceMappingURL.*//' components/firebase/firebase-auth.js
 $ npm start
 ```
 

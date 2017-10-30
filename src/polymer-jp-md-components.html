@@ -192,7 +192,7 @@
       }
       _getList(path){
         this.set('_list',[]);
-        firebase.firestore().collection('docs/'+path+'/_childs').orderBy('date').limit(5).get().then(s=>{
+        firebase.firestore().collection('docs/'+path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
           s.forEach(d=>{
             const doc = d.data();
             doc.path = `${path}/${d.id}`;

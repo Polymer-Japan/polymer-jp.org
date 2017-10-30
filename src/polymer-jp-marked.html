@@ -227,7 +227,7 @@
               elements: ['a','img','md-button','md-card','md-grid','md-list','iron-icon'],
               attributes: {
                 a: ['href','title'],
-                img: ['class','src'],
+                img: ['class','src','style'],
                 'md-button': ['color'],
                 'md-card': ['image','title','sub-title','desc','button'],
                 'md-list': ['path'],
@@ -264,7 +264,7 @@
           op.heading = (text, level, raw) => {
             //const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
             const id = this._toc_id++;
-            if(level == 2 && raw) this.push('_toc',{id: 'h'+id, title: raw});
+            if(level == 2 && raw && this.page != 'home') this.push('_toc',{id: 'h'+id, title: raw});
             return `<h${level} id="h${id}">${text}</h${level}>\n`;
           }
         }

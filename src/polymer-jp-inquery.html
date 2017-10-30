@@ -1,0 +1,102 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/mixins/gesture-event-listeners.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../components/neon-animation/web-animations.html">
+<link rel="import" href="../components/neon-animation/neon-animations.html">
+<link rel="import" href="../components/paper-input/paper-textarea.html">
+<link rel="import" href="../components/paper-input/paper-input.html">
+<link rel="import" href="../components/paper-button/paper-button.html">
+<link rel="import" href="../components/iron-form/iron-form.html">
+
+<dom-module id="polymer-jp-inquery">
+  <template>
+    <style>
+      paper-dialog {
+        overflow: auto;
+        min-width: 300px;
+      }
+      @media (min-width: 640px) {
+        paper-dialog {
+          position: fixed;
+          top: 60px;
+          right: 0px;
+        }
+      }
+      paper-dialog h3 {
+        cursor: pointer;
+        user-select: none;
+      }
+      paper-textarea {
+        --paper-input-container-input:{
+          min-height: 4em;
+        }
+      }
+    </style>
+
+    <paper-dialog opened="[[open]]"
+      entry-animation="slide-from-bottom-animation"
+      exit-animation="fade-out-animation"
+      always-on-top no-cancel-on-outside-click>
+      <iron-form on-iron-form-presubmit="_sendInquery">
+        <form>
+          <h3 on-track="_trackDialog">お問い合わせ</h3>
+          <paper-input always-float-label label="Subject" name="subject"
+            required auto-validate error-message="入力必須です!"></paper-input>
+          <paper-input always-float-label label="Email" name="email"
+            type="email" placeholder="info@polymer-jp.org"
+            required auto-validate error-message="メールアドレスを入力してください"></paper-input>
+          <paper-textarea always-float-label label="Contents" name="contents"
+            required auto-validate error-message="入力必須です!"></paper-textarea>
+          <div class="buttons">
+            <paper-button dialog-dismiss active="{{open}}">CANCEL</paper-button>
+            <paper-button on-tap="_submit">SEND</paper-button>
+          </div>
+        </form>
+      </iron-form>
+    </paper-dialog>
+
+  </template>
+  <script>
+    class PolymerJpInquery extends Polymer.GestureEventListeners(Polymer.Element) {
+      static get is() { return 'polymer-jp-inquery' }
+      static get properties() {
+        return {
+          open: {
+            type: Boolean,
+            notify: true,
+          }
+        }
+      }
+      _submit(e) {
+        const form = this.shadowRoot.querySelector('iron-form');
+        if(form.validate()){
+          this.set('open',false);
+          firebase.firestore().collection('inquiries').add(
+            Object.assign(form.serializeForm(),{created:firebase.firestore.FieldValue.serverTimestamp()})
+          ).then(_=>{
+            this.dispatchEvent(new CustomEvent('toast-thanks-inq',{ bubbles:true, composed:true }));
+            form.reset();
+          });
+        }
+      }
+      _trackDialog(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        const t = e.target.parentNode.parentNode.parentNode;
+        t.style.transitionProperty='width,height'
+        switch(e.detail.state) {
+          case 'start':
+            this._tiX = t.offsetLeft - 40;
+            this._tiY = t.offsetTop - 23;
+            break;
+          case 'track':
+            t.style.left = (e.detail.dx + this._tiX) + 'px';
+            t.style.top  = (e.detail.dy + this._tiY) + 'px';
+            break;
+        }
+      }
+    }
+    customElements.define(PolymerJpInquery.is, PolymerJpInquery)
+  </script>
+</dom-module>

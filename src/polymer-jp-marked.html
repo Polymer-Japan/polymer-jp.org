@@ -1,0 +1,350 @@
+<link rel="import" href="../components/polymer/polymer-element.html">
+<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../components/marked-element/marked-element.html">
+<link rel="import" href="../components/prism-element/prism-highlighter.html">
+<link rel="import" href="../components/prism-element/prism-theme-default.html">
+<link rel="import" href="../components/sanitize-element/sanitize-element.html">
+<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../components/app-layout/app-header/app-header.html">
+<link rel="import" href="../components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../components/polymerfire/firebase-auth.html">
+
+<link rel="import" href="polymer-jp-theme.html">
+
+<dom-module id="polymer-jp-marked">
+  <template>
+    <style include="github-markdown prism-theme-default">
+      :host {
+        display: block;
+      }
+      app-toolbar paper-icon-button {
+        color: white;
+      }
+      app-header {
+        height: var(--header-height);
+        color: var(--header-txt-color);
+        background-color: var(--header-bg-color);
+        text-shadow: var(--header-text-shadow);
+
+        /* for IE, firefox */
+        /* --app-header-background-front-layer: { */
+        background-image: var(--header-bg-image);
+        background-repeat: var(--header-bg-repeat);
+        background-position: var(--header-bg-position);
+        background-size: var(--header-bg-size);
+        /* } */
+      }
+      div[main-title] {
+        font-family: serif;
+        font-size: 24px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+      /* TODO: 幅調整 */
+      marked-element {
+        padding: 20px 0 20px 20px;
+        width: 92%;
+        max-width: 740px;
+      }
+      [slot="markdown-html"] pre {
+        padding: 0.5em 1em;
+        margin-top: 5px;
+        margin-left: 20px;
+        margin-right: 20px;
+        background-color: #f7f7f7;
+        border-radius: 3px;
+        overflow-x: auto;
+        line-height: 1.1;
+        font-family: Consolas,Liberation Mono,Menlo,Courier,monospace;
+      }
+      [slot="markdown-html"] code {
+        padding: 1px;
+        margin: 1px;
+        background-color: #f7f7f7;
+      }
+      [slot="markdown-html"] pre code {
+        padding: 0;
+      }
+      [slot="markdown-html"] blockquote {
+        border-left: solid 4px #ddd;
+        padding-left: 10px;
+      }
+      [slot="markdown-html"] h1 {
+        font-size: 1.5em;
+        padding-left: 10px;
+      }
+      [slot="markdown-html"] h2 {
+        font-size: 1.3em;
+        padding-left: 10px;
+        padding-bottm: 8px;
+        border-bottom: solid 1px rgba(245, 0, 87, 0.22);
+      }
+      [slot="markdown-html"] h3 {
+        font-size: 1.2em;
+        padding-left: 10px;
+        padding-bottm: 5px;
+      }
+      [slot="markdown-html"] a {
+        color: #337ab7;
+        text-decoration: none
+      }
+      [slot="markdown-html"] a:hover, [slot="markdown-html"] a:focus {
+        color: #23527c;
+        text-decoration: underline
+      }
+      [slot="markdown-html"] a:focus {
+        outline: 5px auto -webkit-focus-ring-color;
+        outline-offset: -2px
+      }
+      .toc {
+        margin-top: 15px;
+        display: block;
+        min-width: 300px;
+        width: 300px;
+        font-size: 0.9em;
+        color: #4a4a4a;
+      }
+      .toc a {
+        color: #4a4a4a;
+        text-decoration: none
+      }
+      .toc a:hover, .toc a:focus {
+        color: #23527c;
+        text-decoration: underline
+      }
+      main[slot="markdown-html"]{
+        color: #4a4a4a;
+      }
+      [slot="markdown-html"] em {
+        font-family: Helvetica Neue,Helvetica,"ヒラギノ角ゴ ProN W3",Hiragino Kaku Gothic ProN,"游ゴシック",YuGothic,sans-serif;
+        font-style: italic;
+      }
+      .emojione {
+        width: 1em;
+        height: 1em;
+        vertical-align: middle;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+      .horizontal {
+        @apply(--layout-horizontal);
+      }
+    </style>
+
+    <iron-media-query query="min-width: 1100px" query-matches="{{wideScreen}}"></iron-media-query>
+
+    <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
+    <firebase-storage-multiupload
+      path="/files" upload-tasks="{{_uploadTasks}}"></firebase-storage-multiupload>
+    <template is="dom-repeat" items="[[_uploadTasks]]">
+      <firebase-storage-upload-task task="[[item]]" metadata="{{_metaData}}"></firebase-storage-upload-task>
+    </template>
+
+    <prism-highlighter></prism-highlighter>
+
+    <sanitize-element config="[[_sanitizeConfig]]" sanitizer="{{_sanitizer}}"></sanitize-element>
+
+    <app-header-layout fullbreed>
+
+      <template is="dom-if" if="[[doc.__id__]]">
+        <app-header fixed shadow effects="parallax-background">
+          <app-toolbar>
+            <div main-title>[[doc.title]]</div>
+            <template is="dom-if" if="[[doc.url]]">
+              <a href="[[_getReposUrl(doc.url)]]">
+                <paper-icon-button icon="i:github"></paper-icon-button>
+              </a>
+            </template>
+            <template is="dom-if" if="[[_login]]">
+              <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+            </template>
+            <template is="dom-if" if="[[_isChild(page)]]">
+              <a href="[[_getParent(page)]]">
+                <paper-icon-button icon="i:arrow-back"></paper-icon-button>
+              </a>
+            </template>
+          </app-toolbar>
+        </app-header>
+      </template>
+
+      <div class="horizontal">
+        <marked-element markdown="[[doc.contents]]" sanitize sanitizer="[[_sanitizer]]" on-marked-render-complete="_clearToc">
+          <main class="markdown-body" slot="markdown-html"></main>
+        </marked-element>
+
+        <!-- FIXME: tmp -->
+        <template is="dom-if" if="[[wideScreen]]">
+          <template is="dom-if" if="[[toc]]">
+            <div class="toc">
+              <ul>
+                <template is="dom-repeat" items="[[toc]]">
+                  <li type="square" on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[_emojify(item.title)]]"></a></li>
+                </template>
+              </ul>
+            </div>
+          </template>
+        </template>
+      </div>
+
+      <polymer-jp-marked-edit page="[[page]]" doc="{{doc}}" hidden="[[!_edit]]"></polymer-jp-marked-edit>
+
+    </app-header-layout>
+
+  </template>
+  <script>
+    class PolymerJpMarked extends Polymer.Element {
+      static get is() { return 'polymer-jp-marked' }
+      static get properties() {
+        return {
+          page: String,
+          doc: {
+            type: Object,
+            observer: '_docChanged',
+          },
+          toc: Array,
+          _toc_id: {
+            type: Number,
+            value: 1,
+          },
+          _toc: {
+            type: Array,
+            value: [],
+          },
+          _edit: {
+            type: Boolean,
+            value: false,
+          },
+          _sanitizeConfig: {
+            type: Object,
+            value: {
+              elements: ['a','img','md-button','md-card','md-grid','md-list','iron-icon'],
+              attributes: {
+                a: ['href','title'],
+                img: ['class','src','style'],
+                'md-button': ['color'],
+                'md-card': ['image','title','sub-title','desc','button'],
+                'md-list': ['path'],
+                'md-grid': ['columns','gutter'],
+                'iron-icon': ['icon'],
+              },
+              protocols: {
+                a:{ href: ['http','https'] },
+              },
+            },
+          },
+        }
+      }
+      static get observers() {
+        return [
+          '_docUrlChanged(doc.url)',
+          '_headerChanged(doc.height, doc.bgurl, doc.txtColor, doc.bgColor)'
+        ]
+      }
+      ready(){
+        super.ready();
+        this.shadowRoot.querySelector('marked-element').renderer=op=>{
+          // 外部リンクは_blankで。
+          op.link = (href,title,text) => {
+            const titleAttr = title ? ` title="${title}"` : '';
+            const targetAttr = href.indexOf('http')==0 ? ' target="_blank"' : '';
+            return `<a href="${href}"${titleAttr}${targetAttr}>${text}</a>`;
+          }
+          // 改行の自動変換
+          op.paragraph = text => {
+            return text ? '<p>'+text.replace(/\r?\n/g, '<br>')+'</p>\n' : '';
+          }
+          // TOCの取得
+          op.heading = (text, level, raw) => {
+            //const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
+            const id = this._toc_id++;
+            if(level == 2 && raw && this.page != 'home') this.push('_toc',{id: 'h'+id, title: raw});
+            return `<h${level} id="h${id}">${text}</h${level}>\n`;
+          }
+        }
+
+        Polymer.importHref(this.importPath+"polymer-jp-theme.html");
+        Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html");
+        Polymer.importHref(this.importPath+"polymer-jp-md-components.html");
+
+      }
+      _scroll(e){
+        const t = this.shadowRoot.getElementById(e.model.item.id);
+        t.scrollIntoView(true);
+        window.scrollBy(0,0-(t.offsetHeight+40));
+      }
+      _clearToc(e){
+        this.set('toc',this._toc);
+        this.set('_toc',[]);
+        this.set('_toc_id',1);
+        this.set('_path',window.location.pathname);
+
+        const main = this.shadowRoot.querySelector('marked-element').querySelector('main');
+	      var input = main.innerHTML;
+	      var output = emojione.toImage(input);
+	      main.innerHTML = output;
+
+      }
+      _docChanged(doc){
+        Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
+      }
+      _docUrlChanged(url){
+        if(url)
+          this.shadowRoot.querySelector('marked-element')._request(url);
+      }
+      _headerChanged(height,bgurl,txtColor,bgColor){
+        // FIXME: 要整理
+        let style = {
+          '--header-height': height || '64px',
+          '--header-txt-color': txtColor || '#fff',
+          '--header-bg-color': bgColor || '#337ab7',
+          '--header-text-shadow': '',
+          '--header-bg-image': '',
+          '--header-bg-repeat': '',
+          '--header-bg-position': '',
+          '--header-bg-size': ''
+        };
+        if(bgurl){
+          style = Object.assign(style,{
+            '--header-height': height || '300px',
+            '--header-bg-color': 'white',
+            '--header-text-shadow': '1px 1px 3px #000',
+            '--header-bg-image': `url(${bgurl})`,
+            '--header-bg-size': 'cover',
+          });
+          if(bgurl.match(/\/textures/)){
+            style = Object.assign(style,{
+              '--header-height': height || '135px',
+              '--header-bg-color': bgColor || '#337ab7',
+              '--header-text-shadow': '',
+              '--header-bg-repeat': 'repeat-x',
+              '--header-bg-position': 'bottom',
+              '--header-bg-size': '13px',
+            })
+          }
+        }
+        this.updateStyles(style);
+      }
+      _isChild(page){
+        return page.indexOf('/_childs/') != -1;
+      }
+      _getParent(page){
+        return '/'+page.split('/').shift();
+      }
+      _getReposUrl(url){
+        const u = url.split('/');
+        return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
+      }
+      _emojify(contents){
+        if (contents) return emojione.toImage(contents);
+      }
+    }
+    customElements.define(PolymerJpMarked.is, PolymerJpMarked)
+  </script>
+</dom-module>

@@ -4,11 +4,12 @@
     "install": "bower install",
     "build": "polymer build",
     "serve": "polymer serve --component-dir=components",
-    "start": "npm run build && firebase serve --only hosting",
-    "deploy": "firebase deploy --only hosting"
+    "start": "npm run build && firebase serve --only hosting,functions",
+    "deploy:hosting": "npm run build && firebase deploy --only hosting",
+    "deploy": "firebase deploy --only hosting,functions"
   },
   "name": "polymer-jp.org",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "index.html",
   "repository": {
     "type": "git",

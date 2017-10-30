@@ -2,10 +2,10 @@
   "hosting": {
     "public": "build/default",
     "rewrites": [
-			{
-      "source": "**/!(*.js|*.html|*.css|*.json|*.svg|*.png|*.jpg|*.jpeg)",
-      "destination": "/index.html"
-			}
+      {
+        "source": "!/__/**",
+        "function": "app"
+      }
     ]
   }
 }

@@ -51,7 +51,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <meta property="og:site_name" content="Polymer Japan">
     <meta property="og:description" content="${doc.desc}">
     <meta property="og:url" content="https://polymer-jp.org/${id}">
-    <meta property="og:image" content="https://polymer-jp.org/assets/polymer-jp-japan-og.png">
+    <meta property="og:image" content="https://polymer-jp.org/assets/logos/polymer-jp-japan-og.png">
     <meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
 
     <meta name="twitter:card" content="summary_large_image">

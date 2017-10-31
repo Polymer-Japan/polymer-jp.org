@@ -1,5 +1,4 @@
 <link rel="import" href="../components/polymer/polymer-element.html">
-<link rel="import" href="../components/polymer/lib/mixins/gesture-event-listeners.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
 <link rel="import" href="../components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../components/neon-animation/web-animations.html">
@@ -37,10 +36,10 @@
     <paper-dialog opened="[[open]]"
       entry-animation="slide-from-bottom-animation"
       exit-animation="fade-out-animation"
-      always-on-top no-cancel-on-outside-click>
+      always-on-top>
       <iron-form on-iron-form-presubmit="_sendInquery">
         <form>
-          <h3 on-track="_trackDialog">お問い合わせ</h3>
+          <h3>お問い合わせ</h3>
           <paper-input always-float-label label="Subject" name="subject"
             required auto-validate error-message="入力必須です!"></paper-input>
           <paper-input always-float-label label="Email" name="email"
@@ -58,7 +57,7 @@
 
   </template>
   <script>
-    class PolymerJpInquery extends Polymer.GestureEventListeners(Polymer.Element) {
+    class PolymerJpInquery extends Polymer.Element {
       static get is() { return 'polymer-jp-inquery' }
       static get properties() {
         return {
@@ -78,22 +77,6 @@
             this.dispatchEvent(new CustomEvent('toast-thanks-inq',{ bubbles:true, composed:true }));
             form.reset();
           });
-        }
-      }
-      _trackDialog(e) {
-        e.stopPropagation();
-        e.preventDefault();
-        const t = e.target.parentNode.parentNode.parentNode;
-        t.style.transitionProperty='width,height'
-        switch(e.detail.state) {
-          case 'start':
-            this._tiX = t.offsetLeft - 40;
-            this._tiY = t.offsetTop - 23;
-            break;
-          case 'track':
-            t.style.left = (e.detail.dx + this._tiX) + 'px';
-            t.style.top  = (e.detail.dy + this._tiY) + 'px';
-            break;
         }
       }
     }

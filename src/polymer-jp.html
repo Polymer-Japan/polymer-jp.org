@@ -9,6 +9,7 @@
 <link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../components/app-route/app-location.html">
 <link rel="import" href="../components/app-route/app-route.html">
+<link rel="import" href="../components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../components/iron-icon/iron-icon.html">
 <link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
@@ -20,7 +21,9 @@
 <link rel="import" href="../components/paper-toast/paper-toast.html">
 <link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../components/paper-badge/paper-badge.html">
+<link rel="import" href="../components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../components/polymerfire/firebase-app.html">
+<link rel="import" href="../components/polymerfire/firebase-messaging.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 <link rel="import" href="../components/polymerfire/firestore-element.html">
 <link rel="import" href="../components/page-title/page-title.html">
@@ -87,6 +90,14 @@
           font-size: 12px;
         }
       }
+      paper-toggle-button {
+        margin-top: 10px;
+        margin-left: 10px;
+        position: relative;
+        left: 0;
+        bottom: 0;
+        color: #3b3b3b;
+      }
       .logo {
         height: 24px;
         margin-top: 0px;
@@ -123,7 +134,7 @@
         height: 26px;
         box-sizing: border-box;
         text-decoration: none;
-        color: #6b6b6b;
+        color: #4d4d4d;
       }
       .flex {
         @apply(--layout-flex);
@@ -171,13 +182,16 @@
     <page-title base-title="Polymer Japan" page-title="[[doc.title]]"></page-title>
 
     <firebase-app auth-domain="polymer-japan.firebaseapp.com"
-                  database-url="https://polymer-japan.firebaseio.com"
-                  api-key="AIzaSyABP6EAnVyEt4ldTv4--6T4tru0aaM3VOI"
-                  storage-bucket="polymer-japan.appspot.com"
-                  messaging-sender-id="983990284433"
-                  project-id="polymer-japan">
+      database-url="https://polymer-japan.firebaseio.com"
+      api-key="AIzaSyABP6EAnVyEt4ldTv4--6T4tru0aaM3VOI"
+      storage-bucket="polymer-japan.appspot.com"
+      messaging-sender-id="983990284433"
+      project-id="polymer-japan">
     </firebase-app>
     <firebase-auth signed-in="{{_login}}" provider="google"></firebase-auth>
+    <firebase-messaging token="{{_token}}"></firebase-messaging>
+    <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
+    <app-localstorage-document key="polymer-jp:v0:firebase-push-msg" data="{{_shouldPush}}"></app-localstorage-document>
 
     <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
       <paper-icon-button icon="i:cached"></paper-icon-button>
@@ -205,7 +219,7 @@
           <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
-            <nav>
+            <nav class="horizontal-center">
               <a href="/intro/">Start</a>
               <a href="/news/">News</a>
               <a href="/about/">About</a>
@@ -245,7 +259,15 @@
                   </paper-listbox>
                 </iron-collapse>
               </template>
+              <!-- 上部メニューがスマホでは消えるのでこちらに表示 -->
+              <template is="dom-if" if="[[smallScreen]]">
+                <a name="about" href="/about/">
+                  <paper-item class$="index_level1_noChilds" drawer-toggle>About</paper-item>
+                </a>
+              </template>
             </paper-listbox>
+
+            <paper-toggle-button checked="{{_shouldPush}}">Push Message</paper-toggle-button>
 
           </app-drawer>
         </template>
@@ -284,6 +306,18 @@
           index: {
             type: Array,
             value: [],
+          },
+          _pushId: {
+            type: String,
+            value: "",
+          },
+          _token: {
+            type: String,
+            observer: '_tokenChanged',
+          },
+          _shouldPush: {
+            type: Boolean,
+            observer: '_shouldPushChanged',
           },
           _menu: {
             type: String,
@@ -368,8 +402,22 @@
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();
       }
-      _reload(){
-        document.location.reload(true);
+
+      _tokenChanged(token){
+        if(token && ! this._pushId){
+          this.db.collection("tokens").add({send:true,token:token}).then(da=>{
+            this.set('_pushId',da.id);
+          });
+        }
+      }
+      _shouldPushChanged(nv){
+        if(nv){
+          this.shadowRoot.querySelector('firebase-messaging').requestPermission();
+          this.db.collection("tokens").doc(this._pushId).update({send:true});
+        }else{
+          if(this._pushId)
+            this.db.collection("tokens").doc(this._pushId).update({send:false});
+        }
       }
     }
     customElements.define(PolymerJp.is, PolymerJp);

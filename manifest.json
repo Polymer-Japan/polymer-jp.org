@@ -6,6 +6,7 @@
   "display": "standalone",
   "background_color": "#fff",
   "theme_color": "#448",
+  "gcm_sender_id": "103953800507",
 	"icons": [{
     "src": "/assets/logos/polymer-jp-japan-192.png",
     "sizes": "192x192",

@@ -9,7 +9,7 @@
     "src/polymer-jp-inquery.html"
   ],
   "sources": [
-    "assets/**"
+    "assets/**/*"
   ],
   "extraDependencies": [
     "manifest.json",

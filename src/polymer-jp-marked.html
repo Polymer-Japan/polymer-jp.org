@@ -11,6 +11,7 @@
 <link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
+<link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
 <link rel="import" href="../components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../components/polymerfire/firebase-auth.html">
 
@@ -38,6 +39,14 @@
         background-position: var(--header-bg-position);
         background-size: var(--header-bg-size);
         /* } */
+      }
+      paper-tooltip {
+        --paper-tooltip-background: white;
+        --paper-tooltip-text-color: #555;
+        --paper-tooltip: {
+          border: 1px solid #aaa;
+          font-size: 12px;
+        }
       }
       div[main-title] {
         font-family: serif;
@@ -129,7 +138,6 @@
         height: 1em;
         vertical-align: middle;
       }
-
       [hidden] {
         display: none !important;
       }
@@ -158,12 +166,16 @@
           <app-toolbar>
             <div main-title>[[doc.title]]</div>
             <template is="dom-if" if="[[doc.url]]">
-              <a href="[[_getReposUrl(doc.url)]]">
+              <a href="[[_getReposUrl(doc.url)]]" target="_blank">
                 <paper-icon-button icon="i:github"></paper-icon-button>
               </a>
             </template>
+            <paper-icon-button id="edit" icon="i:mode-edit" toggles active="{{_edit}}" on-tap="_auth"></paper-icon-button>
+            <paper-tooltip for="login" animation-delay="0">
+              編集用のGoogleログイン(要管理権限)
+            </paper-tooltip>
             <template is="dom-if" if="[[_login]]">
-              <paper-icon-button icon="i:mode-edit" toggles active="{{_edit}}"></paper-icon-button>
+              <paper-icon-button icon="i:logout" on-tap="_logout"></paper-icon-button>
             </template>
             <template is="dom-if" if="[[_isChild(page)]]">
               <a href="[[_getParent(page)]]">
@@ -273,6 +285,13 @@
         Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html");
         Polymer.importHref(this.importPath+"polymer-jp-md-components.html");
 
+      }
+      _auth(){
+        const auth = this.shadowRoot.querySelector('firebase-auth');
+        if(! auth.signedIn) auth.signInWithPopup();
+      }
+      _logout(){
+        this.shadowRoot.querySelector('firebase-auth').signOut();
       }
       _scroll(e){
         const t = this.shadowRoot.getElementById(e.model.item.id);

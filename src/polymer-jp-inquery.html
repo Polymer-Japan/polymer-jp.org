@@ -7,6 +7,7 @@
 <link rel="import" href="../components/paper-input/paper-input.html">
 <link rel="import" href="../components/paper-button/paper-button.html">
 <link rel="import" href="../components/iron-form/iron-form.html">
+<link rel="import" href="../components/iron-media-query/iron-media-query.html">
 
 <dom-module id="polymer-jp-inquery">
   <template>
@@ -15,12 +16,10 @@
         overflow: auto;
         min-width: 300px;
       }
-      @media (min-width: 640px) {
-        paper-dialog {
-          position: fixed;
-          top: 60px;
-          right: 0px;
-        }
+      paper-dialog[wide] {
+        position: fixed;
+        top: 60px;
+        right: 0px;
       }
       paper-dialog h3 {
         cursor: pointer;
@@ -33,7 +32,9 @@
       }
     </style>
 
-    <paper-dialog opened="[[open]]"
+    <iron-media-query query="min-width: 640px" query-matches="{{wideScreen}}"></iron-media-query>
+
+    <paper-dialog wide$="[[wideScreen]]" opened="[[open]]"
       entry-animation="slide-from-bottom-animation"
       exit-animation="fade-out-animation"
       always-on-top>

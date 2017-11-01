@@ -6,13 +6,26 @@
   "display": "standalone",
   "background_color": "#fff",
   "theme_color": "#448",
+  "gcm_sender_id": "103953800507",
 	"icons": [{
-    "src": "/assets/logos/polymer-jp-japan-192.png",
+    "src": "/assets/logos/polymer-jp-logo-mark-128.png",
+    "sizes": "128x128",
+    "type": "image/png"
+  },{
+    "src": "/assets/logos/polymer-jp-logo-mark-192.png",
     "sizes": "192x192",
     "type": "image/png"
   },{
-    "src": "/assets/logos/polymer-jp-japan-512.png",
+    "src": "/assets/logos/polymer-jp-logo-mark-384.png",
+    "sizes": "384x384",
+    "type": "image/png"
+  },{
+    "src": "/assets/logos/polymer-jp-logo-mark-512.png",
     "sizes": "512x512",
+    "type": "image/png"
+  },{
+    "src": "/assets/logos/polymer-jp-logo-mark-1024.png",
+    "sizes": "1024x1024",
     "type": "image/png"
   }]
 }

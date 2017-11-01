@@ -34,6 +34,8 @@ $ npm serve
 - functions/index.js  
   サービスアカウントの設定(管理者のみ)
 - SpreadSheetにサービスアカウントユーザ追加
+- firebase-messaging-sw.js__
+  messagingSenderIdを修正
 
 ## Deploy
 

@@ -51,14 +51,14 @@ exports.app = functions.https.onRequest((req, res) => {
     <meta property="og:site_name" content="Polymer Japan">
     <meta property="og:description" content="${doc.desc}">
     <meta property="og:url" content="https://polymer-jp.org/${id}">
-    <meta property="og:image" content="https://polymer-jp.org/assets/logos/polymer-jp-japan-og.png">
+    <meta property="og:image" content="https://polymer-jp.org/assets/logos/polymer-jp-logo-og.png">
     <meta property="article:author" content="https://github.com/Polymer-Japan/polymer-jp.org">
 
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@polymer_jp">
 
     <link rel="shortcut icon" href="/assets/logos/polymer-jp-logo-32.png">
-    <link rel="apple-touch-icon" sizes="192x192" href="/assets/logos/polymer-jp-japan-192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/assets/logos/polymer-jp-logo-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="PolymerJP">

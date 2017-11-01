@@ -54,9 +54,17 @@
       app-toolbar a {
         height: 32px;
       }
-      paper-listbox a { text-decoration: none; color: #3b3b3b; }
-      paper-listbox a.iron-selected { outline: none; color: #9b9b9b; }
-      paper-item:not(.iron-selected) { cursor: pointer; }
+      paper-listbox a {
+        text-decoration: none;
+        color: #3b3b3b;
+      }
+      paper-listbox a.iron-selected {
+        outline: none;
+        color: #9b9b9b;
+      }
+      paper-item:not(.iron-selected) {
+        cursor: pointer;
+      }
       paper-item {
         --paper-item-min-height: 40px;
       }
@@ -65,7 +73,9 @@
         font-size: 0.9em;
         --paper-item-min-height: 32px;
       }
-      paper-listbox iron-collapse { outline: none; }
+      paper-listbox iron-collapse {
+        outline: none;
+      }
       paper-progress {
         position: absolute;
         width: 100%;
@@ -79,60 +89,6 @@
         --paper-toast-background-color: white;
         --paper-toast-color: #555;
       }
-      .logo {
-        height: 24px;
-        margin-top: 0px;
-        margin-right: 12px;
-        vertical-align: middle;
-      }
-      div[main-title] {
-        white-space: nowrap;
-        font-size: 22px;
-      }
-      .back-toolbar {
-        background: #337ab7;
-        background-image: url(/assets/textures/section-gradient-light.png);
-        background-repeat: repeat-x;
-        background-position: bottom;
-        background-size: 10px;
-      }
-      .back-logo {
-        margin-right: 6px;
-        height: 32px;
-        width: 40px;
-        color: white;
-      }
-      .back-text {
-        font-size: 22px;
-        white-space: nowrap;
-        user-select: none;
-        cursor: default;
-        color: white;
-      }
-      nav a {
-        font-size: 17px;
-        margin: 0 5px;
-        height: 26px;
-        box-sizing: border-box;
-        text-decoration: none;
-        color: #4d4d4d;
-      }
-      .flex {
-        @apply(--layout-flex);
-      }
-      .horizontal-center {
-        @apply(--layout-horizontal);
-        @apply(--layout-center);
-      }
-      .menu {
-        margin-left: -8px;
-        margin-right: 6px;
-      }
-      .index_child {
-        margin-left: 10px;
-        font-size: 0.9em;
-        --paper-item-min-height: 32px;
-      }
       paper-badge {
         --paper-badge-width: 45px;
         --paper-badge: {
@@ -142,6 +98,56 @@
       }
       polymer-jp-marked {
         min-height: 80vh;
+      }
+      .logo {
+        height: 24px;
+        margin: 0px 12px 0px 0px;
+        vertical-align: middle;
+      }
+      div[main-title] {
+        white-space: nowrap;
+        font-size: 22px;
+      }
+      .back-toolbar {
+        background: #337ab7 url(/assets/textures/section-gradient-light.png) repeat-x center bottom;
+        background-size: 10px;
+      }
+      .back-logo {
+        color: white;
+        margin-right: 6px;
+        height: 32px;
+        width: 40px;
+      }
+      .back-text {
+        color: white;
+        font-size: 22px;
+        white-space: nowrap;
+        user-select: none;
+        cursor: default;
+      }
+      nav {
+        @apply(--layout-horizontal);
+      }
+      nav a {
+        font-size: 17px;
+        padding-top: 5px;
+        margin: 0px 5px;
+        height: 26px;
+        box-sizing: border-box;
+        text-decoration: none;
+        color: #4d4d4d;
+      }
+      .flex {
+        @apply(--layout-flex);
+      }
+      .menu {
+        margin-left: -8px;
+        margin-right: 6px;
+      }
+      .index_child {
+        margin-left: 10px;
+        font-size: 0.9em;
+        --paper-item-min-height: 32px;
       }
       .footer {
         border-top: 1px solid #cecece;
@@ -207,6 +213,7 @@
               <a href="/about/">About</a>
             </nav>
           </template>
+          </div>
           <paper-icon-button icon="i:help-outline" toggles active="{{_openDialog}}"></paper-icon-button>
           <paper-icon-button icon="i:[[_push]]" toggles on-tap="_pushToggle"></paper-icon-button>
         </app-toolbar>
@@ -272,7 +279,7 @@
       static get properties() {
         return {
           page: String,
-          path: {
+          _path: {
             type: String,
             computed: '_getPath(route.path)',
           },
@@ -376,7 +383,7 @@
         this.set('_selectedId',page);
         // FIXME: firestore-elementの読み込みタイミング調整
         this._debouncer =
-          Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(24), _ => this.page = this.path);
+          Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(24), _ => this.page = this._path);
       }
       _iconMenu(e){
         if (e) this.set('_menu',e.detail.value ? 'close' : 'menu');

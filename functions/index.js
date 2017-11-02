@@ -50,7 +50,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <title>Polymer Japan - ${doc.title}</title>
 
     <meta name="theme-color" content="#fff">
-     <link rel="manifest" href="manifest.json">
+     <link rel="manifest" href="/manifest.json">
 
     <meta name="description" content="${doc.desc}">
 

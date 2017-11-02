@@ -393,6 +393,9 @@
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();
       }
+      _reload(){
+        document.location.reload(true);
+      }
       _tokenChanged(token){
         if(token && ! this._pushId){
           this.db.collection("tokens").add({send:true,token:token}).then(da=>{

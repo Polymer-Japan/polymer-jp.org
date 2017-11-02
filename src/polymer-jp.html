@@ -402,25 +402,41 @@
       }
       _tokenChanged(token){
         if(token && ! this._pushId){
-          this.db.collection("tokens").add({send:true,token:token}).then(da=>{
+          const date = firebase.firestore.FieldValue.serverTimestamp();
+          this.db.collection("tokens").add({
+            send:true,
+            token:token,
+            created: date,
+            updated: date
+          }).then(da=>{
             this.set('_shouldPush',true);
             this.set('_pushId',da.id);
           });
         }
       }
+      // BUG: ここで messaging/notifications-blocked がcatchできない
+      // TODO: localStrageが残ると更新できないのでクリアするように
       _pushToggle(e){
         if(! this._shouldPush){
           this.shadowRoot.querySelector('firebase-messaging').requestPermission().then(_=>{
             this.set('_push','notifications');
             this.set('_shouldPush',true);
-            this.db.collection("tokens").doc(this._pushId).update({send:true});
+            if(this._pushId){
+              this.db.collection("tokens").doc(this._pushId).update({
+                send:true,
+                updated:firebase.firestore.FieldValue.serverTimestamp()
+              });
+            }
           });
-          // BUG: ここで messaging/notifications-blocked がcatchできない
-          // TODO: localStrageが残ると更新できないのでクリアするように
         }else{
           this.set('_push','notifications-none');
           this.set('_shouldPush',false);
-          this.db.collection("tokens").doc(this._pushId).update({send:false});
+          if(this._pushId){
+            this.db.collection("tokens").doc(this._pushId).update({
+              send:false,
+              updated:firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
         }
       }
     }

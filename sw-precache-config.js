@@ -2,6 +2,7 @@ module.exports = {
   staticFileGlobs: [
     '/index.html',
     '/manifest.json',
+    '/firebase-messaging-sw.js',
     '/components/webcomponentsjs/*.js'
   ],
   navigateFallback: 'index.html',

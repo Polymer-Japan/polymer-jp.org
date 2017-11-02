@@ -5,6 +5,9 @@
       {
         "source": "!/__/**",
         "function": "app"
+      },{
+        "source": "**/!(*.js|*.html|*.css|*.json|*.ico|*.svg|*.png|*.jpg|*.jpeg)",
+        "function": "app"
       }
     ]
   }

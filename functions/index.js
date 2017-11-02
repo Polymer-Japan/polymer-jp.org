@@ -22,14 +22,22 @@ exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
 
 exports.app = functions.https.onRequest((req, res) => {
 
-  const id = req.url.split("/")[1];
-  console.log(id);
+  if(req.url=="/favicon.ico"){
+    console.log("no favicon");
+    return;
+  }
+
+  // KLUDGE: 末尾/を削除
+  const url = req.url[req.url.length-1] == '/' ? req.url.slice(0,-1) : req.url;
+  const id = url.split('/').slice(1).join("/_childs/");
+
+  // const id = req.url.split("/")[1];
+  console.log(req.url, id);
 
   db.collection('docs').doc(id).get()
     .then( sn => {
 
       const doc = sn.data();
-      const meta = `<meta property="og:type" content="article">`;
 
       // KLUDGE: polymer-cliでbuildされたindex.htmlをそのまま使う
       const html = `<!doctype html>

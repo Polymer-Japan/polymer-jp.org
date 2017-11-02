@@ -13,6 +13,7 @@
 <link rel="import" href="../components/iron-icon/iron-icon.html">
 <link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../components/iron-selector/iron-selector.html">
 <link rel="import" href="../components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../components/paper-item/paper-item.html">
@@ -58,7 +59,7 @@
         text-decoration: none;
         color: #3b3b3b;
       }
-      paper-listbox a.iron-selected {
+      a.iron-selected {
         outline: none;
         color: #9b9b9b;
       }
@@ -208,9 +209,11 @@
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav class="horizontal-center">
-              <a href="/intro/">Start</a>
-              <a href="/news/">News</a>
-              <a href="/about/">About</a>
+              <iron-selector attr-for-selected="name" selected="{{_selectedId}}">
+                <a name="intro" href="/intro/">Start</a>
+                <a name="news" href="/news/">News</a>
+                <a name="about" href="/about/">About</a>
+              </iron-selector>
             </nav>
           </template>
           <paper-icon-button icon="i:help-outline" toggles active="{{_openDialog}}"></paper-icon-button>

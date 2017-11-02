@@ -60,6 +60,11 @@
         width: 92%;
         max-width: 740px;
       }
+      polymer-jp-marked-edit {
+        padding: 20px 0 20px 20px;
+        width: 92%;
+        max-width: 740px;
+      }
       [slot="markdown-html"] pre {
         padding: 0.5em 1em;
         margin-top: 5px;
@@ -278,7 +283,7 @@
           op.heading = (text, level, raw) => {
             //const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
             const id = this._toc_id++;
-            if(level == 2 && raw && this.page != 'home') this.push('_toc',{id: 'h'+id, title: raw});
+            if(level == 2 && raw && this.page != 'home') this.push('_toc',{id: 'h'+id, title: text});
             return `<h${level} id="h${id}">${text}</h${level}>\n`;
           }
         }

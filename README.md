@@ -37,6 +37,15 @@ $ npm serve
 - firebase-messaging-sw.js__
   messagingSenderIdを修正
 
+### Images
+
+```bash
+# Android resize
+$ inkscape -f polymer-jp-logo.svg -e polymer-jp-logo-32.svg -w 32
+# iPhone Home screen
+$ convert polymer-jp-logo-192.png -background white -bordercolor white -border 12x20 -resize 192x192 polymer-jp-logo-iphone-192.png
+```
+
 ## Deploy
 
 - Node **v6.11.1** 限定

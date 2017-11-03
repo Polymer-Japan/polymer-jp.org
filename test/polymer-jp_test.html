@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+    <title>polymer-jp</title>
+
+    <script src="../components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../components/web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../src/polymer-jp.html">
+    <link rel="import" href="../src/polymer-jp-marked.html">
+
+  </head>
+  <body>
+
+    <test-fixture id="shell">
+      <template>
+        <polymer-jp></polymer-jp>
+      </template>
+    </test-fixture>
+
+    <test-fixture id="marked">
+      <template>
+        <polymer-jp-marked></polymer-jp-marked>
+      </template>
+    </test-fixture>
+
+    <script>
+
+      const _setLocation = url => {
+        window.history.pushState({}, '', url);
+        Polymer.Base.fire('location-changed', {}, { node: window });
+      };
+
+      suite('polymer-jp shell', _=>{
+        let fi;
+        setup(done=>{
+          _setLocation('/');
+          fi=fixture('shell');
+          done();
+        });
+        test('has page', done=>{
+          flush(_=>{
+            expect(fi.page).to.equal('home');
+            expect(fi.shadowRoot.querySelector('page-title').baseTitle).to.equal('Polymer Japan');
+            async.series([
+              cb=>{
+                _setLocation('/about/');
+                setTimeout(cb,300);
+              },
+              cb=>{
+                expect(fi.page).to.equal('about');
+                cb();
+              }
+            ],(err,res)=>{
+              done();
+            });
+          });
+        });
+      });
+
+      suite('polymer-jp-marked', _=>{
+        let fi;
+        setup(done=>{
+          fi=fixture('marked');
+          done();
+        });
+        test('proper properties', done=>{
+          expect(fi._toc_id).to.equal(1);
+          expect(fi._toc).to.be.an.instanceof(Array);
+          done();
+        });
+      });
+    </script>
+
+  </body>
+</html>

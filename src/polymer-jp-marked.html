@@ -1,19 +1,19 @@
-<link rel="import" href="../components/polymer/polymer-element.html">
-<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
-<link rel="import" href="../components/marked-element/marked-element.html">
-<link rel="import" href="../components/prism-element/prism-highlighter.html">
-<link rel="import" href="../components/prism-element/prism-theme-default.html">
-<link rel="import" href="../components/sanitize-element/sanitize-element.html">
-<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../components/app-layout/app-header/app-header.html">
-<link rel="import" href="../components/app-layout/app-scroll-effects/app-scroll-effects.html">
-<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../components/iron-media-query/iron-media-query.html">
-<link rel="import" href="../components/paper-item/paper-item.html">
-<link rel="import" href="../components/paper-tooltip/paper-tooltip.html">
-<link rel="import" href="../components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../components/polymerfire/firebase-auth.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../bower_components/marked-element/marked-element.html">
+<link rel="import" href="../bower_components/prism-element/prism-highlighter.html">
+<link rel="import" href="../bower_components/prism-element/prism-theme-default.html">
+<link rel="import" href="../bower_components/sanitize-element/sanitize-element.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-tooltip/paper-tooltip.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-auth.html">
 
 <link rel="import" href="polymer-jp-theme.html">
 
@@ -60,6 +60,11 @@
         width: 92%;
         max-width: 740px;
       }
+      polymer-jp-marked-edit {
+        padding: 20px 0 20px 20px;
+        width: 92%;
+        max-width: 740px;
+      }
       [slot="markdown-html"] pre {
         padding: 0.5em 1em;
         margin-top: 5px;
@@ -85,17 +90,16 @@
       }
       [slot="markdown-html"] h1 {
         font-size: 1.5em;
-        padding-left: 10px;
+        padding-left: 5px;
       }
       [slot="markdown-html"] h2 {
         font-size: 1.3em;
-        padding-left: 10px;
+        padding-left: 5px;
         padding-bottm: 8px;
         border-bottom: solid 1px rgba(245, 0, 87, 0.22);
       }
       [slot="markdown-html"] h3 {
         font-size: 1.2em;
-        padding-left: 10px;
         padding-bottm: 5px;
       }
       [slot="markdown-html"] a {
@@ -145,7 +149,7 @@
         color: lightgray;
       }
       .horizontal {
-        @apply(--layout-horizontal);
+        @apply --layout-horizontal;
       }
     </style>
 
@@ -279,7 +283,7 @@
           op.heading = (text, level, raw) => {
             //const id = encodeURI(raw).toLowerCase().replace(/ /g, '-');
             const id = this._toc_id++;
-            if(level == 2 && raw && this.page != 'home') this.push('_toc',{id: 'h'+id, title: raw});
+            if(level == 2 && raw ) this.push('_toc',{id: 'h'+id, title: text});
             return `<h${level} id="h${id}">${text}</h${level}>\n`;
           }
         }

@@ -3,7 +3,8 @@
   "scripts": {
     "install": "bower install",
     "build": "polymer build",
-    "serve": "polymer serve --component-dir=components",
+    "serve": "polymer serve",
+    "test": "polymer test",
     "start": "npm run build && firebase serve --only hosting,functions",
     "deploy:hosting": "npm run build && firebase deploy --only hosting",
     "deploy": "firebase deploy --only hosting,functions"

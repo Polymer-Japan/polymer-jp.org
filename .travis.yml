@@ -1,0 +1,33 @@
+language: node_js
+sudo: false
+node_js:
+  - 6.11.1
+addons:
+  firefox: latest
+  apt:
+    sources:
+    - google-chrome
+    packages:
+    - google-chrome-beta
+install:
+- |
+  npm install
+  (cd functions && npm install)
+  patch -p0 < polymer-cli-issue-701.patch
+  perl -pi -e 's/\/\/# sourceMappingURL.*//' components/firebase/firebase-auth.js
+script:
+- |
+  # WCTの正常終了がとれないので2分後に終了させる
+  (sleep 120 ; kill -TERM $(ps aux | grep 'selenium' | awk '{print $2}') 2>/dev/null) &
+  xvfb-run npm test && npm run build
+before_deploy:
+  - openssl aes-256-cbc -K $encrypted_0d130e7114ad_key -iv $encrypted_0d130e7114ad_iv -in functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json.enc -out functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json -d
+deploy:
+  skip_cleanup: true
+  provider: firebase
+  token:
+    secure: "ggfDYn7OO7WVnB3vShXlZ0bwth01QS9Cqv9RCMzZ6BYzod6KUoU+Rj73Q03T1osqvNi+CXBavsmcejVB7wjpUn+3PCriuTNnEkKwmuN8Zy3pMp3OVqkfgsEkSz5qkcOV2zxyIhziGtvJrzG2IEmC6IF4jt7Pg6km8WChoMIuepYuKltDXa/p+LerKItjFgp+zcRCW4oHWFgaOV/47bHCpMqSux2ff1jPjNs2b/AvGI2R1RYC65g1jSAcBKrip4oSX46SV5XtrOEyWEezRN5vFaI8WrxV9Bq106YE5bms28FANNeLktRtzyck+SotuAlYFNoJQFjZy+nST2Jp/IP3GEQbAqWX7kIzQ3WZUEc90W8As9ukjv0WrNU85bM67NYIHlGZ4+NKPy03OhARPDargog3gXb4xJopGDZK09nPfWnzzlwW+VhjKh4zaieWeEj6cJ7tL2wfb3JwlX5uGOkTs1XE5gG50yDgqDmxQxuFpNNRaE6bdX9u8qQM+VNaON1YdCP1noOqrrk6AIqwSQ44g4XhNmtI9PTSRp3BiFX733qz/CA7qyYoFVTs4L20GvVyRnZ9WqXF5QgUlyLC7iDNOiW4ziwYYF1C8wGPEE+kFsxFwiAhbVaqYxkY2S2++k0MrSISNuAa+yod4PjGQIWCUEbm63isipqWF4nMzcJDaNg="
+  project: "polymer-japan"
+  on:
+    branch: master
+    tags: true

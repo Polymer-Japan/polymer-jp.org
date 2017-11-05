@@ -128,11 +128,12 @@
       }
       nav {
         @apply --layout-horizontal;
+        @apply --layout-center;
+        white-space: nowrap;
         margin-right: 10px;
       }
       nav a {
         font-size: 17px;
-        padding-top: 5px;
         margin: 0px 5px;
         height: 26px;
         box-sizing: border-box;
@@ -181,18 +182,6 @@
     <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
     <app-localstorage-document key="polymer-jp:v0:firebase-push-msg" data="{{_shouldPush}}"></app-localstorage-document>
 
-    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
-      <paper-icon-button icon="i:cached"></paper-icon-button>
-      更新が適用されました!
-    </paper-toast>
-
-    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
-      <paper-icon-button icon="i:info"></paper-icon-button>
-      問い合わせありがとうございました!
-    </paper-toast>
-
-    <paper-toast id="pushMsg" class="fit-bottom" duration="5000"></paper-toast>
-
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
 
@@ -209,7 +198,7 @@
           <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
-            <nav class="horizontal-center">
+            <nav>
               <iron-selector attr-for-selected="name" selected="{{_selectedId}}">
                 <a name="intro" href="/intro/">Start</a>
                 <a name="news" href="/news/">News</a>
@@ -273,6 +262,17 @@
 
     </app-header-layout>
 
+    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
+      <paper-icon-button icon="i:cached"></paper-icon-button>
+      更新が適用されました!
+    </paper-toast>
+
+    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
+      <paper-icon-button icon="i:info"></paper-icon-button>
+      問い合わせありがとうございました!
+    </paper-toast>
+
+    <paper-toast id="pushMsg" class="fit-bottom" duration="5000"></paper-toast>
 
   </template>
 

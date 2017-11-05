@@ -86,10 +86,10 @@ exports.app = functions.https.onRequest((req, res) => {
 
 
     <script>if (!window.customElements) { document.write('<!--'); }</script>
-    <script type="text/javascript" src="components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+    <script type="text/javascript" src="bower_components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
     <!--! do not remove -->
 
-    <script src="components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
     <link rel="import" href="src/polymer-jp.html">
 
     <script>

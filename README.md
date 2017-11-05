@@ -59,3 +59,17 @@ $ firebase login
 $ firebase use [project-id]
 $ npm deploy
 ```
+
+## CI
+
+```
+$ gem install travis
+$ travis login
+$ travis encrypt-file [somewhere]/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json.enc -a
+# -> modified .travis.yml
+# get firebase token
+$ firebase login:ci
+$ travis encrypt -r "FIREBASE_TOKEN" -a
+# -> modified .travis.yml
+# need to format .travis.yml
+```

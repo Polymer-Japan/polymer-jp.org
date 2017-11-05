@@ -4,7 +4,7 @@ module.exports = {
     '/manifest.json',
     '/assets/**/*',
     "firebase-messaging-sw.js",
-    '/components/webcomponentsjs/*.js'
+    '/bower_components/webcomponentsjs/*.js'
   ],
   navigateFallback: 'index.html',
   navigateFallbackWhitelist: [/^(?!\/__)/],

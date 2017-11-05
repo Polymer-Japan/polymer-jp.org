@@ -22,6 +22,7 @@ script:
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_0d130e7114ad_key -iv $encrypted_0d130e7114ad_iv -in functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json.enc -out functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json -d
 deploy:
+  branch: master
   skip_cleanup: true
   provider: firebase
   token:

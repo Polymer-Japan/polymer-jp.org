@@ -17,12 +17,12 @@ install:
   perl -pi -e 's/\/\/# sourceMappingURL.*//' components/firebase/firebase-auth.js
 script:
 - |
-  (sleep 180 ; kill -TERM $(ps aux | grep 'selenium' | awk '{print $2}') 2>/dev/null) &
+  # WCTの正常終了がとれないので2分後に終了させる
+  (sleep 120 ; kill -TERM $(ps aux | grep 'selenium' | awk '{print $2}') 2>/dev/null) &
   xvfb-run npm test && npm run build
 before_deploy:
   - openssl aes-256-cbc -K $encrypted_0d130e7114ad_key -iv $encrypted_0d130e7114ad_iv -in functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json.enc -out functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json -d
 deploy:
-  branch: master
   skip_cleanup: true
   provider: firebase
   token:

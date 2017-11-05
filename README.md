@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/Polymer-Japan/polymer-jp.org.svg?branch=master)](https://travis-ci.org/Polymer-Japan/polymer-jp.org)
+![Polymer2.0](https://img.shields.io/badge/Polymer-2.0-blue.svg)
+[![Firebase](https://img.shields.io/badge/server-Firebase-orange.svg)](https://firebase.google.com/)
+
 ## Check requirements
 
 - Node LTS, Current  
@@ -10,22 +14,23 @@ $ git clone https://github.com/Polymer-Japan/polymer-jp.org
 $ cd polymer-jp.org
 # - polymer-cli, bower, firebase-toolsはプロジェクト内のものを使用。
 $ npm install
-$ cd functions
-$ npm install
-$ cd ../
+# - functions のインストール
+$ (cd functions && npm install)
 # - firebase-auth minify のバグ回避 https://github.com/Polymer/polymer-cli/issues/701
 $ patch -p0 < polymer-cli-issue-701.patch
 # - (できれば) DevToolでWarningが表示されるのでソースマップを消す
-$ perl -pi -e 's/\/\/# sourceMappingURL.*//' components/firebase/firebase-auth.js
+$ perl -pi -e 's/\/\/# sourceMappingURL.*//' bower_components/firebase/firebase-auth.js
 $ npm start
 ```
+(travisと合わせておくこと)
 
 ## Develop
 
 ```bash
 $ npm serve
 ```
-### Customize
+
+### For Customize
 
 - src/polymer-jp.html  
   Tag Manager, firebase-appの設定を修正
@@ -37,7 +42,7 @@ $ npm serve
 - firebase-messaging-sw.js__
   messagingSenderIdを修正
 
-### Images
+### To create images
 
 ```bash
 # Android resize
@@ -65,11 +70,11 @@ $ npm deploy
 ```
 $ gem install travis
 $ travis login
+# - .travis.ymlが編集されて、open-sslのコマンドが挿入される
 $ travis encrypt-file [somewhere]/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json functions/polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json.enc -a
-# -> modified .travis.yml
-# get firebase token
 $ firebase login:ci
+# - .travis.ymlが編集され、secureのトークンが挿入される
 $ travis encrypt -r "FIREBASE_TOKEN" -a
-# -> modified .travis.yml
-# need to format .travis.yml
+# - 崩れた内容を修正
+$ emacs .travis.yml
 ```

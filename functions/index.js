@@ -22,14 +22,22 @@ exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
 
 exports.app = functions.https.onRequest((req, res) => {
 
-  const id = req.url.split("/")[1];
-  console.log(id);
+  if(req.url=="/favicon.ico"){
+    console.log("no favicon");
+    return;
+  }
+
+  // KLUDGE: 末尾/を削除
+  const url = req.url[req.url.length-1] == '/' ? req.url.slice(0,-1) : req.url;
+  const id = url.split('/').slice(1).join("/_childs/");
+
+  // const id = req.url.split("/")[1];
+  console.log(req.url, id);
 
   db.collection('docs').doc(id).get()
     .then( sn => {
 
       const doc = sn.data();
-      const meta = `<meta property="og:type" content="article">`;
 
       // KLUDGE: polymer-cliでbuildされたindex.htmlをそのまま使う
       const html = `<!doctype html>
@@ -42,7 +50,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <title>Polymer Japan - ${doc.title}</title>
 
     <meta name="theme-color" content="#fff">
-     <link rel="manifest" href="manifest.json">
+     <link rel="manifest" href="/manifest.json">
 
     <meta name="description" content="${doc.desc}">
 
@@ -78,10 +86,10 @@ exports.app = functions.https.onRequest((req, res) => {
 
 
     <script>if (!window.customElements) { document.write('<!--'); }</script>
-    <script type="text/javascript" src="components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+    <script type="text/javascript" src="bower_components/webcomponentsjs/custom-elements-es5-adapter.js"></script>
     <!--! do not remove -->
 
-    <script src="components/webcomponentsjs/webcomponents-loader.js"></script>
+    <script src="bower_components/webcomponentsjs/webcomponents-loader.js"></script>
     <link rel="import" href="src/polymer-jp.html">
 
     <script>

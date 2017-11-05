@@ -1,29 +1,30 @@
-<link rel="import" href="../components/polymer/polymer-element.html">
-<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
-<link rel="import" href="../components/polymer/lib/elements/dom-repeat.html">
-<link rel="import" href="../components/app-layout/app-drawer-layout/app-drawer-layout.html">
-<link rel="import" href="../components/app-layout/app-drawer/app-drawer.html">
-<link rel="import" href="../components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../components/app-layout/app-header/app-header.html">
-<link rel="import" href="../components/app-layout/app-scroll-effects/effects/waterfall.html">
-<link rel="import" href="../components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../components/app-route/app-location.html">
-<link rel="import" href="../components/app-route/app-route.html">
-<link rel="import" href="../components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="../components/iron-icon/iron-icon.html">
-<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../components/iron-media-query/iron-media-query.html">
-<link rel="import" href="../components/iron-collapse/iron-collapse.html">
-<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../components/paper-item/paper-item.html">
-<link rel="import" href="../components/paper-listbox/paper-listbox.html">
-<link rel="import" href="../components/paper-progress/paper-progress.html">
-<link rel="import" href="../components/paper-toast/paper-toast.html">
-<link rel="import" href="../components/paper-badge/paper-badge.html">
-<link rel="import" href="../components/polymerfire/firebase-app.html">
-<link rel="import" href="../components/polymerfire/firebase-messaging.html">
-<link rel="import" href="../components/polymerfire/firestore-element.html">
-<link rel="import" href="../components/page-title/page-title.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/effects/waterfall.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../bower_components/paper-toast/paper-toast.html">
+<link rel="import" href="../bower_components/paper-badge/paper-badge.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-app.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-messaging.html">
+<link rel="import" href="../bower_components/polymerfire/firestore-element.html">
+<link rel="import" href="../bower_components/page-title/page-title.html">
 
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
@@ -58,7 +59,7 @@
         text-decoration: none;
         color: #3b3b3b;
       }
-      paper-listbox a.iron-selected {
+      a.iron-selected {
         outline: none;
         color: #9b9b9b;
       }
@@ -126,11 +127,13 @@
         cursor: default;
       }
       nav {
-        @apply(--layout-horizontal);
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        white-space: nowrap;
+        margin-right: 10px;
       }
       nav a {
         font-size: 17px;
-        padding-top: 5px;
         margin: 0px 5px;
         height: 26px;
         box-sizing: border-box;
@@ -138,7 +141,7 @@
         color: #4d4d4d;
       }
       .flex {
-        @apply(--layout-flex);
+        @apply --layout-flex;
       }
       .menu {
         margin-left: -8px;
@@ -179,18 +182,6 @@
     <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
     <app-localstorage-document key="polymer-jp:v0:firebase-push-msg" data="{{_shouldPush}}"></app-localstorage-document>
 
-    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
-      <paper-icon-button icon="i:cached"></paper-icon-button>
-      更新が適用されました!
-    </paper-toast>
-
-    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
-      <paper-icon-button icon="i:info"></paper-icon-button>
-      問い合わせありがとうございました!
-    </paper-toast>
-
-    <paper-toast id="pushMsg" class="fit-bottom" duration="5000"></paper-toast>
-
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
 
@@ -207,10 +198,12 @@
           <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
-            <nav class="horizontal-center">
-              <a href="/intro/">Start</a>
-              <a href="/news/">News</a>
-              <a href="/about/">About</a>
+            <nav>
+              <iron-selector attr-for-selected="name" selected="{{_selectedId}}">
+                <a name="intro" href="/intro/">Start</a>
+                <a name="news" href="/news/">News</a>
+                <a name="about" href="/about/">About</a>
+              </iron-selector>
             </nav>
           </template>
           <paper-icon-button icon="i:help-outline" toggles active="{{_openDialog}}"></paper-icon-button>
@@ -269,6 +262,17 @@
 
     </app-header-layout>
 
+    <paper-toast id="reloadSW" class="fit-bottom" duration="10000" on-tap="_reload">
+      <paper-icon-button icon="i:cached"></paper-icon-button>
+      更新が適用されました!
+    </paper-toast>
+
+    <paper-toast id="thanksInq" class="fit-bottom" duration="3000">
+      <paper-icon-button icon="i:info"></paper-icon-button>
+      問い合わせありがとうございました!
+    </paper-toast>
+
+    <paper-toast id="pushMsg" class="fit-bottom" duration="5000"></paper-toast>
 
   </template>
 
@@ -393,27 +397,46 @@
       _drawerToggle(e){
         this.shadowRoot.querySelector('app-drawer').toggle();
       }
+      _reload(){
+        document.location.reload(true);
+      }
       _tokenChanged(token){
         if(token && ! this._pushId){
-          this.db.collection("tokens").add({send:true,token:token}).then(da=>{
+          const date = firebase.firestore.FieldValue.serverTimestamp();
+          this.db.collection("tokens").add({
+            send:true,
+            token:token,
+            created: date,
+            updated: date
+          }).then(da=>{
             this.set('_shouldPush',true);
             this.set('_pushId',da.id);
           });
         }
       }
+      // BUG: ここで messaging/notifications-blocked がcatchできない
+      // TODO: localStrageが残ると更新できないのでクリアするように
       _pushToggle(e){
         if(! this._shouldPush){
           this.shadowRoot.querySelector('firebase-messaging').requestPermission().then(_=>{
             this.set('_push','notifications');
             this.set('_shouldPush',true);
-            this.db.collection("tokens").doc(this._pushId).update({send:true});
+            if(this._pushId){
+              this.db.collection("tokens").doc(this._pushId).update({
+                send:true,
+                updated:firebase.firestore.FieldValue.serverTimestamp()
+              });
+            }
           });
-          // BUG: ここで messaging/notifications-blocked がcatchできない
-          // TODO: localStrageが残ると更新できないのでクリアするように
         }else{
           this.set('_push','notifications-none');
           this.set('_shouldPush',false);
-          this.db.collection("tokens").doc(this._pushId).update({send:false});
+          if(this._pushId){
+            this.db.collection("tokens").doc(this._pushId).update({
+              send:false,
+              updated:firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
         }
       }
     }

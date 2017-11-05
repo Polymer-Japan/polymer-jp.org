@@ -1,13 +1,13 @@
-<link rel="import" href="../components/polymer/polymer-element.html">
-<link rel="import" href="../components/polymer/lib/elements/dom-if.html">
-<link rel="import" href="../components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../components/paper-input/paper-input.html">
-<link rel="import" href="../components/paper-input/paper-textarea.html">
-<link rel="import" href="../components/paper-toggle-button/paper-toggle-button.html">
-<link rel="import" href="../components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../components/paper-button/paper-button.html">
-<link rel="import" href="../components/polymerfire/firebase-storage-multiupload.html">
-<link rel="import" href="../components/polymerfire/firebase-storage-upload-task.html">
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-storage-multiupload.html">
+<link rel="import" href="../bower_components/polymerfire/firebase-storage-upload-task.html">
 
 <dom-module id="polymer-jp-marked-edit">
   <template>
@@ -26,7 +26,7 @@
         }
       }
       .horizontal {
-        @apply(--layout-horizontal);
+        @apply --layout-horizontal;
       }
     </style>
 
@@ -36,6 +36,8 @@
     <template is="dom-repeat" items="[[_uploadTasks]]">
       <firebase-storage-upload-task task="[[item]]" metadata="{{_metaData}}"></firebase-storage-upload-task>
     </template>
+
+    <h3>管理者用編集フォーム</h3>
 
     <paper-input always-float-label label="Title" value="{{doc.title}}"></paper-input>
     <paper-input always-float-label label="Description(SEO)" value="{{doc.desc}}"></paper-input>

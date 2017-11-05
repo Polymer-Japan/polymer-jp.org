@@ -9,11 +9,12 @@
     "src/polymer-jp-inquery.html"
   ],
   "sources": [
-    "assets/**/*"
+    "assets/**/*",
+    "firebase-messaging-sw.js"
   ],
   "extraDependencies": [
     "manifest.json",
-    "components/webcomponentsjs/*.js"
+    "bower_components/webcomponentsjs/*.js"
   ],
   "builds": [{
     "name": "default",

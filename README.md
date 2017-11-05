@@ -2,6 +2,10 @@
 ![Polymer2.0](https://img.shields.io/badge/Polymer-2.0-blue.svg)
 [![Firebase](https://img.shields.io/badge/server-Firebase-orange.svg)](https://firebase.google.com/)
 
+# Polymer Japan
+
+https://polymer-jp.org/
+
 ## Check requirements
 
 - Node LTS, Current  

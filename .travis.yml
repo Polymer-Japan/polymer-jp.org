@@ -14,7 +14,7 @@ install:
   npm install
   (cd functions && npm install)
   patch -p0 < polymer-cli-issue-701.patch
-  perl -pi -e 's/\/\/# sourceMappingURL.*//' components/firebase/firebase-auth.js
+  perl -pi -e 's/\/\/# sourceMappingURL.*//' bower_components/firebase/firebase-auth.js
 script:
 - |
   # WCTの正常終了がとれないので2分後に終了させる

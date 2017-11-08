@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /src/
+Disallow: /components/
+Disallow: /assets/
+
+# TODO: auto generate
+# Sitemap: https://polymer-jp.org/sitemap

@@ -10,6 +10,7 @@
   ],
   "sources": [
     "assets/**/*",
+    "robots.txt",
     "firebase-messaging-sw.js"
   ],
   "extraDependencies": [

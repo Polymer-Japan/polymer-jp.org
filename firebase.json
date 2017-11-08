@@ -6,7 +6,7 @@
         "source": "!/__/**",
         "function": "app"
       },{
-        "source": "**/!(*.js|*.html|*.css|*.json|*.ico|*.svg|*.png|*.jpg|*.jpeg)",
+        "source": "**/!(*.js|*.html|*.css|*.json|*.ico|*.svg|*.png|*.jpg|*.jpeg|*.txt|apple-app-site-association)",
         "function": "app"
       }
     ]

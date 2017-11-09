@@ -22,8 +22,9 @@ exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
 
 exports.app = functions.https.onRequest((req, res) => {
 
-  if(req.url=="/favicon.ico"){
-    console.log("no favicon");
+  // 拡張子付きのURLには反応しない
+  if(req.url.match(/[^\\]*\.(\w+)$/)){
+    res.status(404).end();
     return;
   }
 

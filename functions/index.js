@@ -65,7 +65,7 @@ exports.app = functions.https.onRequest((req, res) => {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@polymer_jp">
 
-    <link rel="shortcut icon" href="/assets/logos/polymer-jp-logo-32.png">
+    <link rel="shortcut icon" href="/assets/logos/polymer-jp-logo-mark-32.png">
     <link rel="apple-touch-icon" sizes="192x192" href="/assets/logos/polymer-jp-logo-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">

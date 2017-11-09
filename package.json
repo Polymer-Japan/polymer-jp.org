@@ -10,7 +10,7 @@
     "deploy": "firebase deploy --only hosting,functions"
   },
   "name": "polymer-jp.org",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "main": "index.html",
   "repository": {
     "type": "git",

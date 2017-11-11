@@ -2,7 +2,7 @@
   "name": "Polymer Japan",
   "version": "0.2.4",
   "short_name": "Polymer JP",
-  "start_url": "/?standalone=true",
+  "start_url": "/?utm_source=homescreen",
   "display": "standalone",
   "background_color": "#fff",
   "theme_color": "#448",

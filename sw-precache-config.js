@@ -3,7 +3,7 @@ module.exports = {
     '/index.html',
     '/manifest.json',
     '/assets/**/*',
-    "firebase-messaging-sw.js",
+    "/firebase-messaging-sw.js",
     '/bower_components/webcomponentsjs/*.js'
   ],
   navigateFallback: 'index.html',

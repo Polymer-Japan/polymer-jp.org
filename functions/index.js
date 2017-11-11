@@ -24,6 +24,7 @@ exports.app = functions.https.onRequest((req, res) => {
 
   // 拡張子付きのURLには反応しない
   if(req.url.match(/[^\\]*\.(\w+)$/)){
+    console.log('404',req.url);
     res.status(404).end();
     return;
   }

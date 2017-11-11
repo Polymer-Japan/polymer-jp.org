@@ -3,10 +3,10 @@
     "public": "build/default",
     "rewrites": [
       {
-        "source": "!/__/**",
+        "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{
-        "source": "**/!(*.js|*.html|*.css|*.json|*.ico|*.svg|*.png|*.jpg|*.jpeg|*.txt|apple-app-site-association)",
+        "source": "/**/!(*.*|apple-app-site-association)",
         "function": "app"
       }
     ]

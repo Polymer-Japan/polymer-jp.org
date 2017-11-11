@@ -10,6 +10,7 @@
   ],
   "sources": [
     "assets/**/*",
+    "404.html",
     "robots.txt",
     "firebase-messaging-sw.js"
   ],

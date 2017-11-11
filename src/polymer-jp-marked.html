@@ -17,6 +17,8 @@
 
 <link rel="import" href="polymer-jp-theme.html">
 
+<script src="../bower_components/vanilla-lazyload/dist/lazyload.min.js"></script>
+
 <dom-module id="polymer-jp-marked">
   <template>
     <style include="github-markdown prism-theme-default">
@@ -286,11 +288,21 @@
             if(level == 2 && raw ) this.push('_toc',{id: 'h'+id, title: text});
             return `<h${level} id="h${id}">${text}</h${level}>\n`;
           }
+          op.image = function(href, title, text) {
+            var out = '<img data-src="' + href + '" alt="' + text + '"';
+            if (title) {
+              out += ' title="' + title + '"';
+            }
+            out += this.options.xhtml ? '/>' : '>';
+            return out;
+          };
         }
 
         Polymer.importHref(this.importPath+"polymer-jp-theme.html");
         Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html");
         Polymer.importHref(this.importPath+"polymer-jp-md-components.html");
+
+        this._lazyLoad = new LazyLoad();
 
       }
       _auth(){
@@ -316,6 +328,8 @@
 	      var output = emojione.toImage(input);
 	      main.innerHTML = output;
 
+        this._lazyLoad.update(main.querySelectorAll('img'));
+
       }
       _docChanged(doc){
         Polymer.AppLayout.scroll({ top: 0, behavior: 'silent' });
@@ -339,7 +353,7 @@
         if(bgurl){
           style = Object.assign(style,{
             '--header-height': height || '300px',
-            '--header-bg-color': 'white',
+            '--header-bg-color': '#111',
             '--header-text-shadow': '1px 1px 3px #000',
             '--header-bg-image': `url(${bgurl})`,
             '--header-bg-size': 'cover',

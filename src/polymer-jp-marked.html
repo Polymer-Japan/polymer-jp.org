@@ -341,7 +341,7 @@
       _headerChanged(height,bgurl,txtColor,bgColor){
         // FIXME: 要整理
         let style = {
-          '--header-height': height || '64px',
+          '--header-height': '64px',
           '--header-txt-color': txtColor || '#fff',
           '--header-bg-color': bgColor || '#337ab7',
           '--header-text-shadow': '',
@@ -352,21 +352,29 @@
         };
         if(bgurl){
           style = Object.assign(style,{
-            '--header-height': height || '300px',
-            '--header-bg-color': '#111',
-            '--header-text-shadow': '1px 1px 3px #000',
-            '--header-bg-image': `url(${bgurl})`,
+            '--header-bg-color': '#333',
             '--header-bg-size': 'cover',
           });
           if(bgurl.match(/\/textures/)){
             style = Object.assign(style,{
               '--header-height': height || '135px',
+              '--header-bg-image': `url(${bgurl})`,
               '--header-bg-color': bgColor || '#337ab7',
               '--header-text-shadow': '',
               '--header-bg-repeat': 'repeat-x',
               '--header-bg-position': 'bottom',
               '--header-bg-size': '13px',
             })
+          }else{
+            const img = document.createElement('img');
+            img.src=bgurl;
+            img.addEventListener('load',_=>{
+              this.updateStyles({
+                '--header-height': height || '300px',
+                '--header-bg-image': `url(${bgurl})`,
+                '--header-text-shadow': '1px 1px 3px #000'
+              })
+            });
           }
         }
         this.updateStyles(style);

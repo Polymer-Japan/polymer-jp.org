@@ -5,6 +5,29 @@ admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
+const sm = require('sitemap');
+
+exports.sitemap = functions.https.onRequest((req, res) => {
+
+  // 同じような処理 src/polymer-jp-marked-edit.html:_updateIndex(e)
+  const sitemap = sm.createSitemap({
+    hostname: 'https://polymer-jp.org/'
+  });
+
+  db.collection('docs').doc('home').get().then(s=>{
+    const doc = s.data();
+    console.log(doc._index);
+  });
+
+  sitemap.toXML( (err, xml) => {
+    if (err) {
+      return res.status(500).end();
+    }
+    res.header('Content-Type', 'application/xml');
+    res.send( xml );
+  });
+
+});
 
 exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
   .onCreate(event => {

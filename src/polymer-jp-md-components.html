@@ -21,9 +21,9 @@
   </template>
   <script>
     class MdHorizontal extends Polymer.Element {
-      static get is() { return 'md-horizontal' }
+      static get is() { return 'md-horizontal'; }
     }
-    customElements.define(MdHorizontal.is,MdHorizontal)
+    customElements.define(MdHorizontal.is,MdHorizontal);
   </script>
 </dom-module>
 
@@ -45,7 +45,7 @@
   </template>
   <script>
     class MdGrid extends Polymer.Element {
-      static get is() { return 'md-grid' }
+      static get is() { return 'md-grid'; }
       static get properties() {
         return {
           columns: Number,
@@ -63,7 +63,7 @@
         });
       }
     }
-    customElements.define(MdGrid.is,MdGrid)
+    customElements.define(MdGrid.is,MdGrid);
   </script>
 </dom-module>
 
@@ -79,7 +79,7 @@
   </template>
   <script>
     class MdButton extends Polymer.Element {
-      static get is() { return 'md-button' }
+      static get is() { return 'md-button'; }
       static get properties() {
         return {
           color: {
@@ -92,7 +92,7 @@
         this.updateStyles({'--button-color': color});
       }
     }
-    customElements.define(MdButton.is,MdButton)
+    customElements.define(MdButton.is,MdButton);
   </script>
 </dom-module>
 
@@ -133,7 +133,7 @@
   </template>
   <script>
     class MdCard extends Polymer.Element {
-      static get is() { return 'md-card' }
+      static get is() { return 'md-card'; }
       static get properties() {
         return {
           image: String,
@@ -144,7 +144,7 @@
         }
       }
     }
-    customElements.define(MdCard.is,MdCard)
+    customElements.define(MdCard.is,MdCard);
   </script>
 </dom-module>
 
@@ -176,26 +176,27 @@
         </paper-item>
       </a>
     </template>
-    <dom-repeat>
   </template>
   <script>
     class MdList extends Polymer.Element {
-      static get is() { return 'md-list' }
+      static get is() { return 'md-list'; }
       static get properties() {
         return {
           path: {
             type: String,
-            observer: '_getList',
           },
-          _list: Array,
+          _list: {
+            type: Array
+          }
         }
       }
-      _getList(path){
-        this.set('_list',[]);
-        firebase.firestore().collection('docs/'+path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
-          s.forEach(d=>{
+      connectedCallback() {
+        console.log('md-list!');
+        super.connectedCallback();
+        firebase.firestore().collection('docs/'+this.path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
+          this.set('_list',s.docs.map(d=>{
             const doc = d.data();
-            doc.path = `${path}/${d.id}`;
+            doc.path = `${this.path}/${d.id}`;
             const dt = new Date(doc.date)
             const mm = dt.getMonth() + 1
             const dd = dt.getDate()
@@ -203,12 +204,11 @@
                         (mm > 9 ? '' : '0') + mm,'-',
                         (dd > 9 ? '' : '0') + dd
             ].join('');
-            this.push('_list',doc);
-          })
-        })
-
+            return doc;
+          }));
+        });
       }
     }
-    customElements.define(MdList.is,MdList)
+    customElements.define(MdList.is,MdList);
   </script>
 </dom-module>

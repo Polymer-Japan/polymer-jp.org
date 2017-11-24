@@ -142,11 +142,6 @@
         font-family: Helvetica Neue,Helvetica,"ヒラギノ角ゴ ProN W3",Hiragino Kaku Gothic ProN,"游ゴシック",YuGothic,sans-serif;
         font-style: italic;
       }
-      .emojione {
-        width: 1em;
-        height: 1em;
-        vertical-align: middle;
-      }
       [hidden] {
         display: none !important;
       }
@@ -209,7 +204,7 @@
             <div class="toc">
               <ul>
                 <template is="dom-repeat" items="[[toc]]">
-                  <li type="square" on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[_emojify(item.title)]]"></a></li>
+                  <li type="square" on-tap="_scroll"><a href="[[_path]]#[[item.id]]" inner-h-t-m-l="[[item.title]]"></a></li>
                 </template>
               </ul>
             </div>
@@ -301,7 +296,6 @@
           };
         }
 
-        Polymer.importHref(this.importPath+"polymer-jp-theme.html");
         Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html");
         Polymer.importHref(this.importPath+"polymer-jp-md-components.html");
 
@@ -327,9 +321,6 @@
         this.set('_path',window.location.pathname);
 
         const main = this.shadowRoot.querySelector('marked-element').querySelector('main');
-	      var input = main.innerHTML;
-	      var output = emojione.toImage(input);
-	      main.innerHTML = output;
 
         this._lazyLoad.update(main.querySelectorAll('img'));
 
@@ -391,9 +382,6 @@
       _getReposUrl(url){
         const u = url.split('/');
         return u[2]=='cdn.rawgit.com' ? ['https://github.com/',u[3],u[4],'blob','master'].concat(u.slice(6)).join('/') : url;
-      }
-      _emojify(contents){
-        if (contents) return emojione.toImage(contents);
       }
     }
     customElements.define(PolymerJpMarked.is, PolymerJpMarked)

@@ -127,18 +127,19 @@
             btn.innerText='ERROR';
           });
 
-          // Sitemap への登録
-          console.log(this._path);
-          firebase.firestore().collection('sitemap').where('path','==','/about').get().then(s=>{
-            console.log(s.size);
+          // save to sitemap
+          firebase.firestore().collection('sitemap').where('path','==',location.pathname).get().then(s=>{
             if (s.size) {
-              console.log("Sitemap update:", s.data());
-              //firebase.firestore().collection('sitemap').doc(this.sitemapId).update(data).then(_=>{});
+              firebase.firestore().collection('sitemap').doc(s.docs[0].id).update({
+                title: data.title
+              });
             } else {
-              console.log("No such document!");
-              //firebase.firestore().collection('sitemap').doc(this.sitemapId).update(data).then(_=>{});
+              firebase.firestore().collection('sitemap').add({
+                path: location.pathname,
+                title: data.title
+              });
             }
-          })
+          });
 
         })
       }

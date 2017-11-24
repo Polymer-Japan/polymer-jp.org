@@ -67,6 +67,7 @@
     <div class="horizontal">
       <paper-toggle-button checked="{{doc.show}}" style="margin-right: 20px;">Show</paper-toggle-button>
       <paper-toggle-button checked="{{doc.noExpand}}">Not Expand Menu</paper-toggle-button>
+      <paper-toggle-button checked="{{doc.inSitemap}}">In Sitemap</paper-toggle-button>
     </div>
     <paper-button raised on-tap="_save">SAVE</paper-button>
     <paper-button raised on-tap="_delete">DEL</paper-button>
@@ -125,8 +126,21 @@
           }).catch(err=>{
             btn.innerText='ERROR';
           });
-        })
 
+          // Sitemap への登録
+          console.log(this._path);
+          firebase.firestore().collection('sitemap').where('path','==','/about').get().then(s=>{
+            console.log(s.size);
+            if (s.size) {
+              console.log("Sitemap update:", s.data());
+              //firebase.firestore().collection('sitemap').doc(this.sitemapId).update(data).then(_=>{});
+            } else {
+              console.log("No such document!");
+              //firebase.firestore().collection('sitemap').doc(this.sitemapId).update(data).then(_=>{});
+            }
+          })
+
+        })
       }
       _delete(e){
         const btn = e.path[0];
@@ -247,6 +261,9 @@
         el.selectionStart = pos + text.length - offset;
         el.selectionEnd = pos + text.length - offset;
         el.focus();
+      }
+      _updateSitemap(reg){
+        console.log(reg);
       }
     }
     customElements.define(PolymerJpMarkedEdit.is, PolymerJpMarkedEdit)

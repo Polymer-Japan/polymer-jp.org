@@ -14,10 +14,36 @@ exports.sitemap = functions.https.onRequest((req, res) => {
     hostname: 'https://polymer-jp.org/'
   });
 
+  let index = [];
+  db.collection('docs').where('show','==',true).get().then(s=>{
+    return s.docs.map(d=>{
+      let doc = d.data();
+      return {
+        id: d.id,
+        title: doc.title
+      };
+    });
+  }).then(r=>{
+    console.log(r);
+  });
+
+  console.log(index);
+
+  /*
   db.collection('docs').doc('home').get().then(s=>{
     const doc = s.data();
-    console.log(doc._index);
+    const index = doc._index;
+    console.log(index);
+    for(k in index){
+      console.log('k',k);
+      if(index[k]['_childs']){
+        index[k]['_childs'].forEach(o=>{
+          console.log('o',o);
+        })
+      }
+    }
   });
+  */
 
   sitemap.toXML( (err, xml) => {
     if (err) {

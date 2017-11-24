@@ -3,6 +3,9 @@
     "public": "build/default",
     "rewrites": [
       {
+        "source": "/sitemap.xml",
+        "function": "sitemap"
+      }, {
         "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{

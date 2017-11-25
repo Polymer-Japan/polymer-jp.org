@@ -195,7 +195,7 @@
         firebase.firestore().collection('docs/'+path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
           s.forEach(d=>{
             const doc = d.data();
-            doc.path = `${path}/${d.id}`;
+            doc.path = `${path}/${d.id}/`;
             const dt = new Date(doc.date)
             const mm = dt.getMonth() + 1
             const dd = dt.getDate()

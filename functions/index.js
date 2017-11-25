@@ -9,49 +9,21 @@ const sm = require('sitemap');
 
 exports.sitemap = functions.https.onRequest((req, res) => {
 
-  // 同じような処理 src/polymer-jp-marked-edit.html:_updateIndex(e)
   const sitemap = sm.createSitemap({
     hostname: 'https://polymer-jp.org/'
   });
 
-  let index = [];
-  db.collection('docs').where('show','==',true).get().then(s=>{
-    return s.docs.map(d=>{
-      let doc = d.data();
-      return {
-        id: d.id,
-        title: doc.title
-      };
+  db.collection('sitemap').get()
+    .then(s=>s.docs.map(d=>sitemap.add(d.data())))
+    .then(_=>{
+      sitemap.toXML( (err, xml) => {
+        if (err) {
+          return res.status(500).end();
+        }
+        res.header('Content-Type', 'application/xml');
+        res.send( xml );
+      });
     });
-  }).then(r=>{
-    console.log(r);
-  });
-
-  console.log(index);
-
-  /*
-  db.collection('docs').doc('home').get().then(s=>{
-    const doc = s.data();
-    const index = doc._index;
-    console.log(index);
-    for(k in index){
-      console.log('k',k);
-      if(index[k]['_childs']){
-        index[k]['_childs'].forEach(o=>{
-          console.log('o',o);
-        })
-      }
-    }
-  });
-  */
-
-  sitemap.toXML( (err, xml) => {
-    if (err) {
-      return res.status(500).end();
-    }
-    res.header('Content-Type', 'application/xml');
-    res.send( xml );
-  });
 
 });
 

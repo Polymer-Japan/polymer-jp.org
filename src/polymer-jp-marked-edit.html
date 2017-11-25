@@ -67,7 +67,6 @@
     <div class="horizontal">
       <paper-toggle-button checked="{{doc.show}}" style="margin-right: 20px;">Show</paper-toggle-button>
       <paper-toggle-button checked="{{doc.noExpand}}">Not Expand Menu</paper-toggle-button>
-      <paper-toggle-button checked="{{doc.inSitemap}}">In Sitemap</paper-toggle-button>
     </div>
     <paper-button raised on-tap="_save">SAVE</paper-button>
     <paper-button raised on-tap="_delete">DEL</paper-button>
@@ -127,18 +126,9 @@
             btn.innerText='ERROR';
           });
 
-          // save to sitemap
-          firebase.firestore().collection('sitemap').where('path','==',location.pathname).get().then(s=>{
-            if (s.size) {
-              firebase.firestore().collection('sitemap').doc(s.docs[0].id).update({
-                title: data.title
-              });
-            } else {
-              firebase.firestore().collection('sitemap').add({
-                path: location.pathname,
-                title: data.title
-              });
-            }
+          // add to sitemap
+          firebase.firestore().collection('sitemap').where('url','==',location.pathname).get().then(s=>{
+            if(s.empty) firebase.firestore().collection('sitemap').add({ url: location.pathname });
           });
 
         })
@@ -149,6 +139,12 @@
         this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
           if(window.confirm('Are you sure?')){
             btn.innerText='DELETING';
+
+            // delete from sitemap
+            firebase.firestore().collection('sitemap').where('url','==',location.pathname).get().then(s=>{
+              s.forEach(d=>firebase.firestore().collection('sitemap').doc(d.id).delete());
+            });
+
             firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
               btn.innerText='DELETED';
               document.location.href='/';

@@ -70,6 +70,7 @@
     </div>
     <paper-button raised on-tap="_save">SAVE</paper-button>
     <paper-button raised on-tap="_delete">DEL</paper-button>
+    <paper-button raised on-tap="_publish">PUBLISH</paper-button>
 
     <paper-input always-float-label label="New Key (URL)" value="{{_newkey}}"
       required auto-validate error-message="入力必須です!" placeholder="intro"></paper-input>
@@ -261,6 +262,20 @@
       }
       _updateSitemap(reg){
         console.log(reg);
+      }
+      _publish(){
+        firebase.firestore().collection('feed').where('path','==',location.pathname).get().then(s=>{
+          s.forEach(d=>firebase.firestore().collection('feed').doc(d.id).delete());
+        }).then(_=>{
+          firebase.firestore().collection('feed').add({
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            description: this.doc.desc,
+            id: 'https://polymer-jp.org'+location.pathname,
+            link: 'https://polymer-jp.org'+location.pathname,
+            path: location.pathname,
+            title: this.doc.title
+          });
+        });
       }
     }
     customElements.define(PolymerJpMarkedEdit.is, PolymerJpMarkedEdit)

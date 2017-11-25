@@ -6,6 +6,34 @@ const db = admin.firestore();
 const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
 const sm = require('sitemap');
+const Feed = require('feed');
+
+exports.feed = functions.https.onRequest((req, res) => {
+
+  const feed = new Feed({
+    title: 'Polymer Japan',
+    id: 'https://polymer-jp.org/',
+    link: 'https://polymer-jp.org/',
+    hub: 'https://pubsubhubbub.appspot.com',
+    feedLinks: {
+      atom: 'https://polymer-jp.org/feed.xml',
+    }
+  });
+
+  db.collection('feed').orderBy('date','desc').limit(10).get()
+    .then(s=>s.docs.map(d=>{
+      const doc = d.data();
+      if(! feed.options.updated)
+        feed.options.updated=doc.date;
+      feed.addItem(doc);
+    }))
+    .then(_=>{
+      res.header('Content-Type', 'application/xml');
+      res.send( feed.rss2() );
+    });
+
+});
+
 
 exports.sitemap = functions.https.onRequest((req, res) => {
 

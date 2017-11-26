@@ -8,6 +8,16 @@ const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI')
 const sm = require('sitemap');
 const Feed = require('feed');
 
+exports.subs = functions.https.onRequest((req, res) => {
+  // need to check setting value
+  if(req.method=='GET'){
+    res.send(req.query['hub.challenge']);
+  }else{
+    // trigger push
+    res.send('OK');
+  }
+})
+
 exports.feed = functions.https.onRequest((req, res) => {
 
   const feed = new Feed({

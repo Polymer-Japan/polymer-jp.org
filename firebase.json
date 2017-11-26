@@ -9,6 +9,9 @@
         "source": "/feed.xml",
         "function": "feed"
       }, {
+        "source": "/subs",
+        "function": "subs"
+      }, {
         "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{

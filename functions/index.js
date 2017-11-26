@@ -7,6 +7,7 @@ const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
 const sm = require('sitemap');
 const Feed = require('feed');
+const request = require('request');
 
 exports.subs = functions.https.onRequest((req, res) => {
   // need to check setting value
@@ -63,6 +64,23 @@ exports.sitemap = functions.https.onRequest((req, res) => {
       });
     });
 
+});
+
+exports.push = functions.https.onRequest((req, res) => {
+  console.log('exec push');
+  if(req.query.token && functions.config().server.key) {
+    request({
+      url: 'https://iid.googleapis.com/iid/v1/'+req.query.token+'/rel/topics/feed',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=' + functions.config().server.key
+      },
+    }, (err, resp, body) => {
+      console.log(err,body);
+    });
+  }
+  res.send('OK');
 });
 
 exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')

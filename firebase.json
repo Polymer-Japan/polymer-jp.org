@@ -12,6 +12,9 @@
         "source": "/subs",
         "function": "subs"
       }, {
+        "source": "/push",
+        "function": "push"
+      }, {
         "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{

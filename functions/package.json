@@ -6,6 +6,7 @@
     "firebase-admin": "^5.5.0",
     "firebase-functions": "^0.7.3",
     "google-spreadsheet": "^2.0.4",
+    "request": "^2.83.0",
     "sitemap": "^1.13.0"
   },
   "private": true

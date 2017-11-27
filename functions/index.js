@@ -10,13 +10,40 @@ const Feed = require('feed');
 const request = require('request');
 
 exports.subs = functions.https.onRequest((req, res) => {
-  // need to check setting value
   if(req.method=='GET'){
+    // TODO: check token
     res.send(req.query['hub.challenge']);
   }else{
-    // trigger push
+
+    db.collection('feed').orderBy('date','desc').limit(1).get()
+      .then(s=>s.docs.map(d=>{
+        const doc = d.data();
+        const postData = JSON.stringify({
+            to: '/topics/feed',
+            priority: 'high',
+            notification: {
+              title: doc.title,
+              body: doc.description,
+              icon: 'https://polymer-jp.org/assets/logos/polymer-jp-logo-192.png',
+              click_action: doc.link
+            }
+        });
+        request({
+          url: 'https://fcm.googleapis.com/fcm/send',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'key=' + functions.config().server.key
+          },
+          body: postData
+        }, (err, resp, body) => {
+          console.log(err,body);
+        });
+      }));
+
     res.send('OK');
   }
+
 })
 
 exports.feed = functions.https.onRequest((req, res) => {
@@ -67,21 +94,50 @@ exports.sitemap = functions.https.onRequest((req, res) => {
 });
 
 exports.push = functions.https.onRequest((req, res) => {
-  console.log('exec push');
+
   if(req.query.token && functions.config().server.key) {
-    request({
-      url: 'https://iid.googleapis.com/iid/v1/'+req.query.token+'/rel/topics/feed',
+
+    const options = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'key=' + functions.config().server.key
-      },
-    }, (err, resp, body) => {
+      }
+    };
+
+    if(req.query.add === 'true'){
+      options.url = 'https://iid.googleapis.com/iid/v1/'+req.query.token+'/rel/topics/feed';
+    }else{
+      options.url = 'https://iid.googleapis.com/iid/v1:batchRemove';
+      options.body = JSON.stringify({
+        to: '/topics/feed',
+        registration_tokens: [req.query.token]
+      });
+    }
+
+    request(options, (err, resp, body) => {
       console.log(err,body);
     });
   }
+
   res.send('OK');
+
 });
+
+exports.updateFeed = functions.firestore.document('/feed/{feedId}')
+  .onWrite(event => {
+    request({
+      url: 'https://pubsubhubbub.appspot.com/publish',
+      method: 'POST',
+      body: {
+        'hub.mode': 'publish',
+        'hub.url': 'https://polymer-jp.org/feed.xml'
+      }
+    }, (err, resp, body) => {
+      console.log(err,body);
+    });
+    return true;
+  });
 
 exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
   .onCreate(event => {

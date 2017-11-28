@@ -48,6 +48,11 @@ $ npm serve
 - sitemapのURLを修正
   robots.txt
 
+```
+# 参考(テストサイト)
+$ patch -p1 < polymer-jp-test.patch
+```
+
 ### FCM
 
 ```

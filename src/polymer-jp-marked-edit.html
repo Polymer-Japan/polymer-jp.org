@@ -263,7 +263,11 @@
       _updateSitemap(reg){
         console.log(reg);
       }
-      _publish(){
+      _publish(e){
+        const btn = e.path[0];
+        btn.innerText='PUBLISHING';
+        btn.disabled=true;
+
         firebase.firestore().collection('feed').where('path','==',location.pathname).get().then(s=>{
           s.forEach(d=>firebase.firestore().collection('feed').doc(d.id).delete());
         }).then(_=>{
@@ -274,6 +278,9 @@
             link: 'https://polymer-jp.org'+location.pathname,
             path: location.pathname,
             title: this.doc.title
+          }).then(_=>{
+            btn.innerText='PUBLISHED!';
+            Polymer.Async.timeOut.run(_=>{btn.innerText='PUBLISH'; btn.disabled=false;}, 5000);
           });
         });
       }

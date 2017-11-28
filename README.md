@@ -41,10 +41,24 @@ $ npm serve
 - sw-precache-config.js  
   ファイルの読み込み元の修正
 - functions/index.js  
-  サービスアカウントの設定(管理者のみ)
+  サービスアカウントの設定(管理者のみ)、FCMの下記参照
 - SpreadSheetにサービスアカウントユーザ追加
 - firebase-messaging-sw.js  
   messagingSenderIdを修正
+- sitemapのURLを修正
+  robots.txt
+
+### FCM
+
+```
+# Push通知用のサーバキーを設定(URLは/で終るのに注意)
+$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.key="FIREBASE_SERVER_KEY"
+# ローカルデバック用に
+$ firebase functions:config:get > functions/.runtimeconfig.json
+# subscribe設定
+$ curl -XPOST https://pubsubhubbub.appspot.com/subscribe -d 'hub.mode=subscribe&hub.verify=sync&hub.callback=https://FIREBASE.SERVER.URL/subs&hub.topic=https://FIREBASE.SERVER.URL/feed.xml'
+```
+
 
 ### To create images
 

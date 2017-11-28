@@ -8,6 +8,7 @@ const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI')
 const sm = require('sitemap');
 const Feed = require('feed');
 const request = require('request');
+const config = functions.config()
 
 exports.subs = functions.https.onRequest((req, res) => {
   if(req.method=='GET'){
@@ -24,7 +25,7 @@ exports.subs = functions.https.onRequest((req, res) => {
             notification: {
               title: doc.title,
               body: doc.description,
-              icon: 'https://polymer-jp.org/assets/logos/polymer-jp-logo-192.png',
+              icon: config.server.url+'assets/logos/polymer-jp-logo-192.png',
               click_action: doc.link
             }
         });
@@ -33,7 +34,7 @@ exports.subs = functions.https.onRequest((req, res) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'key=' + functions.config().server.key
+            'Authorization': 'key=' + config.server.key
           },
           body: postData
         }, (err, resp, body) => {
@@ -50,11 +51,11 @@ exports.feed = functions.https.onRequest((req, res) => {
 
   const feed = new Feed({
     title: 'Polymer Japan',
-    id: 'https://polymer-jp.org/',
-    link: 'https://polymer-jp.org/',
+    id: config.server.url,
+    link: config.server.url,
     hub: 'https://pubsubhubbub.appspot.com',
     feedLinks: {
-      atom: 'https://polymer-jp.org/feed.xml',
+      atom: config.server.url+'feed.xml',
     }
   });
 
@@ -76,7 +77,7 @@ exports.feed = functions.https.onRequest((req, res) => {
 exports.sitemap = functions.https.onRequest((req, res) => {
 
   const sitemap = sm.createSitemap({
-    hostname: 'https://polymer-jp.org/'
+    hostname: config.server.url
   });
 
   db.collection('sitemap').get()
@@ -101,7 +102,7 @@ exports.push = functions.https.onRequest((req, res) => {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'key=' + functions.config().server.key
+        'Authorization': 'key=' + config.server.key
       }
     };
 
@@ -129,10 +130,7 @@ exports.updateFeed = functions.firestore.document('/feed/{feedId}')
     request({
       url: 'https://pubsubhubbub.appspot.com/publish',
       method: 'POST',
-      body: {
-        'hub.mode': 'publish',
-        'hub.url': 'https://polymer-jp.org/feed.xml'
-      }
+      body: 'hub.mode=publish&hub.url='+config.server.url+'feed.xml'
     }, (err, resp, body) => {
       console.log(err,body);
     });
@@ -204,7 +202,10 @@ exports.app = functions.https.onRequest((req, res) => {
     <link rel="apple-touch-icon" sizes="192x192" href="/assets/logos/polymer-jp-logo-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="PolymerJP">
+    <meta name="apple-mobile-web-app-title" content="Polymer JP">
+
+    <link rel="altarnate" type="application/rss+xml" href="/sitemap.xml">
+    <link rel="alternate" type="application/rss+xml" href="/feed.xml">
 
   </head>
   <body>

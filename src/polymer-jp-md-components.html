@@ -191,7 +191,6 @@
         }
       }
       connectedCallback() {
-        console.log('md-list!');
         super.connectedCallback();
         firebase.firestore().collection('docs/'+this.path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
           this.set('_list',s.docs.map(d=>{

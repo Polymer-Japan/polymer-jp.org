@@ -53,17 +53,16 @@ $ npm serve
 $ patch -p1 < polymer-jp-test.patch
 ```
 
-### FCM
+### FCM & WebSub
 
 ```
 # Push通知用のサーバキーを設定(URLは/で終るのに注意)
-$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.key="FIREBASE_SERVER_KEY"
+$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.key="FIREBASE_SERVER_KEY" server.verify_token="PUBSUBHUBBUB_VERIFY_TOKEN" server.hmac_secret="PUBSUBHUBBUB_HMAC_SECRET"
 # ローカルデバック用に
 $ firebase functions:config:get > functions/.runtimeconfig.json
 # subscribe設定
-$ curl -XPOST https://pubsubhubbub.appspot.com/subscribe -d 'hub.mode=subscribe&hub.verify=sync&hub.callback=https://FIREBASE.SERVER.URL/subs&hub.topic=https://FIREBASE.SERVER.URL/feed.xml'
+$ curl -XPOST https://pubsubhubbub.appspot.com/subscribe -d 'hub.mode=subscribe&hub.verify=sync&hub.callback=https://FIREBASE.SERVER.URL/subs&hub.topic=https://FIREBASE.SERVER.URL/feed.xml&hub.verify_token=PUBSUBHUBBUB_VERIFY_TOKEN&hub.hmac_secret=PUBSUBHUBBUB_HMAC_SECRET'
 ```
-
 
 ### To create images
 

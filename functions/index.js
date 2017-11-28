@@ -8,18 +8,27 @@ const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI')
 const sm = require('sitemap');
 const Feed = require('feed');
 const request = require('request');
-const config = functions.config()
+const config = functions.config();
+const crypto = require('crypto');
 
 exports.subs = functions.https.onRequest((req, res) => {
+
   if(req.method=='GET'){
-    // TODO: check token
-    res.send(req.query['hub.challenge']);
+    if(config.server.verify_token == req.query['hub.verify_token']){
+      res.send(req.query['hub.challenge']);
+    }else{
+      res.status(404).end();
+    }
   }else{
 
-    db.collection('feed').orderBy('date','desc').limit(1).get()
-      .then(s=>s.docs.map(d=>{
-        const doc = d.data();
-        const postData = JSON.stringify({
+    const hmac = crypto.createHmac('sha1', config.server.hmac_secret);
+    hmac.update(req.body.toString());
+
+    if(req.headers['x-hub-signature'] == hmac.digest('hex').substr(5)){
+      db.collection('feed').orderBy('date','desc').limit(1).get()
+        .then(s=>s.docs.map(d=>{
+          const doc = d.data();
+          const postData = JSON.stringify({
             to: '/topics/feed',
             priority: 'high',
             notification: {
@@ -28,19 +37,20 @@ exports.subs = functions.https.onRequest((req, res) => {
               icon: config.server.url+'assets/logos/polymer-jp-logo-192.png',
               click_action: doc.link
             }
-        });
-        request({
-          url: 'https://fcm.googleapis.com/fcm/send',
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=' + config.server.key
-          },
-          body: postData
-        }, (err, resp, body) => {
-          console.log(err,body);
-        });
-      }));
+          });
+          request({
+            url: 'https://fcm.googleapis.com/fcm/send',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'key=' + config.server.key
+            },
+            body: postData
+          }, (err, resp, body) => {
+            console.log(err,body);
+          });
+        }));
+    }
 
     res.send('OK');
   }

@@ -11,7 +11,7 @@ index 0f7bfd6..e18aa8c 100644
  });
  const messaging = firebase.messaging();
 diff --git a/functions/index.js b/functions/index.js
-index 283d6f5..8aa43be 100644
+index 2c4a66a..d6980b8 100644
 --- a/functions/index.js
 +++ b/functions/index.js
 @@ -1,6 +1,6 @@
@@ -30,10 +30,10 @@ index 9d8b529..24f4e8d 100644
 -Sitemap: https://polymer-jp.org/sitemap.xml
 +Sitemap: https://polymer-jp-ffc4c.firebaseapp.com/sitemap.xml
 diff --git a/src/polymer-jp-marked-edit.html b/src/polymer-jp-marked-edit.html
-index c18496c..0d9c5e7 100644
+index 951b713..051bd38 100644
 --- a/src/polymer-jp-marked-edit.html
 +++ b/src/polymer-jp-marked-edit.html
-@@ -270,8 +270,8 @@
+@@ -274,8 +274,8 @@
            firebase.firestore().collection('feed').add({
              date: firebase.firestore.FieldValue.serverTimestamp(),
              description: this.doc.desc,
@@ -43,7 +43,7 @@ index c18496c..0d9c5e7 100644
 +            link: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
              path: location.pathname,
              title: this.doc.title
-           });
+           }).then(_=>{
 diff --git a/src/polymer-jp.html b/src/polymer-jp.html
 index 4887c2e..3d5872a 100644
 --- a/src/polymer-jp.html

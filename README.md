@@ -45,7 +45,7 @@ $ npm serve
 - SpreadSheetにサービスアカウントユーザ追加
 - firebase-messaging-sw.js  
   messagingSenderIdを修正
-- sitemapのURLを修正
+- sitemapのURLを修正  
   robots.txt
 
 ```

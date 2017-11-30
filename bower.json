@@ -1,6 +1,6 @@
 {
   "name": "polymer-jp.org",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",

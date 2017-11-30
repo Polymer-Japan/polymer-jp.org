@@ -419,11 +419,13 @@
         }
       }
       _pushToggle(e){
-        this.set('_pushRequest',true);
         if(! this._shouldPush){
           this.shadowRoot.querySelector('firebase-messaging').requestPermission().then(_=>{
-            this.set('_push','notifications');
-            this.set('_shouldPush',true);
+            this.setProperties({
+              _pushRequest: true,
+              _push: 'notifications',
+              _shouldPush: true
+            });
             if(this._pushId){
               this.db.collection("tokens").doc(this._pushId).update({
                 send:true,
@@ -432,8 +434,11 @@
             }
           });
         }else{
-          this.set('_push','notifications-none');
-          this.set('_shouldPush',false);
+          this.setProperties({
+            _pushRequest: true,
+            _push: 'notifications-none',
+            _shouldPush: false
+          });
           if(this._pushId){
             this.db.collection("tokens").doc(this._pushId).update({
               send:false,

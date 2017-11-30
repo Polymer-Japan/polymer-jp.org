@@ -57,7 +57,7 @@ $ patch -p1 < polymer-jp-test.patch
 
 ```
 # Push通知用のサーバキーを設定(URLは/で終るのに注意)
-$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.key="FIREBASE_SERVER_KEY" server.verify_token="PUBSUBHUBBUB_VERIFY_TOKEN" server.hmac_secret="PUBSUBHUBBUB_HMAC_SECRET"
+$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.verify_token="PUBSUBHUBBUB_VERIFY_TOKEN" server.hmac_secret="PUBSUBHUBBUB_HMAC_SECRET"
 # ローカルデバック用に
 $ firebase functions:config:get > functions/.runtimeconfig.json
 # subscribe設定

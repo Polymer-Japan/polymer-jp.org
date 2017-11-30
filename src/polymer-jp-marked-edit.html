@@ -273,9 +273,9 @@
         }).then(_=>{
           firebase.firestore().collection('feed').add({
             date: firebase.firestore.FieldValue.serverTimestamp(),
-            description: this.doc.desc,
             id: 'https://polymer-jp.org'+location.pathname,
             link: 'https://polymer-jp.org'+location.pathname,
+            description: this.doc.desc || '',
             path: location.pathname,
             title: this.doc.title
           }).then(_=>{

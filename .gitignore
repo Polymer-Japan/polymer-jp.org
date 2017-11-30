@@ -67,3 +67,4 @@ functions/*.key.json
 
 # firebase config
 .firebaserc
+.runtimeconfig.json

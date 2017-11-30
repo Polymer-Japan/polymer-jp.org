@@ -41,10 +41,28 @@ $ npm serve
 - sw-precache-config.js  
   ファイルの読み込み元の修正
 - functions/index.js  
-  サービスアカウントの設定(管理者のみ)
+  サービスアカウントの設定(管理者のみ)、FCMの下記参照
 - SpreadSheetにサービスアカウントユーザ追加
-- firebase-messaging-sw.js__
+- firebase-messaging-sw.js  
   messagingSenderIdを修正
+- sitemapのURLを修正  
+  robots.txt
+
+```
+# 参考(テストサイト)
+$ patch -p1 < polymer-jp-test.patch
+```
+
+### FCM & WebSub
+
+```
+# Push通知用のサーバキーを設定(URLは/で終るのに注意)
+$ firebase functions:config:set server.url="https://FIREBASE.SERVER.URL/" server.key="FIREBASE_SERVER_KEY" server.verify_token="PUBSUBHUBBUB_VERIFY_TOKEN" server.hmac_secret="PUBSUBHUBBUB_HMAC_SECRET"
+# ローカルデバック用に
+$ firebase functions:config:get > functions/.runtimeconfig.json
+# subscribe設定
+$ curl -XPOST https://pubsubhubbub.appspot.com/subscribe -d 'hub.mode=subscribe&hub.verify=sync&hub.callback=https://FIREBASE.SERVER.URL/subs&hub.topic=https://FIREBASE.SERVER.URL/feed.xml&hub.verify_token=PUBSUBHUBBUB_VERIFY_TOKEN&hub.hmac_secret=PUBSUBHUBBUB_HMAC_SECRET'
+```
 
 ### To create images
 

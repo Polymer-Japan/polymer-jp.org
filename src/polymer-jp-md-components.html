@@ -191,12 +191,11 @@
         }
       }
       connectedCallback() {
-        console.log('md-list!');
         super.connectedCallback();
         firebase.firestore().collection('docs/'+this.path+'/_childs').orderBy('date','desc').limit(5).get().then(s=>{
           this.set('_list',s.docs.map(d=>{
             const doc = d.data();
-            doc.path = `${this.path}/${d.id}`;
+            doc.path = `${this.path}/${d.id}/`;
             const dt = new Date(doc.date)
             const mm = dt.getMonth() + 1
             const dd = dt.getDate()

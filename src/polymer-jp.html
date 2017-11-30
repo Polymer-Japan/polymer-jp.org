@@ -15,6 +15,7 @@
 <link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/iron-collapse/iron-collapse.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
@@ -181,6 +182,9 @@
     <firebase-messaging token="{{_token}}"></firebase-messaging>
     <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
     <app-localstorage-document key="polymer-jp:v0:firebase-push-msg" data="{{_shouldPush}}"></app-localstorage-document>
+
+    <iron-ajax auto="[[_shouldPushRequest(_pushRequest,_token,_shouldPush)]]"
+      url="/push?add=[[_shouldPush]]&token=[[_token]]"></iron-ajax>
 
     <app-location route="{{route}}"></app-location>
     <app-route route="{{route}}" pattern="/:page" data="{{routeData}}"></app-route>
@@ -414,9 +418,8 @@
           });
         }
       }
-      // BUG: ここで messaging/notifications-blocked がcatchできない
-      // TODO: localStrageが残ると更新できないのでクリアするように
       _pushToggle(e){
+        this.set('_pushRequest',true);
         if(! this._shouldPush){
           this.shadowRoot.querySelector('firebase-messaging').requestPermission().then(_=>{
             this.set('_push','notifications');
@@ -438,6 +441,9 @@
             });
           }
         }
+      }
+      _shouldPushRequest(pushRequest, token, shouldPush) {
+        return pushRequest && token && shouldPush !== undefined;
       }
     }
     customElements.define(PolymerJp.is, PolymerJp);

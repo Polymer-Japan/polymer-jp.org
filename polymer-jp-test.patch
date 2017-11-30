@@ -11,7 +11,7 @@ index 0f7bfd6..e18aa8c 100644
  });
  const messaging = firebase.messaging();
 diff --git a/functions/index.js b/functions/index.js
-index 2c4a66a..d6980b8 100644
+index 88e44f4..1213d9a 100644
 --- a/functions/index.js
 +++ b/functions/index.js
 @@ -1,6 +1,6 @@
@@ -21,7 +21,109 @@ index 2c4a66a..d6980b8 100644
 +const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
  const db = admin.firestore();
- const GoogleSpreadsheet = require('google-spreadsheet');
+ const fcm = admin.messaging();
+diff --git a/polymer-jp-test.patch b/polymer-jp-test.patch
+index a93d41b..645cc1f 100644
+--- a/polymer-jp-test.patch
++++ b/polymer-jp-test.patch
+@@ -1,7 +1,10 @@
+-diff --git a/firebase-messaging-sw.js b/firebase-messaging-sw.js
+-index 0f7bfd6..e18aa8c 100644
+---- a/firebase-messaging-sw.js
+-+++ b/firebase-messaging-sw.js
++Head:     fbmsg use admin.messsaging()
++Merge:    origin/fbmsg use admin.messsaging()
++Push:     origin/fbmsg use admin.messsaging()
++Tag:      v0.2.8 (2)
++
++Unstaged changes (6)
++modified   firebase-messaging-sw.js
+ @@ -1,6 +1,6 @@
+  importScripts('https://www.gstatic.com/firebasejs/4.6.0/firebase-app.js');
+  importScripts('https://www.gstatic.com/firebasejs/4.6.0/firebase-messaging.js');
+@@ -10,10 +13,7 @@ index 0f7bfd6..e18aa8c 100644
+ +  'messagingSenderId': '246861538947'
+  });
+  const messaging = firebase.messaging();
+-diff --git a/functions/index.js b/functions/index.js
+-index 2c4a66a..d6980b8 100644
+---- a/functions/index.js
+-+++ b/functions/index.js
++modified   functions/index.js
+ @@ -1,6 +1,6 @@
+  const functions = require('firebase-functions');
+  const admin = require('firebase-admin');
+@@ -21,33 +21,24 @@ index 2c4a66a..d6980b8 100644
+ +const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
+  admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  const db = admin.firestore();
+- const GoogleSpreadsheet = require('google-spreadsheet');
+-diff --git a/robots.txt b/robots.txt
+-index 9d8b529..24f4e8d 100644
+---- a/robots.txt
+-+++ b/robots.txt
++ const fcm = admin.messaging();
++modified   robots.txt
+ @@ -1 +1 @@
+ -Sitemap: https://polymer-jp.org/sitemap.xml
+ +Sitemap: https://polymer-jp-ffc4c.firebaseapp.com/sitemap.xml
+-diff --git a/src/polymer-jp-marked-edit.html b/src/polymer-jp-marked-edit.html
+-index 951b713..051bd38 100644
+---- a/src/polymer-jp-marked-edit.html
+-+++ b/src/polymer-jp-marked-edit.html
+-@@ -274,8 +274,8 @@
++modified   src/polymer-jp-marked-edit.html
++@@ -273,8 +273,8 @@
++         }).then(_=>{
+            firebase.firestore().collection('feed').add({
+              date: firebase.firestore.FieldValue.serverTimestamp(),
+-             description: this.doc.desc,
+ -            id: 'https://polymer-jp.org'+location.pathname,
+ -            link: 'https://polymer-jp.org'+location.pathname,
+ +            id: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
+ +            link: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
++             description: this.doc.desc || '',
+              path: location.pathname,
+              title: this.doc.title
+-           }).then(_=>{
+-diff --git a/src/polymer-jp.html b/src/polymer-jp.html
+-index 4887c2e..3d5872a 100644
+---- a/src/polymer-jp.html
+-+++ b/src/polymer-jp.html
++modified   src/polymer-jp.html
+ @@ -172,12 +172,12 @@
+  
+      <page-title base-title="Polymer Japan" page-title="[[doc.title]]"></page-title>
+@@ -67,10 +58,7 @@ index 4887c2e..3d5872a 100644
+      </firebase-app>
+      <firebase-messaging token="{{_token}}"></firebase-messaging>
+      <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
+-diff --git a/sw-precache-config.js b/sw-precache-config.js
+-index 4b88efd..e8eb784 100644
+---- a/sw-precache-config.js
+-+++ b/sw-precache-config.js
++modified   sw-precache-config.js
+ @@ -12,7 +12,7 @@ module.exports = {
+      urlPattern: /^https:\/\/cdn\.rawgit\.com/,
+      handler: 'networkFirst'
+@@ -80,3 +68,17 @@ index 4b88efd..e8eb784 100644
+      handler: 'cacheFirst'
+    }]
+  };
++
++Recent commits
++cde96b4 fbmsg origin/fbmsg use admin.messsaging()
++df75164 set props
++68c9fed v0.2.8 origin/master master 0.2.7 -> 0.2.8
++1ebad40 add google search console verif.
++f329e56 fix hmac check bug.
++e01ae95 0.2.6 -> 0.2.7
++5933216 Sitemap, Feed, WebSub, Push Topics の並行運用版 (#26)
++82ac877 Merge pull request #23 from Polymer-Japan/fix-seo
++b219cb3 fix #22. load data in constructor, remove emojione.
++ccad169 Typo
++81ee8e8 v0.2.6 0.2.5 -> 0.2.6
++
 diff --git a/robots.txt b/robots.txt
 index 9d8b529..24f4e8d 100644
 --- a/robots.txt
@@ -30,22 +132,22 @@ index 9d8b529..24f4e8d 100644
 -Sitemap: https://polymer-jp.org/sitemap.xml
 +Sitemap: https://polymer-jp-ffc4c.firebaseapp.com/sitemap.xml
 diff --git a/src/polymer-jp-marked-edit.html b/src/polymer-jp-marked-edit.html
-index 951b713..051bd38 100644
+index 06de93b..bf7b394 100644
 --- a/src/polymer-jp-marked-edit.html
 +++ b/src/polymer-jp-marked-edit.html
-@@ -274,8 +274,8 @@
+@@ -273,8 +273,8 @@
+         }).then(_=>{
            firebase.firestore().collection('feed').add({
              date: firebase.firestore.FieldValue.serverTimestamp(),
-             description: this.doc.desc,
 -            id: 'https://polymer-jp.org'+location.pathname,
 -            link: 'https://polymer-jp.org'+location.pathname,
 +            id: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
 +            link: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
+             description: this.doc.desc || '',
              path: location.pathname,
              title: this.doc.title
-           }).then(_=>{
 diff --git a/src/polymer-jp.html b/src/polymer-jp.html
-index 4887c2e..3d5872a 100644
+index f20c54f..cdc118d 100644
 --- a/src/polymer-jp.html
 +++ b/src/polymer-jp.html
 @@ -172,12 +172,12 @@

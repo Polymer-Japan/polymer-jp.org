@@ -23,8 +23,9 @@ exports.subs = functions.https.onRequest((req, res) => {
 
     const hmac = crypto.createHmac('sha1', config.server.hmac_secret);
     hmac.update(req.body.toString());
+    const hmacSignature = 'sha1='+hmac.digest('hex');
 
-    if(req.headers['x-hub-signature'] == hmac.digest('hex').substr(5)){
+    if(req.headers['x-hub-signature'] == hmacSignature){
       db.collection('feed').orderBy('date','desc').limit(1).get()
         .then(s=>s.docs.map(d=>{
           const doc = d.data();

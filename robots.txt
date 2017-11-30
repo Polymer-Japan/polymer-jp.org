@@ -1,2 +1,1 @@
-# TODO: auto generate
-# Sitemap: https://polymer-jp.org/sitemap
+Sitemap: https://polymer-jp.org/sitemap.xml

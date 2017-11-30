@@ -5,6 +5,147 @@ admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
+const sm = require('sitemap');
+const Feed = require('feed');
+const request = require('request');
+const config = functions.config();
+const crypto = require('crypto');
+
+exports.subs = functions.https.onRequest((req, res) => {
+
+  if(req.method=='GET'){
+    if(config.server.verify_token == req.query['hub.verify_token']){
+      res.send(req.query['hub.challenge']);
+    }else{
+      res.status(404).end();
+    }
+  }else{
+
+    const hmac = crypto.createHmac('sha1', config.server.hmac_secret);
+    hmac.update(req.body.toString());
+
+    if(req.headers['x-hub-signature'] == hmac.digest('hex').substr(5)){
+      db.collection('feed').orderBy('date','desc').limit(1).get()
+        .then(s=>s.docs.map(d=>{
+          const doc = d.data();
+          const postData = JSON.stringify({
+            to: '/topics/feed',
+            priority: 'high',
+            notification: {
+              title: doc.title,
+              body: doc.description,
+              icon: config.server.url+'assets/logos/polymer-jp-logo-192.png',
+              click_action: doc.link
+            }
+          });
+          request({
+            url: 'https://fcm.googleapis.com/fcm/send',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'key=' + config.server.key
+            },
+            body: postData
+          }, (err, resp, body) => {
+            console.log(err,body);
+          });
+        }));
+    }
+
+    res.send('OK');
+  }
+
+})
+
+exports.feed = functions.https.onRequest((req, res) => {
+
+  const feed = new Feed({
+    title: 'Polymer Japan',
+    id: config.server.url,
+    link: config.server.url,
+    hub: 'https://pubsubhubbub.appspot.com',
+    feedLinks: {
+      atom: config.server.url+'feed.xml',
+    }
+  });
+
+  db.collection('feed').orderBy('date','desc').limit(10).get()
+    .then(s=>s.docs.map(d=>{
+      const doc = d.data();
+      if(! feed.options.updated)
+        feed.options.updated=doc.date;
+      feed.addItem(doc);
+    }))
+    .then(_=>{
+      res.header('Content-Type', 'application/xml');
+      res.send( feed.rss2() );
+    });
+
+});
+
+
+exports.sitemap = functions.https.onRequest((req, res) => {
+
+  const sitemap = sm.createSitemap({
+    hostname: config.server.url
+  });
+
+  db.collection('sitemap').get()
+    .then(s=>s.docs.map(d=>sitemap.add(d.data())))
+    .then(_=>{
+      sitemap.toXML( (err, xml) => {
+        if (err) {
+          return res.status(500).end();
+        }
+        res.header('Content-Type', 'application/xml');
+        res.send( xml );
+      });
+    });
+
+});
+
+exports.push = functions.https.onRequest((req, res) => {
+
+  if(req.query.token && functions.config().server.key) {
+
+    const options = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=' + config.server.key
+      }
+    };
+
+    if(req.query.add === 'true'){
+      options.url = 'https://iid.googleapis.com/iid/v1/'+req.query.token+'/rel/topics/feed';
+    }else{
+      options.url = 'https://iid.googleapis.com/iid/v1:batchRemove';
+      options.body = JSON.stringify({
+        to: '/topics/feed',
+        registration_tokens: [req.query.token]
+      });
+    }
+
+    request(options, (err, resp, body) => {
+      console.log(err,body);
+    });
+  }
+
+  res.send('OK');
+
+});
+
+exports.updateFeed = functions.firestore.document('/feed/{feedId}')
+  .onWrite(event => {
+    request({
+      url: 'https://pubsubhubbub.appspot.com/publish',
+      method: 'POST',
+      body: 'hub.mode=publish&hub.url='+config.server.url+'feed.xml'
+    }, (err, resp, body) => {
+      console.log(err,body);
+    });
+    return true;
+  });
 
 exports.saveSpreadSheet = functions.firestore.document('/inquiries/{inqId}')
   .onCreate(event => {
@@ -71,7 +212,10 @@ exports.app = functions.https.onRequest((req, res) => {
     <link rel="apple-touch-icon" sizes="192x192" href="/assets/logos/polymer-jp-logo-192.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="PolymerJP">
+    <meta name="apple-mobile-web-app-title" content="Polymer JP">
+
+    <link rel="altarnate" type="application/rss+xml" href="/sitemap.xml">
+    <link rel="alternate" type="application/rss+xml" href="/feed.xml">
 
   </head>
   <body>

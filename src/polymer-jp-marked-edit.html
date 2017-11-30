@@ -70,6 +70,7 @@
     </div>
     <paper-button raised on-tap="_save">SAVE</paper-button>
     <paper-button raised on-tap="_delete">DEL</paper-button>
+    <paper-button raised on-tap="_publish">PUBLISH</paper-button>
 
     <paper-input always-float-label label="New Key (URL)" value="{{_newkey}}"
       required auto-validate error-message="入力必須です!" placeholder="intro"></paper-input>
@@ -125,8 +126,13 @@
           }).catch(err=>{
             btn.innerText='ERROR';
           });
-        })
 
+          // add to sitemap
+          firebase.firestore().collection('sitemap').where('url','==',location.pathname).get().then(s=>{
+            if(s.empty) firebase.firestore().collection('sitemap').add({ url: location.pathname });
+          });
+
+        })
       }
       _delete(e){
         const btn = e.path[0];
@@ -134,6 +140,12 @@
         this._debouncer=Polymer.Debouncer.debounce(this._debouncer,Polymer.Async.timeOut.after(500),_=>{
           if(window.confirm('Are you sure?')){
             btn.innerText='DELETING';
+
+            // delete from sitemap
+            firebase.firestore().collection('sitemap').where('url','==',location.pathname).get().then(s=>{
+              s.forEach(d=>firebase.firestore().collection('sitemap').doc(d.id).delete());
+            });
+
             firebase.firestore().collection(this._path).doc(this.doc.__id__).delete().then(_=>{
               btn.innerText='DELETED';
               document.location.href='/';
@@ -247,6 +259,30 @@
         el.selectionStart = pos + text.length - offset;
         el.selectionEnd = pos + text.length - offset;
         el.focus();
+      }
+      _updateSitemap(reg){
+        console.log(reg);
+      }
+      _publish(e){
+        const btn = e.path[0];
+        btn.innerText='PUBLISHING';
+        btn.disabled=true;
+
+        firebase.firestore().collection('feed').where('path','==',location.pathname).get().then(s=>{
+          s.forEach(d=>firebase.firestore().collection('feed').doc(d.id).delete());
+        }).then(_=>{
+          firebase.firestore().collection('feed').add({
+            date: firebase.firestore.FieldValue.serverTimestamp(),
+            id: 'https://polymer-jp.org'+location.pathname,
+            link: 'https://polymer-jp.org'+location.pathname,
+            description: this.doc.desc || '',
+            path: location.pathname,
+            title: this.doc.title
+          }).then(_=>{
+            btn.innerText='PUBLISHED!';
+            Polymer.Async.timeOut.run(_=>{btn.innerText='PUBLISH'; btn.disabled=false;}, 5000);
+          });
+        });
       }
     }
     customElements.define(PolymerJpMarkedEdit.is, PolymerJpMarkedEdit)

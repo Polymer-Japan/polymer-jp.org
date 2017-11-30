@@ -1,0 +1,82 @@
+diff --git a/firebase-messaging-sw.js b/firebase-messaging-sw.js
+index 0f7bfd6..e18aa8c 100644
+--- a/firebase-messaging-sw.js
++++ b/firebase-messaging-sw.js
+@@ -1,6 +1,6 @@
+ importScripts('https://www.gstatic.com/firebasejs/4.6.0/firebase-app.js');
+ importScripts('https://www.gstatic.com/firebasejs/4.6.0/firebase-messaging.js');
+ firebase.initializeApp({
+-  'messagingSenderId': '983990284433'
++  'messagingSenderId': '246861538947'
+ });
+ const messaging = firebase.messaging();
+diff --git a/functions/index.js b/functions/index.js
+index 2c4a66a..d6980b8 100644
+--- a/functions/index.js
++++ b/functions/index.js
+@@ -1,6 +1,6 @@
+ const functions = require('firebase-functions');
+ const admin = require('firebase-admin');
+-const serviceAccount = require('./polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json');
++const serviceAccount = require('./polymer-jp-ffc4c-firebase-adminsdk-c6iat-8c41fe5327.key.json');
+ admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+ const db = admin.firestore();
+ const GoogleSpreadsheet = require('google-spreadsheet');
+diff --git a/robots.txt b/robots.txt
+index 9d8b529..24f4e8d 100644
+--- a/robots.txt
++++ b/robots.txt
+@@ -1 +1 @@
+-Sitemap: https://polymer-jp.org/sitemap.xml
++Sitemap: https://polymer-jp-ffc4c.firebaseapp.com/sitemap.xml
+diff --git a/src/polymer-jp-marked-edit.html b/src/polymer-jp-marked-edit.html
+index 951b713..051bd38 100644
+--- a/src/polymer-jp-marked-edit.html
++++ b/src/polymer-jp-marked-edit.html
+@@ -274,8 +274,8 @@
+           firebase.firestore().collection('feed').add({
+             date: firebase.firestore.FieldValue.serverTimestamp(),
+             description: this.doc.desc,
+-            id: 'https://polymer-jp.org'+location.pathname,
+-            link: 'https://polymer-jp.org'+location.pathname,
++            id: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
++            link: 'https://polymer-jp-ffc4c.firebaseapp.com'+location.pathname,
+             path: location.pathname,
+             title: this.doc.title
+           }).then(_=>{
+diff --git a/src/polymer-jp.html b/src/polymer-jp.html
+index 4887c2e..3d5872a 100644
+--- a/src/polymer-jp.html
++++ b/src/polymer-jp.html
+@@ -172,12 +172,12 @@
+ 
+     <page-title base-title="Polymer Japan" page-title="[[doc.title]]"></page-title>
+ 
+-    <firebase-app auth-domain="polymer-japan.firebaseapp.com"
+-      database-url="https://polymer-japan.firebaseio.com"
+-      api-key="AIzaSyABP6EAnVyEt4ldTv4--6T4tru0aaM3VOI"
+-      storage-bucket="polymer-japan.appspot.com"
+-      messaging-sender-id="983990284433"
+-      project-id="polymer-japan">
++    <firebase-app auth-domain="polymer-jp-ffc4c.firebaseapp.com"
++      database-url="https://polymer-jp-ffc4c.firebaseio.com"
++      api-key="AIzaSyDDrTUFZtmp5j_q9Tu1AjqhltiGclT5WMg"
++      storage-bucket="polymer-jp-ffc4c.appspot.com"
++      messaging-sender-id="246861538947"
++      project-id="polymer-jp-ffc4c">
+     </firebase-app>
+     <firebase-messaging token="{{_token}}"></firebase-messaging>
+     <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
+diff --git a/sw-precache-config.js b/sw-precache-config.js
+index 4b88efd..e8eb784 100644
+--- a/sw-precache-config.js
++++ b/sw-precache-config.js
+@@ -12,7 +12,7 @@ module.exports = {
+     urlPattern: /^https:\/\/cdn\.rawgit\.com/,
+     handler: 'networkFirst'
+   }, {
+-    urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/polymer-japan\.appspot\.com\/o/,
++    urlPattern: /^https:\/\/firebasestorage\.googleapis\.com\/v0\/b\/polymer-jp-ffc4c\.appspot\.com\/o/,
+     handler: 'cacheFirst'
+   }]
+ };

@@ -3,6 +3,18 @@
     "public": "build/default",
     "rewrites": [
       {
+        "source": "/sitemap.xml",
+        "function": "sitemap"
+      }, {
+        "source": "/feed.xml",
+        "function": "feed"
+      }, {
+        "source": "/subs",
+        "function": "subs"
+      }, {
+        "source": "/push",
+        "function": "push"
+      }, {
         "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{

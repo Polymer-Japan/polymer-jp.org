@@ -3,6 +3,7 @@ const admin = require('firebase-admin');
 const serviceAccount = require('./polymer-japan-firebase-adminsdk-a8xev-5e8e96bd69.key.json');
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
+const fcm = admin.messaging();
 const GoogleSpreadsheet = require('google-spreadsheet');
 const gs = new GoogleSpreadsheet('1x-hd157IdPdAp8_U9JS_VsM3IPAa42kkbw0Hf5fOOuI');
 const sm = require('sitemap');
@@ -20,18 +21,14 @@ exports.subs = functions.https.onRequest((req, res) => {
       res.status(404).end();
     }
   }else{
-
     const hmac = crypto.createHmac('sha1', config.server.hmac_secret);
     hmac.update(req.body.toString());
     const hmacSignature = 'sha1='+hmac.digest('hex');
-
     if(req.headers['x-hub-signature'] == hmacSignature){
       db.collection('feed').orderBy('date','desc').limit(1).get()
         .then(s=>s.docs.map(d=>{
           const doc = d.data();
-          const postData = JSON.stringify({
-            to: '/topics/feed',
-            priority: 'high',
+          fcm.sendToTopic('feed',{
             notification: {
               title: doc.title,
               body: doc.description,
@@ -39,20 +36,8 @@ exports.subs = functions.https.onRequest((req, res) => {
               click_action: doc.link
             }
           });
-          request({
-            url: 'https://fcm.googleapis.com/fcm/send',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'key=' + config.server.key
-            },
-            body: postData
-          }, (err, resp, body) => {
-            console.log(err,body);
-          });
         }));
     }
-
     res.send('OK');
   }
 
@@ -107,29 +92,10 @@ exports.sitemap = functions.https.onRequest((req, res) => {
 
 exports.push = functions.https.onRequest((req, res) => {
 
-  if(req.query.token && functions.config().server.key) {
-
-    const options = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'key=' + config.server.key
-      }
-    };
-
-    if(req.query.add === 'true'){
-      options.url = 'https://iid.googleapis.com/iid/v1/'+req.query.token+'/rel/topics/feed';
-    }else{
-      options.url = 'https://iid.googleapis.com/iid/v1:batchRemove';
-      options.body = JSON.stringify({
-        to: '/topics/feed',
-        registration_tokens: [req.query.token]
-      });
-    }
-
-    request(options, (err, resp, body) => {
-      console.log(err,body);
-    });
+  if(req.query.add === 'true'){
+    fcm.subscribeToTopic(req.query.token, 'feed');
+  }else{
+    fcm.unsubscribeFromTopic(req.query.token, 'feed');
   }
 
   res.send('OK');

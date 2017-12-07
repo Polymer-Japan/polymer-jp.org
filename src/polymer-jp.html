@@ -180,7 +180,6 @@
       project-id="polymer-japan">
     </firebase-app>
     <firebase-messaging token="{{_token}}"></firebase-messaging>
-    <app-localstorage-document key="polymer-jp:v0:firebase-push-pid" data="{{_pushId}}"></app-localstorage-document>
     <app-localstorage-document key="polymer-jp:v0:firebase-push-msg" data="{{_shouldPush}}"></app-localstorage-document>
 
     <iron-ajax auto="[[_shouldPushRequest(_pushRequest,_token,_shouldPush)]]"
@@ -211,7 +210,7 @@
             </nav>
           </template>
           <paper-icon-button icon="i:help-outline" toggles active="{{_openDialog}}"></paper-icon-button>
-          <paper-icon-button icon="i:[[_push]]" toggles on-tap="_pushToggle"></paper-icon-button>
+          <paper-icon-button icon="i:[[_iconPush(_shouldPush)]]" toggles on-tap="_pushToggle"></paper-icon-button>
         </app-toolbar>
         <paper-progress indeterminate></paper-progress>
       </app-header>
@@ -298,21 +297,9 @@
             type: Array,
             value: [],
           },
-          _pushId: {
-            type: String,
-            value: "",
-          },
-          _token: {
-            type: String,
-            observer: '_tokenChanged',
-          },
           _shouldPush: {
             type: Boolean,
             value: false,
-          },
-          _push: {
-            type: String,
-            computed: '_iconPush(_shouldPush)',
           },
           _menu: {
             type: String,
@@ -404,47 +391,13 @@
       _reload(){
         document.location.reload(true);
       }
-      _tokenChanged(token){
-        if(token && ! this._pushId){
-          const date = firebase.firestore.FieldValue.serverTimestamp();
-          this.db.collection("tokens").add({
-            send:true,
-            token:token,
-            created: date,
-            updated: date
-          }).then(da=>{
-            this.set('_shouldPush',true);
-            this.set('_pushId',da.id);
-          });
-        }
-      }
       _pushToggle(e){
         if(! this._shouldPush){
           this.shadowRoot.querySelector('firebase-messaging').requestPermission().then(_=>{
-            this.setProperties({
-              _pushRequest: true,
-              _push: 'notifications',
-              _shouldPush: true
-            });
-            if(this._pushId){
-              this.db.collection("tokens").doc(this._pushId).update({
-                send:true,
-                updated:firebase.firestore.FieldValue.serverTimestamp()
-              });
-            }
+            this.setProperties({_pushRequest: true, _shouldPush: true});
           });
         }else{
-          this.setProperties({
-            _pushRequest: true,
-            _push: 'notifications-none',
-            _shouldPush: false
-          });
-          if(this._pushId){
-            this.db.collection("tokens").doc(this._pushId).update({
-              send:false,
-              updated:firebase.firestore.FieldValue.serverTimestamp()
-            });
-          }
+          this.setProperties({_pushRequest: true, _shouldPush: false});
         }
       }
       _shouldPushRequest(pushRequest, token, shouldPush) {

@@ -128,8 +128,17 @@
           });
 
           // add to sitemap
-          firebase.firestore().collection('sitemap').where('url','==',location.pathname).get().then(s=>{
-            if(s.empty) firebase.firestore().collection('sitemap').add({ url: location.pathname });
+          const sitemap = firebase.firestore().collection('sitemap');
+          const ts = firebase.firestore.FieldValue.serverTimestamp();
+          sitemap.where('url','==',location.pathname).get().then(s=>{
+            if(s.empty){
+              sitemap.add({
+                url: location.pathname,
+                lastmod: ts
+              });
+            }else{
+              s.forEach(d=>sitemap.doc(d.id).update({lastmod: ts}));
+            }
           });
 
         })

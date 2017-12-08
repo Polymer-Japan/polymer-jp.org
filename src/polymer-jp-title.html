@@ -7,18 +7,32 @@
       .area {
         display: flex;
         text-decoration: none;
-        color: #000;
         padding: 10px 0;
       }
-      .logo {
+      .area.small {
+        justify-content: center;
+        align-items: center;
+      }
+      .svg-logo {
         height: 24px;
-        margin: 0px 12px 0px 0px;
         vertical-align: middle;
+        margin-right: 12px;
+      }
+      .iron-logo {
+        height: 26px;
+        width: 26px;
+        color: #fff;
+        margin-right: 6px;
       }
       .text {
         white-space: nowrap;
         font-size: 22px;
         margin: 0;
+        color: #000;
+      }
+      .area.small .text {
+        font-size: 18px;
+        color: #fff;
       }
       paper-badge {
         --paper-badge-width: 45px;
@@ -28,14 +42,30 @@
         }
       }
     </style>
-    <a href="/" class="area">
-      <img class="logo" src="/assets/logos/polymer-jp-logo-mark.svg">
-      <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
-    </a>
+    <template is="dom-if" if="{{!small}}">
+      <a href="/" class="area">
+        <img class="svg-logo" src="/assets/logos/polymer-jp-logo-mark.svg">
+        <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
+      </a>
+    </template>
+    <template is="dom-if" if="{{small}}">
+      <div class="area small">
+        <iron-icon class="iron-logo" icon="i:polymer"></iron-icon>
+        <p class="text">Polymer Japan</p>
+      </div>
+    </template>
   </template>
   <script>
     class PolymerJpTitle extends Polymer.Element {
       static get is() { return 'polymer-jp-title'; }
+      static get properties() {
+        return {
+          small: {
+            type: Boolean,
+            value: false
+          }
+        }
+      }
       ready() {
         super.ready();
         // BUG: 初期読み込み時にずれる時があるので時間差で表示

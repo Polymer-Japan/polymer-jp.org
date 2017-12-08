@@ -5,13 +5,17 @@
   <template>
     <style>
       .area {
+        display: inline-block;
+      }
+      .area-small {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .link {
         display: flex;
         text-decoration: none;
         padding: 10px 0;
-      }
-      .area.small {
-        justify-content: center;
-        align-items: center;
       }
       .svg-logo {
         height: 24px;
@@ -30,7 +34,7 @@
         margin: 0;
         color: #000;
       }
-      .area.small .text {
+      .area-small .text {
         font-size: 18px;
         color: #fff;
       }
@@ -43,13 +47,15 @@
       }
     </style>
     <template is="dom-if" if="{{!small}}">
-      <a href="/" class="area">
-        <img class="svg-logo" src="/assets/logos/polymer-jp-logo-mark.svg">
-        <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
-      </a>
+      <div class="area">
+        <a href="/" class="link">
+          <img class="svg-logo" src="/assets/logos/polymer-jp-logo-mark.svg">
+          <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
+        </a>
+      </div>
     </template>
     <template is="dom-if" if="{{small}}">
-      <div class="area small">
+      <div class="area-small">
         <iron-icon class="iron-logo" icon="i:polymer"></iron-icon>
         <p class="text">Polymer Japan</p>
       </div>

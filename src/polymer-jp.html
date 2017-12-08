@@ -29,6 +29,7 @@
 
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
+<link rel="import" href="polymer-jp-title.html">
 
 <dom-module id="polymer-jp">
   <template>
@@ -100,15 +101,6 @@
       }
       polymer-jp-marked {
         min-height: 80vh;
-      }
-      .logo {
-        height: 24px;
-        margin: 0px 12px 0px 0px;
-        vertical-align: middle;
-      }
-      div[main-title] {
-        white-space: nowrap;
-        font-size: 22px;
       }
       .back-toolbar {
         background: #337ab7 url(/assets/textures/section-gradient-light.png) repeat-x center bottom;
@@ -197,8 +189,7 @@
           <template is="dom-if" if="[[smallScreen]]">
             <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
           </template>
-          <a href="/"><img class="logo" src="/assets/logos/polymer-jp-logo-mark.svg" drawer-toggle></a>
-          <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
+          <polymer-jp-title></polymer-jp-title>
           <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>

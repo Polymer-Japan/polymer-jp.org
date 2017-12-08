@@ -31,7 +31,7 @@ $ npm start
 ## Develop
 
 ```bash
-$ npm serve
+$ npm run serve
 ```
 
 ### For Customize

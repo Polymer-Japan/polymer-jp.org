@@ -21,7 +21,6 @@
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-messaging.html">
 <link rel="import" href="../bower_components/polymerfire/firestore-element.html">
@@ -94,13 +93,6 @@
         border-top: 1px solid #aaa;
         --paper-toast-background-color: white;
         --paper-toast-color: #555;
-      }
-      paper-badge {
-        --paper-badge-width: 45px;
-        --paper-badge: {
-          border-radius: 10px;
-          font-weight: bold;
-        }
       }
       polymer-jp-marked {
         min-height: 80vh;
@@ -333,12 +325,6 @@
             });
           });
         }
-
-        // BUG: 初期読み込み時にずれる時があるので
-        Polymer.Async.timeOut.run(_=>{
-          this.shadowRoot.querySelector('paper-badge').hidden=false;
-          this.shadowRoot.querySelector('paper-badge').updatePosition();
-        }, 1000);
 
         Polymer.importHref(this.importPath+"polymer-jp-marked.html");
         Polymer.importHref(this.importPath+"polymer-jp-inquery.html");

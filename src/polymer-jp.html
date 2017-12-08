@@ -51,6 +51,9 @@
         background-color: var(--app-background-color);
         color: var(--app-text-color);
       }
+      app-toolbar{
+        @apply --layout-horizontal;
+      }
       app-toolbar paper-icon-button {
         color: #6b6b6b;
       }
@@ -102,6 +105,9 @@
       polymer-jp-marked {
         min-height: 80vh;
       }
+      polymer-jp-title {
+        @apply(--layout-flex);
+      }
       .back-toolbar {
         background: #337ab7 url(/assets/textures/section-gradient-light.png) repeat-x center bottom;
         background-size: 10px;
@@ -132,9 +138,6 @@
         box-sizing: border-box;
         text-decoration: none;
         color: #4d4d4d;
-      }
-      .flex {
-        @apply --layout-flex;
       }
       .menu {
         margin-left: -8px;
@@ -190,7 +193,6 @@
             <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
           </template>
           <polymer-jp-title></polymer-jp-title>
-          <div class="flex"></div>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>
               <iron-selector attr-for-selected="name" selected="{{_selectedId}}">

@@ -1,0 +1,90 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-badge/paper-badge.html">
+
+<dom-module id="polymer-jp-title">
+  <template>
+    <style>
+      .area {
+        display: inline-block;
+      }
+      .area-small {
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        @apply --layout-center-justified;
+      }
+      .link {
+        @apply --layout-horizontal;
+        @apply --layout-center;
+        text-decoration: none;
+        padding: 10px 0;
+      }
+      .svg-logo {
+        height: 24px;
+        width: 35px;
+        vertical-align: middle;
+        margin-right: 12px;
+      }
+      .iron-logo {
+        height: 26px;
+        width: 26px;
+        color: #fff;
+        margin-right: 6px;
+      }
+      .text {
+        white-space: nowrap;
+        font-size: 22px;
+        margin: 0;
+        color: #000;
+      }
+      .area-small .text {
+        font-size: 18px;
+        color: #fff;
+      }
+      paper-badge {
+        --paper-badge-width: 45px;
+        --paper-badge: {
+          border-radius: 10px;
+          font-weight: bold;
+        }
+      }
+    </style>
+    <template is="dom-if" if="{{!small}}">
+      <div class="area">
+        <a href="/" class="link">
+          <img class="svg-logo" src="/assets/logos/polymer-jp-logo-mark.svg">
+          <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
+        </a>
+      </div>
+    </template>
+    <template is="dom-if" if="{{small}}">
+      <div class="area-small">
+        <iron-icon class="iron-logo" icon="i:polymer"></iron-icon>
+        <p class="text">Polymer Japan</p>
+      </div>
+    </template>
+  </template>
+  <script>
+    class PolymerJpTitle extends Polymer.Element {
+      static get is() { return 'polymer-jp-title'; }
+      static get properties() {
+        return {
+          small: {
+            type: Boolean,
+            value: false
+          }
+        }
+      }
+      ready() {
+        super.ready();
+        // BUG: 初期読み込み時にずれる時があるので時間差で表示
+        Polymer.Async.timeOut.run( _ => {
+          this.shadowRoot.querySelector('paper-badge').hidden = false;
+          this.shadowRoot.querySelector('paper-badge').updatePosition();
+        }, 1000);
+      }
+    }
+    customElements.define(PolymerJpTitle.is, PolymerJpTitle);
+  </script>
+</dom-module>

@@ -10,7 +10,6 @@
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
-<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../bower_components/iron-media-query/iron-media-query.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
@@ -21,7 +20,6 @@
 <link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-progress/paper-progress.html">
 <link rel="import" href="../bower_components/paper-toast/paper-toast.html">
-<link rel="import" href="../bower_components/paper-badge/paper-badge.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-app.html">
 <link rel="import" href="../bower_components/polymerfire/firebase-messaging.html">
 <link rel="import" href="../bower_components/polymerfire/firestore-element.html">
@@ -29,6 +27,7 @@
 
 <link rel="import" href="polymer-jp-gtm.html">
 <link rel="import" href="polymer-jp-icons.html">
+<link rel="import" href="polymer-jp-title.html">
 
 <dom-module id="polymer-jp">
   <template>
@@ -49,6 +48,9 @@
       app-header {
         background-color: var(--app-background-color);
         color: var(--app-text-color);
+      }
+      app-toolbar{
+        @apply --layout-horizontal;
       }
       app-toolbar paper-icon-button {
         color: #6b6b6b;
@@ -91,41 +93,15 @@
         --paper-toast-background-color: white;
         --paper-toast-color: #555;
       }
-      paper-badge {
-        --paper-badge-width: 45px;
-        --paper-badge: {
-          border-radius: 10px;
-          font-weight: bold;
-        }
-      }
       polymer-jp-marked {
         min-height: 80vh;
       }
-      .logo {
-        height: 24px;
-        margin: 0px 12px 0px 0px;
-        vertical-align: middle;
-      }
-      div[main-title] {
-        white-space: nowrap;
-        font-size: 22px;
+      polymer-jp-title {
+        @apply(--layout-flex);
       }
       .back-toolbar {
         background: #337ab7 url(/assets/textures/section-gradient-light.png) repeat-x center bottom;
         background-size: 10px;
-      }
-      .back-logo {
-        color: white;
-        margin-right: 6px;
-        height: 32px;
-        width: 40px;
-      }
-      .back-text {
-        color: white;
-        font-size: 22px;
-        white-space: nowrap;
-        user-select: none;
-        cursor: default;
       }
       nav {
         @apply --layout-horizontal;
@@ -140,9 +116,6 @@
         box-sizing: border-box;
         text-decoration: none;
         color: #4d4d4d;
-      }
-      .flex {
-        @apply --layout-flex;
       }
       .menu {
         margin-left: -8px;
@@ -197,9 +170,7 @@
           <template is="dom-if" if="[[smallScreen]]">
             <paper-icon-button class="menu" icon="i:[[_menu]]" on-tap="_drawerToggle"></paper-icon-button>
           </template>
-          <a href="/"><img class="logo" src="/assets/logos/polymer-jp-logo-mark.svg" drawer-toggle></a>
-          <div main-title><span>Polymer Japan <paper-badge label="BETA" hidden></paper-badge></span></div>
-          <div class="flex"></div>
+          <polymer-jp-title></polymer-jp-title>
           <template is="dom-if" if="[[!smallScreen]]">
             <nav>
               <iron-selector attr-for-selected="name" selected="{{_selectedId}}">
@@ -221,8 +192,7 @@
           <app-drawer slot="drawer" swipe-open on-opened-changed="_iconMenu">
 
             <app-toolbar class="back-toolbar">
-              <a href="/"><iron-icon icon="i:polymer" class="back-logo"></iron-icon></a>
-              <div class="back-text">Polymer JP</div>
+              <polymer-jp-title small></polymer-jp-title>
             </app-toolbar>
 
             <paper-listbox attr-for-selected="name" selected="{{_selectedId}}">
@@ -340,12 +310,6 @@
             });
           });
         }
-
-        // BUG: 初期読み込み時にずれる時があるので
-        Polymer.Async.timeOut.run(_=>{
-          this.shadowRoot.querySelector('paper-badge').hidden=false;
-          this.shadowRoot.querySelector('paper-badge').updatePosition();
-        }, 1000);
 
         Polymer.importHref(this.importPath+"polymer-jp-marked.html");
         Polymer.importHref(this.importPath+"polymer-jp-inquery.html");

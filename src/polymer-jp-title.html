@@ -54,7 +54,7 @@
       <div class="area">
         <a href="/" class="link">
           <img class="svg-logo" src="/assets/logos/polymer-jp-logo-mark.svg">
-          <p class="text">Polymer Japan <paper-badge label="BETA" hidden></paper-badge></p>
+          <p class="text">Polymer Japan <paper-badge label="BETA"></paper-badge></p>
         </a>
       </div>
     </template>
@@ -77,14 +77,6 @@
             value: false
           }
         }
-      }
-      ready() {
-        super.ready();
-        // BUG: 初期読み込み時にずれる時があるので時間差で表示
-        Polymer.Async.timeOut.run( _ => {
-          this.shadowRoot.querySelector('paper-badge').hidden = false;
-          this.shadowRoot.querySelector('paper-badge').updatePosition();
-        }, 1000);
       }
     }
     customElements.define(PolymerJpTitle.is, PolymerJpTitle);

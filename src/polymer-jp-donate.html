@@ -1,0 +1,97 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<script src="https://js.stripe.com/v3/"></script>
+
+<dom-module id="polymer-jp-donate">
+
+  <template>
+    <style>
+      #payment-request {
+        display: inline-block;
+        width: 200px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+
+    <div id="payment-request">
+      <div id="payment-request-button" hidden$="[[_sourceId]]"></div>
+    </div>
+
+    <iron-ajax
+      auto="[[_sourceId]]"
+      url="/donate?sid=[[_sourceId]]"
+      handle-as="text"
+      last-response="{{_donateResponse}}"></iron-ajax>
+
+    <div id="donate-response" hidden$="[[!_sourceId]]">[[_donateResponse]]</div>
+
+  </template>
+  <script>
+
+    class PolymerJpDonate extends Polymer.Element {
+
+      static get is() { return 'polymer-jp-donate'; }
+
+      static get properties() { return {
+
+        pubKey: String,
+
+        amount: Number,
+
+        _sourceId: String,
+
+      }}
+
+      ready(){
+        super.ready();
+
+        if(! this.pubKey || ! this.amount){
+          throw new Error();
+        }
+
+        const stripe = Stripe(this.pubKey);
+
+        const paymentRequest = stripe.paymentRequest({
+          country: 'JP',
+          currency: 'jpy',
+          total: {
+            label: '合計',
+            amount: this.amount,
+          },
+        });
+
+        paymentRequest.on('source', e => {
+          try {
+            this.set('_sourceId',e.source.id);
+            this.set('_donateResponse','...');
+            e.complete('success');
+          } catch (error) {
+            e.complete('fail');
+          }
+        });
+
+        paymentRequest.canMakePayment().then(ok=>{
+          if (ok) {
+            stripe.elements().create('paymentRequestButton', {
+              paymentRequest,
+              style: {
+                paymentRequestButton: {
+                  type: 'donate',
+                  theme: 'light-outline',
+                },
+              },
+            }).mount(this.shadowRoot.querySelector('#payment-request-button'));
+          }
+        });
+
+      }
+
+    }
+
+    customElements.define(PolymerJpDonate.is, PolymerJpDonate);
+
+  </script>
+
+</dom-module>

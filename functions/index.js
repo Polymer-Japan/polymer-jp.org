@@ -11,6 +11,7 @@ const Feed = require('feed');
 const request = require('request');
 const config = functions.config();
 const crypto = require('crypto');
+const stripe = require("stripe")(config.stripe.token);
 
 exports.subs = functions.https.onRequest((req, res) => {
 
@@ -226,3 +227,33 @@ exports.app = functions.https.onRequest((req, res) => {
     });
 
 })
+
+// stripe
+exports.donate = functions.https.onRequest((req, res) => {
+
+  if(! config.stripe.token || ! req.query['sid'] || ! req.query['sid'].match(/^src_/)){
+    return res.status(501).end();
+  }
+
+  // TODO: for debug
+  /*
+  if(req.headers.origin && req.headers.origin.match(/localhost:|.ngrok.io/)){
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  }
+  */
+
+  stripe.charges.create({
+    amount: config.stripe.amount,
+    currency: "jpy",
+    source: req.query.sid,
+    description: "Polymer-jp donate"
+  }, (err, charge)=>{
+    console.log('err',err,'charge',charge);
+    if(err){
+      return res.status(500).end();
+    }
+    res.send('Thank you!!');
+  });
+
+});

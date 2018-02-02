@@ -243,7 +243,7 @@
           _sanitizeConfig: {
             type: Object,
             value: {
-              elements: ['a','img','md-button','md-card','md-grid','md-list','iron-icon'],
+              elements: ['a','img','md-button','md-card','md-grid','md-list','iron-icon','polymer-jp-donate'],
               attributes: {
                 a: ['href','title'],
                 img: ['class','src','style'],
@@ -252,6 +252,7 @@
                 'md-list': ['path'],
                 'md-grid': ['columns','gutter'],
                 'iron-icon': ['icon'],
+                'polymer-jp-donate': ['pub-key','amount'],
               },
               protocols: {
                 a:{ href: ['http','https'] },
@@ -298,6 +299,7 @@
 
         Polymer.importHref(this.importPath+"polymer-jp-marked-edit.html");
         Polymer.importHref(this.importPath+"polymer-jp-md-components.html");
+        Polymer.importHref(this.importPath+"polymer-jp-donate.html");
 
         this._lazyLoad = new LazyLoad();
 

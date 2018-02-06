@@ -4,10 +4,11 @@
   "dependencies": {
     "feed": "^1.1.1",
     "firebase-admin": "^5.5.0",
-    "firebase-functions": "^0.7.3",
+    "firebase-functions": "^0.8.1",
     "google-spreadsheet": "^2.0.4",
     "request": "^2.83.0",
-    "sitemap": "^1.13.0"
+    "sitemap": "^1.13.0",
+    "stripe": "^5.4.0"
   },
   "private": true
 }

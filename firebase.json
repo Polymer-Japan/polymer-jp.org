@@ -15,6 +15,9 @@
         "source": "/push",
         "function": "push"
       }, {
+        "source": "/donate",
+        "function": "donate"
+      }, {
         "source": "/!(*.*|apple-app-site-association)",
         "function": "app"
       },{

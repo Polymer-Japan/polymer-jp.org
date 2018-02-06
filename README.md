@@ -100,3 +100,8 @@ $ travis encrypt -r "FIREBASE_TOKEN" -a
 # - 崩れた内容を修正
 $ emacs .travis.yml
 ```
+## Stripe
+
+```
+firebase functions:config:set stripe.token="sk_test_************" stripe.amount=100
+```

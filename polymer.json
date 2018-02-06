@@ -5,6 +5,7 @@
     "src/polymer-jp-marked.html",
     "src/polymer-jp-marked-edit.html",
     "src/polymer-jp-md-components.html",
+    "src/polymer-jp-donate.html",
     "src/polymer-jp-theme.html",
     "src/polymer-jp-inquery.html"
   ],
@@ -16,7 +17,8 @@
   ],
   "extraDependencies": [
     "manifest.json",
-    "bower_components/webcomponentsjs/*.js"
+    "bower_components/webcomponentsjs/*.js",
+    ".well-known/apple-developer-merchantid-domain-association"
   ],
   "builds": [{
     "name": "default",
